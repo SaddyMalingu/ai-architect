@@ -3,82 +3,199 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Architect Cloud Demo</title>
+  <title>AI Architect Cloud Studio</title>
   <link rel="icon" href="data:," />
   <style>
     :root {
-      --bg: #f6f8fb;
-      --ink: #111827;
-      --muted: #6b7280;
+      --bg: #f3f7fb;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #d9e1ea;
       --panel: #ffffff;
-      --line: #dbe2ea;
       --accent: #0f766e;
-      --accent2: #0b5f58;
+      --accent-2: #155e75;
+      --soft: #ecfeff;
+      --warn: #991b1b;
+      --ok: #166534;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       color: var(--ink);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       background:
-        radial-gradient(circle at 8% -10%, #e9fff7 0%, transparent 48%),
-        radial-gradient(circle at 100% 0%, #ecf8ff 0%, transparent 45%),
+        radial-gradient(circle at 4% -8%, #e7fff6 0%, transparent 42%),
+        radial-gradient(circle at 102% 2%, #eaf8ff 0%, transparent 44%),
         var(--bg);
     }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 28px 16px 52px; }
-    h1 { margin: 0; font-size: 1.9rem; }
-    .sub { margin: 8px 0 20px; color: var(--muted); }
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: .2px;
+    }
+    .sub {
+      color: var(--muted);
+      margin: 8px 0 20px;
+    }
     .card {
+      background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 14px;
-      background: var(--panel);
-      padding: 16px;
+      padding: 14px;
       margin-bottom: 14px;
-      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
     }
-    .grid { display: grid; gap: 12px; }
-    .row { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-    label { display: block; font-size: .9rem; margin-bottom: 6px; color: #334155; }
-    input, textarea, button {
+    .row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    label {
+      display: block;
+      font-size: .87rem;
+      margin-bottom: 4px;
+      color: #334155;
+    }
+    input, select, textarea, button {
       width: 100%;
       border: 1px solid #cbd5e1;
       border-radius: 10px;
       padding: 10px 11px;
-      font-size: .95rem;
+      font-size: .93rem;
       background: #fff;
     }
-    textarea { min-height: 90px; resize: vertical; }
+    textarea { resize: vertical; min-height: 78px; }
     button {
-      border: 0;
-      color: #fff;
-      font-weight: 600;
       cursor: pointer;
-      background: linear-gradient(130deg, var(--accent), var(--accent2));
+      border: 0;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(130deg, var(--accent), var(--accent-2));
     }
     button:disabled { opacity: .65; cursor: not-allowed; }
-    .hint { color: var(--muted); font-size: .9rem; }
+    .btn-soft {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1.25fr .95fr;
+      gap: 14px;
+      align-items: start;
+    }
+    @media (max-width: 980px) {
+      .split { grid-template-columns: 1fr; }
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #1e293b;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: .86rem;
+      cursor: pointer;
+    }
+    .tab.active {
+      background: var(--soft);
+      border-color: #99f6e4;
+      color: #0f766e;
+      font-weight: 700;
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .hint {
+      color: var(--muted);
+      font-size: .86rem;
+      margin-top: 6px;
+    }
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .9rem;
+      color: #334155;
+      margin: 3px 0 2px;
+    }
+    .toggle input { width: auto; }
+    .status-ok { color: var(--ok); font-weight: 600; }
+    .status-bad { color: var(--warn); font-weight: 600; }
     .mono {
-      margin-top: 10px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: .84rem;
+      font-size: .82rem;
       white-space: pre-wrap;
       word-break: break-word;
       border: 1px solid var(--line);
       border-radius: 10px;
-      padding: 10px;
       background: #f8fafc;
+      padding: 10px;
+      min-height: 132px;
+      max-height: 340px;
+      overflow: auto;
+      margin-top: 8px;
     }
-    .status-ok { color: #166534; }
-    .status-bad { color: #b91c1c; }
-    img { width: 100%; max-width: 760px; display: none; border: 1px solid var(--line); border-radius: 10px; margin-top: 10px; }
+    .image {
+      width: 100%;
+      max-width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      display: none;
+      margin-top: 8px;
+      background: #fff;
+    }
+    .list {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+      max-height: 640px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+    }
+    .item h4 {
+      margin: 0 0 6px;
+      font-size: .93rem;
+      word-break: break-word;
+    }
+    .item p {
+      margin: 2px 0;
+      color: #475569;
+      font-size: .82rem;
+    }
+    .pill {
+      display: inline-block;
+      font-size: .74rem;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: #e2e8f0;
+      color: #0f172a;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+    .pill.good { background: #dcfce7; color: #166534; }
+    .pill.bad { background: #fee2e2; color: #991b1b; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>AI Architect Cloud Demo</h1>
-    <p class="sub">Share this page with stakeholders to test the live Supabase + Replicate render flow.</p>
+    <h1>AI Architect Cloud Studio</h1>
+    <p class="sub">Full-stack demo UI with render, regional edit, request status tracking, history, and consistency controls.</p>
 
-    <div class="card grid">
+    <div class="card">
       <div class="row">
         <div>
           <label for="supabaseUrl">Supabase URL</label>
@@ -88,136 +205,509 @@
           <label for="anonKey">Supabase Anon Key</label>
           <input id="anonKey" placeholder="eyJ..." />
         </div>
-      </div>
-      <p class="hint">Values are saved in browser local storage for quick retesting.</p>
-    </div>
-
-    <div class="card grid">
-      <div class="row">
         <div>
           <label for="userId">User UUID</label>
           <input id="userId" placeholder="ec470708-d89c-4575-9d94-b57cd681bb8b" />
         </div>
-        <div>
-          <label for="style">Style</label>
-          <input id="style" value="photoreal exterior" />
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div class="toggle">
+          <input type="checkbox" id="consistencyMode" checked />
+          <label for="consistencyMode" style="margin:0">Consistency mode (locks profile to balanced and keeps defaults stable)</label>
         </div>
       </div>
-      <div>
-        <label for="prompt">Prompt</label>
-        <textarea id="prompt">Modern 2-storey facade, warm evening lighting</textarea>
-      </div>
-      <button id="runBtn">Run Render</button>
-      <div id="status" class="hint">Idle</div>
+      <p class="hint">Config is stored in your browser for fast retesting.</p>
     </div>
 
-    <div class="card">
-      <strong>Last API Response</strong>
-      <pre id="response" class="mono">No calls yet.</pre>
-      <img id="renderImg" alt="Generated render" />
+    <div class="split">
+      <div>
+        <div class="card">
+          <div class="tabs">
+            <button class="tab active" data-tab="renderTab" type="button">Render</button>
+            <button class="tab" data-tab="regionalTab" type="button">Regional Edit</button>
+            <button class="tab" data-tab="statusTab" type="button">Request Status</button>
+          </div>
+
+          <div id="renderTab" class="panel active" style="margin-top:12px">
+            <div class="row">
+              <div>
+                <label for="renderStyle">Style</label>
+                <input id="renderStyle" value="photoreal exterior" />
+              </div>
+              <div>
+                <label for="renderProfile">Model profile</label>
+                <select id="renderProfile">
+                  <option value="fast">fast</option>
+                  <option value="balanced" selected>balanced</option>
+                  <option value="quality">quality</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top:8px">
+              <label for="renderPrompt">Prompt</label>
+              <textarea id="renderPrompt">Modern 2-storey facade, warm evening lighting</textarea>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div><button id="runRenderBtn" type="button">Run Render</button></div>
+              <div><button id="pollLatestBtn" class="btn-soft" type="button">Poll Latest Request</button></div>
+            </div>
+          </div>
+
+          <div id="regionalTab" class="panel" style="margin-top:12px">
+            <div class="row">
+              <div>
+                <label for="editCategory">Edit category</label>
+                <select id="editCategory">
+                  <option value="element_texture" selected>element_texture</option>
+                  <option value="whole_building">whole_building</option>
+                  <option value="prompt_only">prompt_only</option>
+                </select>
+              </div>
+              <div>
+                <label for="selectionMode">Selection mode</label>
+                <select id="selectionMode">
+                  <option value="automatic" selected>automatic</option>
+                  <option value="manual">manual</option>
+                </select>
+              </div>
+              <div>
+                <label for="editProfile">Model profile</label>
+                <select id="editProfile">
+                  <option value="fast">fast</option>
+                  <option value="balanced" selected>balanced</option>
+                  <option value="quality">quality</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top:8px">
+              <label for="editPrompt">Edit prompt</label>
+              <textarea id="editPrompt">Apply warm wood facade texture to selected area</textarea>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div>
+                <label for="targetImageUrl">Target image URL (required)</label>
+                <input id="targetImageUrl" placeholder="https://.../target.png" />
+              </div>
+              <div>
+                <label for="referenceImageUrl">Reference image URL (optional)</label>
+                <input id="referenceImageUrl" placeholder="https://.../reference.png" />
+              </div>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div>
+                <label for="targetMaskUrl">Target mask URL (required for manual mode)</label>
+                <input id="targetMaskUrl" placeholder="https://.../mask.png" />
+              </div>
+              <div>
+                <label for="strength">Strength (0.0 - 1.0)</label>
+                <input id="strength" type="number" min="0" max="1" step="0.05" value="0.65" />
+              </div>
+            </div>
+            <div style="margin-top:8px">
+              <button id="runRegionalBtn" type="button">Run Regional Edit</button>
+            </div>
+          </div>
+
+          <div id="statusTab" class="panel" style="margin-top:12px">
+            <div class="row">
+              <div>
+                <label for="requestId">Request ID</label>
+                <input id="requestId" placeholder="paste request_id" />
+              </div>
+              <div style="display:flex; align-items:end; gap:8px">
+                <button id="checkStatusBtn" type="button">Check Status</button>
+              </div>
+            </div>
+            <p class="hint">Tip: latest request ID is auto-saved after each render/edit call.</p>
+          </div>
+
+          <div style="margin-top:10px">
+            <div id="statusText" class="hint">Idle.</div>
+            <pre id="responseBox" class="mono">No API calls yet.</pre>
+            <img id="resultImage" class="image" alt="Result image" />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="row" style="grid-template-columns: 1fr auto; align-items:end;">
+            <div>
+              <label for="historyLimit">History limit</label>
+              <input id="historyLimit" type="number" min="1" max="50" value="10" />
+            </div>
+            <div>
+              <button id="loadHistoryBtn" class="btn-soft" type="button">Load History</button>
+            </div>
+          </div>
+          <div id="historyList" class="list"></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     const $ = (id) => document.getElementById(id);
-    const el = {
+    const ui = {
       supabaseUrl: $("supabaseUrl"),
       anonKey: $("anonKey"),
       userId: $("userId"),
-      style: $("style"),
-      prompt: $("prompt"),
-      runBtn: $("runBtn"),
-      status: $("status"),
-      response: $("response"),
-      renderImg: $("renderImg")
+      consistencyMode: $("consistencyMode"),
+      renderStyle: $("renderStyle"),
+      renderProfile: $("renderProfile"),
+      renderPrompt: $("renderPrompt"),
+      runRenderBtn: $("runRenderBtn"),
+      pollLatestBtn: $("pollLatestBtn"),
+      editCategory: $("editCategory"),
+      selectionMode: $("selectionMode"),
+      editProfile: $("editProfile"),
+      editPrompt: $("editPrompt"),
+      targetImageUrl: $("targetImageUrl"),
+      referenceImageUrl: $("referenceImageUrl"),
+      targetMaskUrl: $("targetMaskUrl"),
+      strength: $("strength"),
+      runRegionalBtn: $("runRegionalBtn"),
+      requestId: $("requestId"),
+      checkStatusBtn: $("checkStatusBtn"),
+      historyLimit: $("historyLimit"),
+      loadHistoryBtn: $("loadHistoryBtn"),
+      historyList: $("historyList"),
+      statusText: $("statusText"),
+      responseBox: $("responseBox"),
+      resultImage: $("resultImage")
     };
 
     const ls = {
-      url: "demo.supabase.url",
-      key: "demo.supabase.key",
-      user: "demo.supabase.user"
+      base: "cloudstudio.base",
+      anon: "cloudstudio.anon",
+      user: "cloudstudio.user",
+      latestRequest: "cloudstudio.latestRequest"
     };
 
-    el.supabaseUrl.value = localStorage.getItem(ls.url) || "";
-    el.anonKey.value = localStorage.getItem(ls.key) || "";
-    el.userId.value = localStorage.getItem(ls.user) || "";
+    function loadDefaults() {
+      ui.supabaseUrl.value = localStorage.getItem(ls.base) || "https://eccvtkqkllegzbypaemw.supabase.co";
+      ui.anonKey.value = localStorage.getItem(ls.anon) || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjY3Z0a3FrbGxlZ3pieXBhZW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTcxODcsImV4cCI6MjA5MTgzMzE4N30.F6ylVSRrYjOlOSZBYEBmuwpfrxBbeF74DImUNSspIgY";
+      ui.userId.value = localStorage.getItem(ls.user) || "ec470708-d89c-4575-9d94-b57cd681bb8b";
+      ui.requestId.value = localStorage.getItem(ls.latestRequest) || "";
+    }
 
-      // Pre-fill defaults so stakeholders can run immediately without setup.
-      if (!el.supabaseUrl.value) el.supabaseUrl.value = "https://eccvtkqkllegzbypaemw.supabase.co";
-      if (!el.anonKey.value) el.anonKey.value = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjY3Z0a3FrbGxlZ3pieXBhZW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTcxODcsImV4cCI6MjA5MTgzMzE4N30.F6ylVSRrYjOlOSZBYEBmuwpfrxBbeF74DImUNSspIgY";
-      if (!el.userId.value) el.userId.value = "ec470708-d89c-4575-9d94-b57cd681bb8b";
+    function saveConfig() {
+      localStorage.setItem(ls.base, ui.supabaseUrl.value.trim().replace(/\/$/, ""));
+      localStorage.setItem(ls.anon, ui.anonKey.value.trim());
+      localStorage.setItem(ls.user, ui.userId.value.trim());
+    }
 
-    function setStatus(text, ok = true) {
-      el.status.textContent = text;
-      el.status.className = ok ? "status-ok" : "status-bad";
+    function setStatus(text, ok) {
+      ui.statusText.textContent = text;
+      if (ok === true) {
+        ui.statusText.className = "status-ok";
+      } else if (ok === false) {
+        ui.statusText.className = "status-bad";
+      } else {
+        ui.statusText.className = "hint";
+      }
     }
 
     function showJson(data) {
-      el.response.textContent = JSON.stringify(data, null, 2);
+      ui.responseBox.textContent = JSON.stringify(data, null, 2);
+    }
+
+    function setLatestRequestId(requestId) {
+      if (!requestId) return;
+      ui.requestId.value = requestId;
+      localStorage.setItem(ls.latestRequest, requestId);
+    }
+
+    function authHeaders() {
+      const anon = ui.anonKey.value.trim();
+      return {
+        "Content-Type": "application/json",
+        apikey: anon,
+        Authorization: "Bearer " + anon
+      };
+    }
+
+    function baseUrl() {
+      return ui.supabaseUrl.value.trim().replace(/\/$/, "");
+    }
+
+    async function parseResponse(response) {
+      try {
+        return await response.json();
+      } catch {
+        return { error: "Non-JSON response" };
+      }
+    }
+
+    function applyConsistencyMode() {
+      if (!ui.consistencyMode.checked) return;
+      ui.renderProfile.value = "balanced";
+      ui.editProfile.value = "balanced";
+      if (!ui.renderStyle.value.trim()) {
+        ui.renderStyle.value = "photoreal exterior";
+      }
     }
 
     async function runRender() {
-      const base = el.supabaseUrl.value.trim().replace(/\/$/, "");
-      const anon = el.anonKey.value.trim();
-      const userId = el.userId.value.trim();
-      const prompt = el.prompt.value.trim();
-      const style = el.style.value.trim();
+      saveConfig();
+      applyConsistencyMode();
 
-      if (!base || !anon || !userId || !prompt) {
-        setStatus("Fill Supabase URL, anon key, user UUID, and prompt.", false);
+      const b = baseUrl();
+      const body = {
+        user_id: ui.userId.value.trim(),
+        prompt: ui.renderPrompt.value.trim(),
+        style: ui.renderStyle.value.trim(),
+        model_profile: ui.renderProfile.value
+      };
+
+      if (!body.user_id || !body.prompt) {
+        setStatus("user_id and prompt are required for render.", false);
         return;
       }
 
-      localStorage.setItem(ls.url, base);
-      localStorage.setItem(ls.key, anon);
-      localStorage.setItem(ls.user, userId);
-
-      el.runBtn.disabled = true;
-      setStatus("Calling /render ...", true);
-      el.renderImg.style.display = "none";
+      ui.runRenderBtn.disabled = true;
+      setStatus("Calling /render ...", null);
+      ui.resultImage.style.display = "none";
 
       try {
-        const response = await fetch(base + "/functions/v1/render", {
+        const res = await fetch(b + "/functions/v1/render", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: anon,
-            Authorization: "Bearer " + anon
-          },
-          body: JSON.stringify({
-            user_id: userId,
-            prompt,
-            style,
-            model_profile: "balanced"
-          })
+          headers: authHeaders(),
+          body: JSON.stringify(body)
         });
-
-        let data;
-        try {
-          data = await response.json();
-        } catch {
-          data = { error: "Non-JSON response" };
-        }
+        const data = await parseResponse(res);
         showJson(data);
 
-        if (!response.ok) {
-          setStatus("Render failed (" + response.status + ")", false);
+        if (!res.ok) {
+          setStatus("Render failed (" + res.status + ")", false);
           return;
         }
 
-        setStatus("Render completed.", true);
-        if (data && data.image_url) {
-          el.renderImg.src = data.image_url;
-          el.renderImg.style.display = "block";
+        setLatestRequestId(data.request_id);
+        setStatus("Render request succeeded.", true);
+        if (data.image_url) {
+          ui.resultImage.src = data.image_url;
+          ui.resultImage.style.display = "block";
         }
       } catch (err) {
         setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
       } finally {
-        el.runBtn.disabled = false;
+        ui.runRenderBtn.disabled = false;
       }
     }
 
-    el.runBtn.addEventListener("click", runRender);
+    async function runRegional() {
+      saveConfig();
+      applyConsistencyMode();
+
+      const b = baseUrl();
+      const payload = {
+        user_id: ui.userId.value.trim(),
+        target_image_url: ui.targetImageUrl.value.trim(),
+        reference_image_url: ui.referenceImageUrl.value.trim() || undefined,
+        prompt: ui.editPrompt.value.trim(),
+        edit_category: ui.editCategory.value,
+        selection_mode: ui.selectionMode.value,
+        target_mask_url: ui.targetMaskUrl.value.trim() || undefined,
+        model_profile: ui.editProfile.value,
+        strength: ui.strength.value ? Number(ui.strength.value) : undefined
+      };
+
+      if (!payload.user_id || !payload.target_image_url || !payload.prompt) {
+        setStatus("user_id, target_image_url, and prompt are required for regional edit.", false);
+        return;
+      }
+      if (payload.selection_mode === "manual" && !payload.target_mask_url) {
+        setStatus("target_mask_url is required for manual selection mode.", false);
+        return;
+      }
+
+      ui.runRegionalBtn.disabled = true;
+      setStatus("Calling /edit-regional ...", null);
+      ui.resultImage.style.display = "none";
+
+      try {
+        const res = await fetch(b + "/functions/v1/edit-regional", {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const data = await parseResponse(res);
+        showJson(data);
+
+        if (!res.ok) {
+          setStatus("Regional edit failed (" + res.status + ")", false);
+          return;
+        }
+
+        setLatestRequestId(data.request_id);
+        setStatus("Regional edit succeeded.", true);
+        if (data.image_url) {
+          ui.resultImage.src = data.image_url;
+          ui.resultImage.style.display = "block";
+        }
+      } catch (err) {
+        setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
+      } finally {
+        ui.runRegionalBtn.disabled = false;
+      }
+    }
+
+    async function checkStatus() {
+      saveConfig();
+      const requestId = ui.requestId.value.trim();
+      if (!requestId) {
+        setStatus("request_id is required.", false);
+        return;
+      }
+
+      const b = baseUrl();
+      const u = ui.userId.value.trim();
+      setStatus("Checking /render-status ...", null);
+
+      try {
+        const url = b + "/functions/v1/render-status?request_id=" + encodeURIComponent(requestId) + "&user_id=" + encodeURIComponent(u);
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            apikey: ui.anonKey.value.trim(),
+            Authorization: "Bearer " + ui.anonKey.value.trim()
+          }
+        });
+        const data = await parseResponse(res);
+        showJson(data);
+
+        if (!res.ok) {
+          setStatus("Status check failed (" + res.status + ")", false);
+          return;
+        }
+
+        setStatus("Status: " + data.status, data.status === "completed");
+        if (data.image_url) {
+          ui.resultImage.src = data.image_url;
+          ui.resultImage.style.display = "block";
+        }
+      } catch (err) {
+        setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
+      }
+    }
+
+    async function pollLatest() {
+      const maxTries = 20;
+      let attempt = 0;
+      setStatus("Polling latest request status ...", null);
+
+      while (attempt < maxTries) {
+        await checkStatus();
+        let parsed = null;
+        try {
+          parsed = JSON.parse(ui.responseBox.textContent);
+        } catch {
+          return;
+        }
+        if (!parsed) return;
+        if (parsed.status === "completed" || parsed.status === "failed" || parsed.status === "canceled") {
+          return;
+        }
+        attempt += 1;
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+      setStatus("Polling timed out. Check status manually.", false);
+    }
+
+    function historyItemHtml(item) {
+      const statusPill = item.status === "completed"
+        ? '<span class="pill good">completed</span>'
+        : item.status === "failed"
+          ? '<span class="pill bad">failed</span>'
+          : '<span class="pill">' + item.status + '</span>';
+
+      const modelPill = item.model_profile ? '<span class="pill">profile: ' + item.model_profile + '</span>' : '';
+      const img = item.image_url
+        ? '<img src="' + item.image_url + '" class="image" style="display:block; margin-top:6px" alt="history image" />'
+        : '';
+
+      return (
+        '<div class="item">' +
+          '<h4>' + (item.prompt || '(no prompt)') + '</h4>' +
+          '<div>' + statusPill + modelPill + '</div>' +
+          '<p><strong>request_id:</strong> ' + item.request_id + '</p>' +
+          '<p><strong>style:</strong> ' + (item.style || '-') + '</p>' +
+          '<p><strong>latency_ms:</strong> ' + (item.latency_ms == null ? '-' : item.latency_ms) + '</p>' +
+          (item.error ? '<p style="color:#991b1b"><strong>error:</strong> ' + item.error + '</p>' : '') +
+          img +
+        '</div>'
+      );
+    }
+
+    async function loadHistory() {
+      saveConfig();
+      const b = baseUrl();
+      const u = ui.userId.value.trim();
+      const limit = Number(ui.historyLimit.value || 10);
+      setStatus("Loading /render-history ...", null);
+
+      try {
+        const url = b + "/functions/v1/render-history?user_id=" + encodeURIComponent(u) + "&limit=" + encodeURIComponent(String(limit)) + "&offset=0";
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            apikey: ui.anonKey.value.trim(),
+            Authorization: "Bearer " + ui.anonKey.value.trim()
+          }
+        });
+        const data = await parseResponse(res);
+        showJson(data);
+
+        if (!res.ok) {
+          setStatus("History failed (" + res.status + ")", false);
+          return;
+        }
+
+        const items = Array.isArray(data.items) ? data.items : [];
+        if (!items.length) {
+          ui.historyList.innerHTML = '<div class="item"><p>No history items yet.</p></div>';
+        } else {
+          ui.historyList.innerHTML = items.map(historyItemHtml).join("");
+        }
+        setStatus("History loaded.", true);
+      } catch (err) {
+        setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
+      }
+    }
+
+    function setupTabs() {
+      const tabs = Array.from(document.querySelectorAll(".tab"));
+      const panels = {
+        renderTab: document.getElementById("renderTab"),
+        regionalTab: document.getElementById("regionalTab"),
+        statusTab: document.getElementById("statusTab")
+      };
+
+      tabs.forEach((t) => {
+        t.addEventListener("click", () => {
+          tabs.forEach((x) => x.classList.remove("active"));
+          t.classList.add("active");
+          Object.keys(panels).forEach((k) => panels[k].classList.remove("active"));
+          const key = t.getAttribute("data-tab");
+          if (panels[key]) panels[key].classList.add("active");
+        });
+      });
+    }
+
+    function bindEvents() {
+      ui.runRenderBtn.addEventListener("click", runRender);
+      ui.runRegionalBtn.addEventListener("click", runRegional);
+      ui.checkStatusBtn.addEventListener("click", checkStatus);
+      ui.pollLatestBtn.addEventListener("click", pollLatest);
+      ui.loadHistoryBtn.addEventListener("click", loadHistory);
+      ui.consistencyMode.addEventListener("change", applyConsistencyMode);
+    }
+
+    loadDefaults();
+    applyConsistencyMode();
+    setupTabs();
+    bindEvents();
   </script>
 </body>
 </html>
