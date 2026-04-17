@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Architect Cloud Demo</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --ink: #111827;
+      --muted: #6b7280;
+      --panel: #ffffff;
+      --line: #dbe2ea;
+      --accent: #0f766e;
+      --accent2: #0b5f58;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% -10%, #e9fff7 0%, transparent 48%),
+        radial-gradient(circle at 100% 0%, #ecf8ff 0%, transparent 45%),
+        var(--bg);
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 28px 16px 52px; }
+    h1 { margin: 0; font-size: 1.9rem; }
+    .sub { margin: 8px 0 20px; color: var(--muted); }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .grid { display: grid; gap: 12px; }
+    .row { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    label { display: block; font-size: .9rem; margin-bottom: 6px; color: #334155; }
+    input, textarea, button {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 11px;
+      font-size: .95rem;
+      background: #fff;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    button {
+      border: 0;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(130deg, var(--accent), var(--accent2));
+    }
+    button:disabled { opacity: .65; cursor: not-allowed; }
+    .hint { color: var(--muted); font-size: .9rem; }
+    .mono {
+      margin-top: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .84rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: #f8fafc;
+    }
+    .status-ok { color: #166534; }
+    .status-bad { color: #b91c1c; }
+    img { width: 100%; max-width: 760px; display: none; border: 1px solid var(--line); border-radius: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>AI Architect Cloud Demo</h1>
+    <p class="sub">Share this page with stakeholders to test the live Supabase + Replicate render flow.</p>
+
+    <div class="card grid">
+      <div class="row">
+        <div>
+          <label for="supabaseUrl">Supabase URL</label>
+          <input id="supabaseUrl" placeholder="https://YOUR_PROJECT_REF.supabase.co" />
+        </div>
+        <div>
+          <label for="anonKey">Supabase Anon Key</label>
+          <input id="anonKey" placeholder="eyJ..." />
+        </div>
+      </div>
+      <p class="hint">Values are saved in browser local storage for quick retesting.</p>
+    </div>
+
+    <div class="card grid">
+      <div class="row">
+        <div>
+          <label for="userId">User UUID</label>
+          <input id="userId" placeholder="ec470708-d89c-4575-9d94-b57cd681bb8b" />
+        </div>
+        <div>
+          <label for="style">Style</label>
+          <input id="style" value="photoreal exterior" />
+        </div>
+      </div>
+      <div>
+        <label for="prompt">Prompt</label>
+        <textarea id="prompt">Modern 2-storey facade, warm evening lighting</textarea>
+      </div>
+      <button id="runBtn">Run Render</button>
+      <div id="status" class="hint">Idle</div>
+    </div>
+
+    <div class="card">
+      <strong>Last API Response</strong>
+      <pre id="response" class="mono">No calls yet.</pre>
+      <img id="renderImg" alt="Generated render" />
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const el = {
+      supabaseUrl: $("supabaseUrl"),
+      anonKey: $("anonKey"),
+      userId: $("userId"),
+      style: $("style"),
+      prompt: $("prompt"),
+      runBtn: $("runBtn"),
+      status: $("status"),
+      response: $("response"),
+      renderImg: $("renderImg")
+    };
+
+    const ls = {
+      url: "demo.supabase.url",
+      key: "demo.supabase.key",
+      user: "demo.supabase.user"
+    };
+
+    el.supabaseUrl.value = localStorage.getItem(ls.url) || "";
+    el.anonKey.value = localStorage.getItem(ls.key) || "";
+    el.userId.value = localStorage.getItem(ls.user) || "";
+
+      // Pre-fill defaults so stakeholders can run immediately without setup.
+      if (!el.supabaseUrl.value) el.supabaseUrl.value = "https://eccvtkqkllegzbypaemw.supabase.co";
+      if (!el.anonKey.value) el.anonKey.value = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjY3Z0a3FrbGxlZ3pieXBhZW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTcxODcsImV4cCI6MjA5MTgzMzE4N30.F6ylVSRrYjOlOSZBYEBmuwpfrxBbeF74DImUNSspIgY";
+      if (!el.userId.value) el.userId.value = "ec470708-d89c-4575-9d94-b57cd681bb8b";
+
+    function setStatus(text, ok = true) {
+      el.status.textContent = text;
+      el.status.className = ok ? "status-ok" : "status-bad";
+    }
+
+    function showJson(data) {
+      el.response.textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function runRender() {
+      const base = el.supabaseUrl.value.trim().replace(/\/$/, "");
+      const anon = el.anonKey.value.trim();
+      const userId = el.userId.value.trim();
+      const prompt = el.prompt.value.trim();
+      const style = el.style.value.trim();
+
+      if (!base || !anon || !userId || !prompt) {
+        setStatus("Fill Supabase URL, anon key, user UUID, and prompt.", false);
+        return;
+      }
+
+      localStorage.setItem(ls.url, base);
+      localStorage.setItem(ls.key, anon);
+      localStorage.setItem(ls.user, userId);
+
+      el.runBtn.disabled = true;
+      setStatus("Calling /render ...", true);
+      el.renderImg.style.display = "none";
+
+      try {
+        const response = await fetch(base + "/functions/v1/render", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: anon,
+            Authorization: "Bearer " + anon
+          },
+          body: JSON.stringify({
+            user_id: userId,
+            prompt,
+            style,
+            model_profile: "balanced"
+          })
+        });
+
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          data = { error: "Non-JSON response" };
+        }
+        showJson(data);
+
+        if (!response.ok) {
+          setStatus("Render failed (" + response.status + ")", false);
+          return;
+        }
+
+        setStatus("Render completed.", true);
+        if (data && data.image_url) {
+          el.renderImg.src = data.image_url;
+          el.renderImg.style.display = "block";
+        }
+      } catch (err) {
+        setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
+      } finally {
+        el.runBtn.disabled = false;
+      }
+    }
+
+    el.runBtn.addEventListener("click", runRender);
+  </script>
+</body>
+</html>
