@@ -188,12 +188,227 @@
     }
     .pill.good { background: #dcfce7; color: #166534; }
     .pill.bad { background: #fee2e2; color: #991b1b; }
+    .hero {
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(16, 185, 129, .2), transparent 38%),
+        radial-gradient(circle at 98% 4%, rgba(14, 165, 233, .2), transparent 40%),
+        linear-gradient(145deg, #f8fffd 0%, #f3fbff 100%);
+      border: 1px solid #d4e7ef;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+    }
+    .hero h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      letter-spacing: .01em;
+    }
+    .hero p {
+      margin: 7px 0 0;
+      color: #334155;
+      font-size: .9rem;
+    }
+    .workflow {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+    @media (max-width: 820px) {
+      .workflow { grid-template-columns: 1fr 1fr; }
+    }
+    .flow-btn {
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: #ffffff;
+      color: #0f172a;
+      text-align: left;
+      line-height: 1.25;
+      font-size: .84rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .flow-btn span {
+      display: block;
+      color: #475569;
+      font-weight: 500;
+      margin-top: 2px;
+      font-size: .79rem;
+    }
+    .section-title {
+      margin: 12px 0 6px;
+      font-size: .82rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: #0f766e;
+      font-weight: 700;
+    }
+    .grid-views {
+      margin-top: 10px;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (max-width: 700px) {
+      .grid-views { grid-template-columns: 1fr; }
+    }
+    .view-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 8px;
+    }
+    .view-card h5 {
+      margin: 0 0 6px;
+      font-size: .8rem;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .view-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px dashed #cbd5e1;
+      background: #f8fafc;
+    }
+    .view-state {
+      margin-top: 6px;
+      font-size: .78rem;
+      color: #64748b;
+      text-transform: capitalize;
+    }
+    .view-state.ok { color: #166534; font-weight: 700; }
+    .view-state.bad { color: #991b1b; font-weight: 700; }
+    .view-state.work { color: #155e75; font-weight: 700; }
+    .input-previews {
+      margin-top: 8px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    @media (max-width: 840px) {
+      .input-previews { grid-template-columns: 1fr; }
+    }
+    .preview-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 6px;
+      background: #fff;
+    }
+    .preview-card h6 {
+      margin: 0 0 5px;
+      font-size: .76rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #334155;
+    }
+    .preview-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .chip {
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      background: #fff;
+      color: #0f172a;
+      padding: 6px 10px;
+      font-size: .78rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .chip.active {
+      border-color: #67e8f9;
+      background: #ecfeff;
+      color: #0e7490;
+      font-weight: 700;
+    }
+    .mode-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 6px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+    .mode-row label {
+      margin: 0;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      font-size: .88rem;
+      color: #1e293b;
+      cursor: pointer;
+    }
+    .mode-row input {
+      width: auto;
+      margin: 0;
+      padding: 0;
+    }
+    .manual-box {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #f8fafc;
+    }
+    .mask-editor {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0f172a;
+      position: relative;
+      margin-top: 8px;
+    }
+    #maskBackground {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background-size: cover;
+      background-position: center;
+      opacity: .34;
+      pointer-events: none;
+    }
+    #maskCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      cursor: crosshair;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>AI Architect Cloud Studio</h1>
     <p class="sub">Full-stack demo UI with render, regional edit, request status tracking, history, and consistency controls.</p>
+
+    <div class="hero">
+      <h2>Unified Rendering Studio</h2>
+      <p>Built on the currently served production flow with richer controls, view orchestration, and guided regional editing. Existing API routes and core interactions remain unchanged.</p>
+      <div class="workflow">
+        <button class="flow-btn" type="button" data-jump="renderTab">1. Compose Render<span>Prompt, source, reference, background</span></button>
+        <button class="flow-btn" type="button" data-jump="regionalTab">2. Regional Edit<span>Prompt/manual/automatic selection</span></button>
+        <button class="flow-btn" type="button" data-jump="statusTab">3. Track Status<span>Poll request completion</span></button>
+        <button class="flow-btn" type="button" data-jump="history">4. Compare History<span>Evaluate previous outputs</span></button>
+      </div>
+    </div>
 
     <div class="card">
       <div class="row">
@@ -242,18 +457,95 @@
                   <option value="quality">quality</option>
                 </select>
               </div>
+              <div>
+                <label for="activeView">Active output view</label>
+                <select id="activeView">
+                  <option value="front" selected>front</option>
+                  <option value="left">left</option>
+                  <option value="right">right</option>
+                  <option value="back">back</option>
+                </select>
+              </div>
             </div>
             <div style="margin-top:8px">
               <label for="renderPrompt">Prompt</label>
               <textarea id="renderPrompt">Modern 2-storey facade, warm evening lighting</textarea>
             </div>
+            <div class="section-title">Reference Inputs</div>
+            <div class="row" style="margin-top:8px">
+              <div>
+                <label for="renderInputImageUrl">Image to render URL (optional)</label>
+                <input id="renderInputImageUrl" placeholder="https://.../source-house.png" />
+              </div>
+              <div>
+                <label for="renderReferenceImageUrl">Reference image URL (optional)</label>
+                <input id="renderReferenceImageUrl" placeholder="https://.../reference-style.png" />
+              </div>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div>
+                <label for="renderSourceUpload">Uploaded source image (preview / local editing)</label>
+                <input id="renderSourceUpload" type="file" accept="image/*" />
+                <p class="hint">Uploads stay local in this UI. Use an HTTPS URL above for API submission.</p>
+              </div>
+              <div>
+                <img id="renderSourcePreview" class="image" alt="Source preview" />
+              </div>
+            </div>
+            <div class="input-previews">
+              <div class="preview-card">
+                <h6>Main / Uploaded</h6>
+                <img id="renderInputPreview" alt="Main input preview" />
+              </div>
+              <div class="preview-card">
+                <h6>Reference</h6>
+                <img id="renderReferencePreview" alt="Reference preview" />
+              </div>
+              <div class="preview-card">
+                <h6>Background</h6>
+                <img id="renderBackgroundPreview" alt="Background preview" />
+              </div>
+            </div>
+            <div class="section-title">Background Context</div>
+            <div class="row" style="margin-top:8px">
+              <div>
+                <label for="renderBackgroundPreset">Background theme</label>
+                <select id="renderBackgroundPreset">
+                  <option value="">none</option>
+                  <option value="garden">garden</option>
+                  <option value="city">city</option>
+                  <option value="nature">nature</option>
+                  <option value="flowers">flowers</option>
+                </select>
+              </div>
+              <div>
+                <label for="renderBackgroundImageUrl">Background image URL (optional)</label>
+                <input id="renderBackgroundImageUrl" placeholder="https://.../background.png" />
+              </div>
+            </div>
+            <div class="chips" id="backgroundPresetChips">
+              <button class="chip" data-preset="garden" type="button">Garden</button>
+              <button class="chip" data-preset="city" type="button">City</button>
+              <button class="chip" data-preset="nature" type="button">Nature</button>
+              <button class="chip" data-preset="flowers" type="button">Flowers</button>
+              <button class="chip" data-preset="" type="button">None</button>
+            </div>
             <div class="row" style="margin-top:8px">
               <div><button id="runRenderBtn" type="button">Run Render</button></div>
+              <div><button id="runAllViewsBtn" class="btn-soft" type="button">Render All Views</button></div>
               <div><button id="pollLatestBtn" class="btn-soft" type="button">Poll Latest Request</button></div>
             </div>
           </div>
 
           <div id="regionalTab" class="panel" style="margin-top:12px">
+            <div>
+              <label>Regional editing method</label>
+              <div class="mode-row">
+                <label><input type="radio" name="editMethod" value="prompt_based" checked /> Prompt based editing</label>
+                <label><input type="radio" name="editMethod" value="manual_selection" /> Manual selection editing</label>
+                <label><input type="radio" name="editMethod" value="automatic_selection" /> Automatic selection editing</label>
+              </div>
+            </div>
             <div class="row">
               <div>
                 <label for="editCategory">Edit category</label>
@@ -264,11 +556,8 @@
                 </select>
               </div>
               <div>
-                <label for="selectionMode">Selection mode</label>
-                <select id="selectionMode">
-                  <option value="automatic" selected>automatic</option>
-                  <option value="manual">manual</option>
-                </select>
+                <label for="selectionModeDisplay">Selection mode</label>
+                <input id="selectionModeDisplay" value="automatic (derived from method)" disabled />
               </div>
               <div>
                 <label for="editProfile">Model profile</label>
@@ -303,6 +592,35 @@
                 <input id="strength" type="number" min="0" max="1" step="0.05" value="0.65" />
               </div>
             </div>
+            <div id="manualSelectionBox" class="manual-box" style="display:none">
+              <label>Manual selection canvas (mouse / cursor / touch)</label>
+              <div class="row" style="margin-top:6px">
+                <div>
+                  <label for="manualTargetImageUrl">Target image URL for canvas preview (optional)</label>
+                  <input id="manualTargetImageUrl" placeholder="https://.../target.png" />
+                </div>
+                <div>
+                  <label for="manualTargetUpload">Or upload target image</label>
+                  <input id="manualTargetUpload" type="file" accept="image/*" />
+                </div>
+              </div>
+              <div class="row" style="margin-top:8px">
+                <div><button id="loadManualImageBtn" class="btn-soft" type="button">Load Target For Selection</button></div>
+                <div>
+                  <label for="maskBrushSize">Brush size</label>
+                  <input id="maskBrushSize" type="range" min="2" max="40" value="14" />
+                </div>
+                <div><button id="clearMaskBtn" class="btn-soft" type="button">Clear Mask</button></div>
+              </div>
+              <div class="mask-editor">
+                <div id="maskBackground"></div>
+                <canvas id="maskCanvas" width="1280" height="720"></canvas>
+              </div>
+              <div class="row" style="margin-top:8px">
+                <div><button id="downloadMaskBtn" class="btn-soft" type="button">Download Mask PNG</button></div>
+                <div><p class="hint" style="margin:10px 0 0">Upload the downloaded PNG and paste its HTTPS URL into target mask URL.</p></div>
+              </div>
+            </div>
             <div style="margin-top:8px">
               <button id="runRegionalBtn" type="button">Run Regional Edit</button>
             </div>
@@ -325,12 +643,35 @@
             <div id="statusText" class="hint">Idle.</div>
             <pre id="responseBox" class="mono">No API calls yet.</pre>
             <img id="resultImage" class="image" alt="Result image" />
+            <div class="section-title">Main Image Views</div>
+            <div class="grid-views">
+              <div class="view-card">
+                <h5>Front</h5>
+                <img id="viewFrontImage" alt="Front render" />
+                <div id="viewFrontState" class="view-state">waiting</div>
+              </div>
+              <div class="view-card">
+                <h5>Left</h5>
+                <img id="viewLeftImage" alt="Left render" />
+                <div id="viewLeftState" class="view-state">waiting</div>
+              </div>
+              <div class="view-card">
+                <h5>Right</h5>
+                <img id="viewRightImage" alt="Right render" />
+                <div id="viewRightState" class="view-state">waiting</div>
+              </div>
+              <div class="view-card">
+                <h5>Back</h5>
+                <img id="viewBackImage" alt="Back render" />
+                <div id="viewBackState" class="view-state">waiting</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div>
-        <div class="card">
+        <div class="card" id="historySection">
           <div class="row" style="grid-template-columns: 1fr auto; align-items:end;">
             <div>
               <label for="historyLimit">History limit</label>
@@ -356,16 +697,37 @@
       renderStyle: $("renderStyle"),
       renderProfile: $("renderProfile"),
       renderPrompt: $("renderPrompt"),
+      activeView: $("activeView"),
+      renderInputImageUrl: $("renderInputImageUrl"),
+      renderReferenceImageUrl: $("renderReferenceImageUrl"),
+      renderSourceUpload: $("renderSourceUpload"),
+      renderSourcePreview: $("renderSourcePreview"),
+      renderInputPreview: $("renderInputPreview"),
+      renderReferencePreview: $("renderReferencePreview"),
+      renderBackgroundPreview: $("renderBackgroundPreview"),
+      renderBackgroundPreset: $("renderBackgroundPreset"),
+      renderBackgroundImageUrl: $("renderBackgroundImageUrl"),
+      backgroundPresetChips: $("backgroundPresetChips"),
       runRenderBtn: $("runRenderBtn"),
+      runAllViewsBtn: $("runAllViewsBtn"),
       pollLatestBtn: $("pollLatestBtn"),
       editCategory: $("editCategory"),
-      selectionMode: $("selectionMode"),
+      selectionModeDisplay: $("selectionModeDisplay"),
       editProfile: $("editProfile"),
       editPrompt: $("editPrompt"),
       targetImageUrl: $("targetImageUrl"),
       referenceImageUrl: $("referenceImageUrl"),
       targetMaskUrl: $("targetMaskUrl"),
       strength: $("strength"),
+      manualSelectionBox: $("manualSelectionBox"),
+      manualTargetImageUrl: $("manualTargetImageUrl"),
+      manualTargetUpload: $("manualTargetUpload"),
+      loadManualImageBtn: $("loadManualImageBtn"),
+      maskBrushSize: $("maskBrushSize"),
+      clearMaskBtn: $("clearMaskBtn"),
+      downloadMaskBtn: $("downloadMaskBtn"),
+      maskBackground: $("maskBackground"),
+      maskCanvas: $("maskCanvas"),
       runRegionalBtn: $("runRegionalBtn"),
       requestId: $("requestId"),
       checkStatusBtn: $("checkStatusBtn"),
@@ -374,8 +736,35 @@
       historyList: $("historyList"),
       statusText: $("statusText"),
       responseBox: $("responseBox"),
-      resultImage: $("resultImage")
+      resultImage: $("resultImage"),
+      viewFrontImage: $("viewFrontImage"),
+      viewLeftImage: $("viewLeftImage"),
+      viewRightImage: $("viewRightImage"),
+      viewBackImage: $("viewBackImage"),
+      viewFrontState: $("viewFrontState"),
+      viewLeftState: $("viewLeftState"),
+      viewRightState: $("viewRightState"),
+      viewBackState: $("viewBackState")
     };
+
+    const viewImageByKey = {
+      front: ui.viewFrontImage,
+      left: ui.viewLeftImage,
+      right: ui.viewRightImage,
+      back: ui.viewBackImage
+    };
+
+    const viewStateByKey = {
+      front: ui.viewFrontState,
+      left: ui.viewLeftState,
+      right: ui.viewRightState,
+      back: ui.viewBackState
+    };
+
+    let manualUploadObjectUrl = "";
+    let drawing = false;
+    let lastPoint = null;
+    const maskCtx = ui.maskCanvas.getContext("2d");
 
     const ls = {
       base: "cloudstudio.base",
@@ -418,6 +807,38 @@
       localStorage.setItem(ls.latestRequest, requestId);
     }
 
+    function setImagePreview(el, url) {
+      if (!el) return;
+      if (!url) {
+        el.removeAttribute("src");
+        return;
+      }
+      el.src = url;
+    }
+
+    function setViewState(view, state) {
+      const node = viewStateByKey[view];
+      if (!node) return;
+      node.textContent = state;
+      node.className = "view-state";
+      if (state === "rendering") node.classList.add("work");
+      if (state === "completed") node.classList.add("ok");
+      if (state === "failed") node.classList.add("bad");
+    }
+
+    function syncBackgroundPresetChips() {
+      const chips = ui.backgroundPresetChips ? Array.from(ui.backgroundPresetChips.querySelectorAll(".chip")) : [];
+      chips.forEach((chip) => {
+        const isActive = chip.getAttribute("data-preset") === ui.renderBackgroundPreset.value;
+        chip.classList.toggle("active", isActive);
+      });
+    }
+
+    function openTab(tabId) {
+      const btn = document.querySelector('.tab[data-tab="' + tabId + '"]');
+      if (btn) btn.click();
+    }
+
     function authHeaders() {
       const anon = ui.anonKey.value.trim();
       return {
@@ -448,25 +869,62 @@
       }
     }
 
-    async function runRender() {
+    function activeEditMethod() {
+      const selected = document.querySelector('input[name="editMethod"]:checked');
+      return selected ? selected.value : "prompt_based";
+    }
+
+    function syncRegionalModeUi() {
+      const method = activeEditMethod();
+      if (method === "manual_selection") {
+        ui.selectionModeDisplay.value = "manual";
+        ui.manualSelectionBox.style.display = "block";
+      } else {
+        ui.selectionModeDisplay.value = "automatic";
+        ui.manualSelectionBox.style.display = "none";
+      }
+
+      if (method === "prompt_based") {
+        ui.editCategory.value = "prompt_only";
+      } else if (ui.editCategory.value === "prompt_only") {
+        ui.editCategory.value = "element_texture";
+      }
+    }
+
+    function buildPromptWithContext(basePrompt, view) {
+      const chunks = [basePrompt.trim()];
+      if (view) chunks.push("camera view: " + view);
+      const bgPreset = ui.renderBackgroundPreset.value;
+      if (bgPreset) chunks.push("background setting: " + bgPreset);
+      if (ui.renderBackgroundImageUrl.value.trim()) {
+        chunks.push("use provided background image as reference");
+      }
+      return chunks.filter(Boolean).join(". ");
+    }
+
+    async function runRenderForView(view) {
       saveConfig();
       applyConsistencyMode();
 
       const b = baseUrl();
       const body = {
         user_id: ui.userId.value.trim(),
-        prompt: ui.renderPrompt.value.trim(),
+        prompt: buildPromptWithContext(ui.renderPrompt.value, view),
         style: ui.renderStyle.value.trim(),
-        model_profile: ui.renderProfile.value
+        input_image_url: ui.renderInputImageUrl.value.trim() || undefined,
+        reference_image_url: ui.renderReferenceImageUrl.value.trim() || ui.renderBackgroundImageUrl.value.trim() || undefined,
+        model_profile: ui.renderProfile.value,
+        num_outputs: 1
       };
 
       if (!body.user_id || !body.prompt) {
         setStatus("user_id and prompt are required for render.", false);
-        return;
+        setViewState(view, "failed");
+        return false;
       }
 
-      ui.runRenderBtn.disabled = true;
-      setStatus("Calling /render ...", null);
+      setStatus("Calling /render for " + view + " view ...", null);
+      setViewState(view, "rendering");
       ui.resultImage.style.display = "none";
 
       try {
@@ -480,19 +938,57 @@
 
         if (!res.ok) {
           setStatus("Render failed (" + res.status + ")", false);
-          return;
+          setViewState(view, "failed");
+          return false;
         }
 
         setLatestRequestId(data.request_id);
-        setStatus("Render request succeeded.", true);
+        setStatus("Render for " + view + " view succeeded.", true);
         if (data.image_url) {
           ui.resultImage.src = data.image_url;
           ui.resultImage.style.display = "block";
+          if (viewImageByKey[view]) {
+            viewImageByKey[view].src = data.image_url;
+          }
+          setViewState(view, "completed");
         }
+        return true;
       } catch (err) {
         setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
+        setViewState(view, "failed");
+        return false;
+      }
+    }
+
+    async function runRender() {
+      ui.runRenderBtn.disabled = true;
+      ui.runAllViewsBtn.disabled = true;
+      const view = ui.activeView.value;
+      try {
+        await runRenderForView(view);
       } finally {
         ui.runRenderBtn.disabled = false;
+        ui.runAllViewsBtn.disabled = false;
+      }
+    }
+
+    async function runRenderAllViews() {
+      ui.runRenderBtn.disabled = true;
+      ui.runAllViewsBtn.disabled = true;
+      const views = ["front", "left", "right", "back"];
+      let completed = 0;
+
+      try {
+        for (const view of views) {
+          const ok = await runRenderForView(view);
+          if (ok) {
+            completed += 1;
+          }
+        }
+        setStatus("Completed " + completed + " of 4 view renders.", completed > 0);
+      } finally {
+        ui.runRenderBtn.disabled = false;
+        ui.runAllViewsBtn.disabled = false;
       }
     }
 
@@ -501,13 +997,16 @@
       applyConsistencyMode();
 
       const b = baseUrl();
+      const method = activeEditMethod();
+      const resolvedSelectionMode = method === "manual_selection" ? "manual" : "automatic";
+      const resolvedEditCategory = method === "prompt_based" ? "prompt_only" : ui.editCategory.value;
       const payload = {
         user_id: ui.userId.value.trim(),
         target_image_url: ui.targetImageUrl.value.trim(),
         reference_image_url: ui.referenceImageUrl.value.trim() || undefined,
         prompt: ui.editPrompt.value.trim(),
-        edit_category: ui.editCategory.value,
-        selection_mode: ui.selectionMode.value,
+        edit_category: resolvedEditCategory,
+        selection_mode: resolvedSelectionMode,
         target_mask_url: ui.targetMaskUrl.value.trim() || undefined,
         model_profile: ui.editProfile.value,
         strength: ui.strength.value ? Number(ui.strength.value) : undefined
@@ -695,17 +1194,175 @@
       });
     }
 
+    function setMaskBackground(url) {
+      if (url) {
+        ui.maskBackground.style.backgroundImage = 'url("' + url + '")';
+      } else {
+        ui.maskBackground.style.backgroundImage = "";
+      }
+    }
+
+    function clearMaskCanvas() {
+      maskCtx.clearRect(0, 0, ui.maskCanvas.width, ui.maskCanvas.height);
+    }
+
+    function canvasPointFromEvent(ev) {
+      const rect = ui.maskCanvas.getBoundingClientRect();
+      const scaleX = ui.maskCanvas.width / rect.width;
+      const scaleY = ui.maskCanvas.height / rect.height;
+      return {
+        x: (ev.clientX - rect.left) * scaleX,
+        y: (ev.clientY - rect.top) * scaleY
+      };
+    }
+
+    function beginMaskStroke(ev) {
+      drawing = true;
+      lastPoint = canvasPointFromEvent(ev);
+      maskCtx.lineCap = "round";
+      maskCtx.lineJoin = "round";
+      maskCtx.strokeStyle = "#ffffff";
+      maskCtx.lineWidth = Number(ui.maskBrushSize.value || 14);
+      maskCtx.beginPath();
+      maskCtx.moveTo(lastPoint.x, lastPoint.y);
+      ev.preventDefault();
+    }
+
+    function moveMaskStroke(ev) {
+      if (!drawing) return;
+      const p = canvasPointFromEvent(ev);
+      maskCtx.lineTo(p.x, p.y);
+      maskCtx.stroke();
+      lastPoint = p;
+      ev.preventDefault();
+    }
+
+    function endMaskStroke() {
+      if (!drawing) return;
+      drawing = false;
+      maskCtx.closePath();
+      lastPoint = null;
+    }
+
+    function downloadMaskPng() {
+      const out = document.createElement("canvas");
+      out.width = ui.maskCanvas.width;
+      out.height = ui.maskCanvas.height;
+      const outCtx = out.getContext("2d");
+      outCtx.fillStyle = "#000000";
+      outCtx.fillRect(0, 0, out.width, out.height);
+      outCtx.drawImage(ui.maskCanvas, 0, 0);
+
+      const a = document.createElement("a");
+      a.href = out.toDataURL("image/png");
+      a.download = "regional-mask.png";
+      a.click();
+    }
+
+    function updateRenderSourcePreview() {
+      const file = ui.renderSourceUpload.files && ui.renderSourceUpload.files[0];
+      if (!file) {
+        ui.renderSourcePreview.style.display = "none";
+        ui.renderSourcePreview.removeAttribute("src");
+        if (!ui.renderInputImageUrl.value.trim()) {
+          setImagePreview(ui.renderInputPreview, "");
+        }
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      ui.renderSourcePreview.src = url;
+      ui.renderSourcePreview.style.display = "block";
+      setImagePreview(ui.renderInputPreview, url);
+    }
+
+    function syncRenderReferencePreviews() {
+      setImagePreview(ui.renderInputPreview, ui.renderInputImageUrl.value.trim() || ui.renderInputPreview.src || "");
+      setImagePreview(ui.renderReferencePreview, ui.renderReferenceImageUrl.value.trim());
+      setImagePreview(ui.renderBackgroundPreview, ui.renderBackgroundImageUrl.value.trim());
+    }
+
+    function loadManualSelectionImage() {
+      if (manualUploadObjectUrl) {
+        URL.revokeObjectURL(manualUploadObjectUrl);
+        manualUploadObjectUrl = "";
+      }
+
+      const inputUrl = ui.manualTargetImageUrl.value.trim();
+      const file = ui.manualTargetUpload.files && ui.manualTargetUpload.files[0];
+
+      if (inputUrl) {
+        setMaskBackground(inputUrl);
+        return;
+      }
+
+      if (file) {
+        manualUploadObjectUrl = URL.createObjectURL(file);
+        setMaskBackground(manualUploadObjectUrl);
+        return;
+      }
+
+      setMaskBackground("");
+    }
+
     function bindEvents() {
       ui.runRenderBtn.addEventListener("click", runRender);
+      ui.runAllViewsBtn.addEventListener("click", runRenderAllViews);
       ui.runRegionalBtn.addEventListener("click", runRegional);
       ui.checkStatusBtn.addEventListener("click", checkStatus);
       ui.pollLatestBtn.addEventListener("click", pollLatest);
       ui.loadHistoryBtn.addEventListener("click", loadHistory);
       ui.consistencyMode.addEventListener("change", applyConsistencyMode);
+      ui.renderSourceUpload.addEventListener("change", updateRenderSourcePreview);
+      ui.renderInputImageUrl.addEventListener("input", syncRenderReferencePreviews);
+      ui.renderReferenceImageUrl.addEventListener("input", syncRenderReferencePreviews);
+      ui.renderBackgroundImageUrl.addEventListener("input", syncRenderReferencePreviews);
+      ui.renderBackgroundPreset.addEventListener("change", syncBackgroundPresetChips);
+      ui.loadManualImageBtn.addEventListener("click", loadManualSelectionImage);
+      ui.clearMaskBtn.addEventListener("click", clearMaskCanvas);
+      ui.downloadMaskBtn.addEventListener("click", downloadMaskPng);
+
+      if (ui.backgroundPresetChips) {
+        Array.from(ui.backgroundPresetChips.querySelectorAll(".chip")).forEach((chip) => {
+          chip.addEventListener("click", () => {
+            ui.renderBackgroundPreset.value = chip.getAttribute("data-preset") || "";
+            syncBackgroundPresetChips();
+          });
+        });
+      }
+
+      Array.from(document.querySelectorAll('input[name="editMethod"]')).forEach((el) => {
+        el.addEventListener("change", syncRegionalModeUi);
+      });
+
+      Array.from(document.querySelectorAll(".flow-btn")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const jump = btn.getAttribute("data-jump");
+          if (jump === "history") {
+            const section = document.getElementById("historySection");
+            if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+            return;
+          }
+          if (jump) {
+            openTab(jump);
+            const split = document.querySelector(".split");
+            if (split) split.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+
+      ui.maskCanvas.addEventListener("pointerdown", beginMaskStroke);
+      ui.maskCanvas.addEventListener("pointermove", moveMaskStroke);
+      ui.maskCanvas.addEventListener("pointerup", endMaskStroke);
+      ui.maskCanvas.addEventListener("pointerleave", endMaskStroke);
+      ui.maskCanvas.addEventListener("pointercancel", endMaskStroke);
     }
 
     loadDefaults();
     applyConsistencyMode();
+    syncRegionalModeUi();
+    clearMaskCanvas();
+    syncRenderReferencePreviews();
+    syncBackgroundPresetChips();
     setupTabs();
     bindEvents();
   </script>
