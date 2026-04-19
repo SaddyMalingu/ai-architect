@@ -438,6 +438,12 @@
     .module:first-of-type {
       margin-top: 12px;
     }
+    .animate-in {
+      animation: riseIn .48s ease both;
+    }
+    .animate-in:nth-child(2) { animation-delay: .04s; }
+    .animate-in:nth-child(3) { animation-delay: .08s; }
+    .animate-in:nth-child(4) { animation-delay: .12s; }
     .module-head {
       display: flex;
       align-items: flex-start;
@@ -470,6 +476,42 @@
       letter-spacing: .06em;
       text-transform: uppercase;
       white-space: nowrap;
+    }
+    .summary-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    @media (max-width: 900px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 520px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .summary-card {
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(216, 226, 237, .95);
+      background: rgba(255, 255, 255, .7);
+    }
+    .summary-card strong {
+      display: block;
+      font-size: .76rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #8a4b1f;
+    }
+    .summary-card span {
+      display: block;
+      margin-top: 6px;
+      color: #162031;
+      font-weight: 700;
+      line-height: 1.35;
+      word-break: break-word;
     }
     .grid-views {
       margin-top: 12px;
@@ -664,6 +706,28 @@
       color: var(--muted);
       font-size: .82rem;
     }
+    @keyframes riseIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .animate-in {
+        animation: none;
+      }
+      button,
+      input,
+      select,
+      textarea,
+      .view-card {
+        transition: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -767,7 +831,7 @@
           </div>
 
           <div id="renderTab" class="panel active" style="margin-top:12px">
-            <div class="module">
+            <div class="module animate-in">
               <div class="module-head">
                 <div>
                   <h4>Render Brief</h4>
@@ -803,7 +867,34 @@
                 <textarea id="renderPrompt">Modern 2-storey facade, warm evening lighting</textarea>
               </div>
             </div>
-            <div class="module">
+            <div class="module animate-in">
+              <div class="module-head">
+                <div>
+                  <h4>Live Brief Summary</h4>
+                  <p>A compact readout of the current render configuration so changes remain legible while you tune inputs.</p>
+                </div>
+                <div class="badge">At A Glance</div>
+              </div>
+              <div class="summary-grid">
+                <div class="summary-card">
+                  <strong>Prompt Focus</strong>
+                  <span id="summaryPrompt">Modern 2-storey facade, warm evening lighting</span>
+                </div>
+                <div class="summary-card">
+                  <strong>Camera View</strong>
+                  <span id="summaryView">front</span>
+                </div>
+                <div class="summary-card">
+                  <strong>Model Profile</strong>
+                  <span id="summaryProfile">balanced</span>
+                </div>
+                <div class="summary-card">
+                  <strong>Scene Context</strong>
+                  <span id="summaryBackground">no background preset</span>
+                </div>
+              </div>
+            </div>
+            <div class="module animate-in">
               <div class="module-head">
                 <div>
                   <h4>Reference Inputs</h4>
@@ -846,7 +937,7 @@
                 </div>
               </div>
             </div>
-            <div class="module">
+            <div class="module animate-in">
               <div class="module-head">
                 <div>
                   <h4>Background Context</h4>
@@ -878,7 +969,7 @@
                 <button class="chip" data-preset="" type="button">None</button>
               </div>
             </div>
-            <div class="module">
+            <div class="module animate-in">
               <div class="module-head">
                 <div>
                   <h4>Execution Controls</h4>
@@ -895,7 +986,7 @@
           </div>
 
           <div id="regionalTab" class="panel" style="margin-top:12px">
-            <div class="module">
+            <div class="module animate-in">
               <div class="module-head">
                 <div>
                   <h4>Selection Strategy</h4>
@@ -938,7 +1029,7 @@
                 <textarea id="editPrompt">Apply warm wood facade texture to selected area</textarea>
               </div>
             </div>
-            <div class="module">
+            <div class="module animate-in">
               <div class="module-head">
                 <div>
                   <h4>Edit Inputs</h4>
@@ -996,7 +1087,7 @@
                 <div><p class="hint" style="margin:10px 0 0">Upload the downloaded PNG and paste its HTTPS URL into target mask URL.</p></div>
               </div>
             </div>
-            <div class="module">
+            <div class="module animate-in">
               <div class="module-head">
                 <div>
                   <h4>Run Edit</h4>
@@ -1011,7 +1102,7 @@
           </div>
 
           <div id="statusTab" class="panel" style="margin-top:12px">
-            <div class="module">
+            <div class="module animate-in">
               <div class="module-head">
                 <div>
                   <h4>Request Tracking</h4>
@@ -1115,6 +1206,10 @@
       renderBackgroundPreset: $("renderBackgroundPreset"),
       renderBackgroundImageUrl: $("renderBackgroundImageUrl"),
       backgroundPresetChips: $("backgroundPresetChips"),
+      summaryPrompt: $("summaryPrompt"),
+      summaryView: $("summaryView"),
+      summaryProfile: $("summaryProfile"),
+      summaryBackground: $("summaryBackground"),
       runRenderBtn: $("runRenderBtn"),
       runAllViewsBtn: $("runAllViewsBtn"),
       pollLatestBtn: $("pollLatestBtn"),
@@ -1308,6 +1403,16 @@
         const isActive = chip.getAttribute("data-preset") === ui.renderBackgroundPreset.value;
         chip.classList.toggle("active", isActive);
       });
+    }
+
+    function syncRenderSummary() {
+      const promptText = ui.renderPrompt.value.trim();
+      const bgPreset = ui.renderBackgroundPreset.value.trim();
+      const bgUrl = ui.renderBackgroundImageUrl.value.trim();
+      ui.summaryPrompt.textContent = promptText ? (promptText.length > 72 ? promptText.slice(0, 72) + "..." : promptText) : "No prompt yet";
+      ui.summaryView.textContent = ui.activeView.value || "front";
+      ui.summaryProfile.textContent = ui.renderProfile.value || "balanced";
+      ui.summaryBackground.textContent = bgPreset || (bgUrl ? "custom background image" : "no background preset");
     }
 
     function openTab(tabId) {
@@ -1892,8 +1997,15 @@
       ui.renderInputImageUrl.addEventListener("input", syncRenderReferencePreviews);
       ui.renderReferenceImageUrl.addEventListener("input", syncRenderReferencePreviews);
       ui.renderBackgroundImageUrl.addEventListener("input", syncRenderReferencePreviews);
-      ui.renderBackgroundPreset.addEventListener("change", syncBackgroundPresetChips);
+      ui.renderBackgroundImageUrl.addEventListener("input", syncRenderSummary);
+      ui.renderBackgroundPreset.addEventListener("change", () => {
+        syncBackgroundPresetChips();
+        syncRenderSummary();
+      });
       ui.activeView.addEventListener("change", syncActiveViewCard);
+      ui.activeView.addEventListener("change", syncRenderSummary);
+      ui.renderPrompt.addEventListener("input", syncRenderSummary);
+      ui.renderProfile.addEventListener("change", syncRenderSummary);
       ui.loadManualImageBtn.addEventListener("click", loadManualSelectionImage);
       ui.clearMaskBtn.addEventListener("click", clearMaskCanvas);
       ui.downloadMaskBtn.addEventListener("click", downloadMaskPng);
@@ -1903,6 +2015,7 @@
           chip.addEventListener("click", () => {
             ui.renderBackgroundPreset.value = chip.getAttribute("data-preset") || "";
             syncBackgroundPresetChips();
+            syncRenderSummary();
           });
         });
       }
@@ -1951,6 +2064,7 @@
     syncRenderReferencePreviews();
     syncBackgroundPresetChips();
     syncActiveViewCard();
+    syncRenderSummary();
     setupTabs();
     bindEvents();
   </script>
