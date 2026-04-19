@@ -129,6 +129,31 @@
     .toggle input { width: auto; }
     .status-ok { color: var(--ok); font-weight: 600; }
     .status-bad { color: var(--warn); font-weight: 600; }
+    .guardrail {
+      margin-top: 8px;
+      border: 1px solid #fcd34d;
+      background: #fffbeb;
+      color: #78350f;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: .84rem;
+      line-height: 1.35;
+    }
+    .guardrail.hidden { display: none; }
+    .guardrail.bad {
+      border-color: #fca5a5;
+      background: #fef2f2;
+      color: #7f1d1d;
+    }
+    .guardrail.ok {
+      border-color: #86efac;
+      background: #f0fdf4;
+      color: #14532d;
+    }
+    .guardrail a {
+      color: inherit;
+      font-weight: 700;
+    }
     .mono {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size: .82rem;
@@ -641,6 +666,7 @@
 
           <div style="margin-top:10px">
             <div id="statusText" class="hint">Idle.</div>
+            <div id="guardrailBanner" class="guardrail hidden"></div>
             <pre id="responseBox" class="mono">No API calls yet.</pre>
             <img id="resultImage" class="image" alt="Result image" />
             <div class="section-title">Main Image Views</div>
@@ -735,6 +761,7 @@
       loadHistoryBtn: $("loadHistoryBtn"),
       historyList: $("historyList"),
       statusText: $("statusText"),
+      guardrailBanner: $("guardrailBanner"),
       responseBox: $("responseBox"),
       resultImage: $("resultImage"),
       viewFrontImage: $("viewFrontImage"),
@@ -772,6 +799,57 @@
       user: "cloudstudio.user",
       latestRequest: "cloudstudio.latestRequest"
     };
+
+    let batchInProgress = false;
+    let dynamicBatchDelayMs = 2000;
+
+    function waitMs(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    function parseRetryAfterSeconds(payload) {
+      if (!payload) return null;
+      if (typeof payload.retry_after === "number") return payload.retry_after;
+      const text = payload.error || "";
+      const match = String(text).match(/retry_after"?\s*:?\s*(\d+)|~\s*(\d+)s/i);
+      if (!match) return null;
+      return Number(match[1] || match[2] || 0) || null;
+    }
+
+    function parseGuardrail(payload) {
+      const guardrail = payload && payload.guardrail ? payload.guardrail : {};
+      const errorText = String((payload && payload.error) || "");
+      const providerStatus = Number((payload && payload.provider_status) || 0);
+      const retryAfter = parseRetryAfterSeconds(payload);
+      const lowCredit429 = providerStatus === 429 && /less than\s*\$?5/i.test(errorText);
+      const insufficientCredit = providerStatus === 402 || /insufficient credit/i.test(errorText);
+      const modelMissing = providerStatus === 404 || providerStatus === 502 || /could not be found|provider 404/i.test(errorText);
+
+      return {
+        type: guardrail.type || (lowCredit429 ? "rate_limit" : insufficientCredit ? "insufficient_credit" : modelMissing ? "provider_model_missing" : "unknown"),
+        retryAfter,
+        lowCredit: Boolean(guardrail.low_credit) || lowCredit429,
+        billingUrl: guardrail.billing_url || "https://replicate.com/account/billing#billing",
+        recommendedBatchSeconds: Number(guardrail.recommended_batch_interval_seconds || 0) || (lowCredit429 ? 10 : 0)
+      };
+    }
+
+    function showGuardrail(message, mode, actionUrl) {
+      ui.guardrailBanner.className = "guardrail";
+      if (mode === "bad") ui.guardrailBanner.classList.add("bad");
+      if (mode === "ok") ui.guardrailBanner.classList.add("ok");
+
+      if (actionUrl) {
+        ui.guardrailBanner.innerHTML = message + ' <a href="' + actionUrl + '" target="_blank" rel="noreferrer">Open billing</a>';
+      } else {
+        ui.guardrailBanner.textContent = message;
+      }
+    }
+
+    function hideGuardrail() {
+      ui.guardrailBanner.className = "guardrail hidden";
+      ui.guardrailBanner.textContent = "";
+    }
 
     function loadDefaults() {
       ui.supabaseUrl.value = localStorage.getItem(ls.base) || "https://eccvtkqkllegzbypaemw.supabase.co";
@@ -902,7 +980,8 @@
       return chunks.filter(Boolean).join(". ");
     }
 
-    async function runRenderForView(view) {
+    async function runRenderForView(view, options) {
+      const cfg = options || { allowRetry429: false, retryLimit: 0 };
       saveConfig();
       applyConsistencyMode();
 
@@ -928,31 +1007,79 @@
       ui.resultImage.style.display = "none";
 
       try {
-        const res = await fetch(b + "/functions/v1/render", {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify(body)
-        });
-        const data = await parseResponse(res);
-        showJson(data);
+        let attempt = 0;
+        const maxAttempts = 1 + (cfg.allowRetry429 ? (cfg.retryLimit || 0) : 0);
+        while (attempt < maxAttempts) {
+          const res = await fetch(b + "/functions/v1/render", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+          });
+          const data = await parseResponse(res);
+          showJson(data);
 
-        if (!res.ok) {
+          if (res.ok) {
+            setLatestRequestId(data.request_id);
+            setStatus("Render for " + view + " view succeeded.", true);
+            hideGuardrail();
+            if (data.image_url) {
+              ui.resultImage.src = data.image_url;
+              ui.resultImage.style.display = "block";
+              if (viewImageByKey[view]) {
+                viewImageByKey[view].src = data.image_url;
+              }
+              setViewState(view, "completed");
+            }
+            return true;
+          }
+
+          const g = parseGuardrail(data);
+          if (g.type === "insufficient_credit") {
+            showGuardrail(
+              "Rendering stopped because Replicate credit is insufficient. Top up credit, then retry.",
+              "bad",
+              g.billingUrl
+            );
+            setStatus("Render failed (insufficient credit)", false);
+            setViewState(view, "failed");
+            return false;
+          }
+
+          if (g.type === "provider_model_missing") {
+            showGuardrail(
+              "Provider model configuration looks invalid (404). Update REPLICATE model env settings.",
+              "bad"
+            );
+            setStatus("Render failed (provider model missing)", false);
+            setViewState(view, "failed");
+            return false;
+          }
+
+          if (g.type === "rate_limit" && cfg.allowRetry429 && attempt + 1 < maxAttempts) {
+            const waitSeconds = g.retryAfter || g.recommendedBatchSeconds || 10;
+            dynamicBatchDelayMs = Math.max(dynamicBatchDelayMs, waitSeconds * 1000);
+            showGuardrail(
+              "Rate limit reached. Auto-retrying after " + waitSeconds + "s to continue batch safely.",
+              "ok"
+            );
+            setStatus("Rate limited on " + view + " view. Waiting " + waitSeconds + "s before retry...", null);
+            await waitMs((waitSeconds + 1) * 1000);
+            attempt += 1;
+            continue;
+          }
+
           setStatus("Render failed (" + res.status + ")", false);
+          if (g.type === "rate_limit") {
+            showGuardrail(
+              "Provider throttle detected. Use sequential rendering with at least " +
+                (g.recommendedBatchSeconds || 10) +
+                "s spacing between requests.",
+              "bad"
+            );
+          }
           setViewState(view, "failed");
           return false;
         }
-
-        setLatestRequestId(data.request_id);
-        setStatus("Render for " + view + " view succeeded.", true);
-        if (data.image_url) {
-          ui.resultImage.src = data.image_url;
-          ui.resultImage.style.display = "block";
-          if (viewImageByKey[view]) {
-            viewImageByKey[view].src = data.image_url;
-          }
-          setViewState(view, "completed");
-        }
-        return true;
       } catch (err) {
         setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
         setViewState(view, "failed");
@@ -965,7 +1092,7 @@
       ui.runAllViewsBtn.disabled = true;
       const view = ui.activeView.value;
       try {
-        await runRenderForView(view);
+        await runRenderForView(view, { allowRetry429: true, retryLimit: 1 });
       } finally {
         ui.runRenderBtn.disabled = false;
         ui.runAllViewsBtn.disabled = false;
@@ -975,18 +1102,26 @@
     async function runRenderAllViews() {
       ui.runRenderBtn.disabled = true;
       ui.runAllViewsBtn.disabled = true;
+      batchInProgress = true;
       const views = ["front", "left", "right", "back"];
       let completed = 0;
 
       try {
+        hideGuardrail();
         for (const view of views) {
-          const ok = await runRenderForView(view);
+          const ok = await runRenderForView(view, { allowRetry429: true, retryLimit: 2 });
           if (ok) {
             completed += 1;
+          }
+          const waitBetweenViews = Math.max(dynamicBatchDelayMs, 2500);
+          if (view !== views[views.length - 1]) {
+            setStatus("Cooling down for " + Math.ceil(waitBetweenViews / 1000) + "s before next view...", null);
+            await waitMs(waitBetweenViews);
           }
         }
         setStatus("Completed " + completed + " of 4 view renders.", completed > 0);
       } finally {
+        batchInProgress = false;
         ui.runRenderBtn.disabled = false;
         ui.runAllViewsBtn.disabled = false;
       }
@@ -1035,12 +1170,28 @@
         showJson(data);
 
         if (!res.ok) {
+          const g = parseGuardrail(data);
+          if (g.type === "insufficient_credit") {
+            showGuardrail(
+              "Regional edit stopped because Replicate credit is insufficient.",
+              "bad",
+              g.billingUrl
+            );
+          } else if (g.type === "rate_limit") {
+            showGuardrail(
+              "Regional edit hit rate limit. Wait " + (g.retryAfter || 10) + "s before retrying.",
+              "ok"
+            );
+          } else if (g.type === "provider_model_missing") {
+            showGuardrail("Regional edit provider model looks misconfigured (404).", "bad");
+          }
           setStatus("Regional edit failed (" + res.status + ")", false);
           return;
         }
 
         setLatestRequestId(data.request_id);
         setStatus("Regional edit succeeded.", true);
+        hideGuardrail();
         if (data.image_url) {
           ui.resultImage.src = data.image_url;
           ui.resultImage.style.display = "block";
@@ -1168,6 +1319,29 @@
           ui.historyList.innerHTML = '<div class="item"><p>No history items yet.</p></div>';
         } else {
           ui.historyList.innerHTML = items.map(historyItemHtml).join("");
+
+          const textJoined = items
+            .map((x) => [x.error, x.prompt].filter(Boolean).join(" "))
+            .join("\n")
+            .toLowerCase();
+
+          const hasThrottle = textJoined.includes("request was throttled") || textJoined.includes("retry_after");
+          const hasLowCredit = textJoined.includes("less than $5") || textJoined.includes("insufficient credit");
+
+          if (hasThrottle) {
+            dynamicBatchDelayMs = Math.max(dynamicBatchDelayMs, 10000);
+            showGuardrail(
+              "History indicates provider throttling. Batch rendering now uses at least 10s spacing between view requests.",
+              "ok"
+            );
+          }
+          if (hasLowCredit) {
+            showGuardrail(
+              "History indicates low credit / insufficient credit failures. Top up Replicate billing before long consecutive runs.",
+              "bad",
+              "https://replicate.com/account/billing#billing"
+            );
+          }
         }
         setStatus("History loaded.", true);
       } catch (err) {
@@ -1185,6 +1359,10 @@
 
       tabs.forEach((t) => {
         t.addEventListener("click", () => {
+          if (batchInProgress) {
+            setStatus("Batch render is running. Please wait until it completes.", false);
+            return;
+          }
           tabs.forEach((x) => x.classList.remove("active"));
           t.classList.add("active");
           Object.keys(panels).forEach((k) => panels[k].classList.remove("active"));
@@ -1336,6 +1514,10 @@
 
       Array.from(document.querySelectorAll(".flow-btn")).forEach((btn) => {
         btn.addEventListener("click", () => {
+          if (batchInProgress) {
+            setStatus("Batch render is running. Navigation is locked until completion.", false);
+            return;
+          }
           const jump = btn.getAttribute("data-jump");
           if (jump === "history") {
             const section = document.getElementById("historySection");
@@ -1355,6 +1537,12 @@
       ui.maskCanvas.addEventListener("pointerup", endMaskStroke);
       ui.maskCanvas.addEventListener("pointerleave", endMaskStroke);
       ui.maskCanvas.addEventListener("pointercancel", endMaskStroke);
+
+      window.addEventListener("beforeunload", (ev) => {
+        if (!batchInProgress) return;
+        ev.preventDefault();
+        ev.returnValue = "A multi-view render batch is still running.";
+      });
     }
 
     loadDefaults();
