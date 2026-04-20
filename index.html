@@ -816,6 +816,7 @@
         </div>
       </div>
       <p class="hint">Config is stored in your browser for fast retesting.</p>
+      <p class="hint" style="margin-top:6px;">Backend API Base must be your FastAPI server URL (for example <code>http://localhost:8000</code>), not this Cloud Studio frontend URL.</p>
 
       <div class="module" style="margin-top:14px; border: 2px solid rgba(29, 78, 137, .32); background: #fffaf0;">
         <div class="module-head">
@@ -1404,6 +1405,12 @@
       }
     }
 
+    function buildHttpErrorMessage(response, payload, fallback) {
+      const detail = payload && (payload.detail || payload.error || payload.message);
+      const suffix = detail ? ": " + detail : "";
+      return fallback + " (HTTP " + response.status + ")" + suffix;
+    }
+
     async function checkMyCreditsFromControlRoom() {
       saveConfig();
       const apiBase = ui.backendApiBase.value.trim().replace(/\/$/, "");
@@ -1425,7 +1432,7 @@
         });
         const data = await parseResponse(res);
         if (!res.ok) {
-          throw new Error(data && data.detail ? data.detail : "Credit check failed");
+          throw new Error(buildHttpErrorMessage(res, data, "Credit check failed"));
         }
         const balance = Number(data.balance_credits || 0);
         if (ui.controlRoomBalance) {
@@ -1493,7 +1500,7 @@
         });
         const data = await parseResponse(res);
         if (!res.ok) {
-          throw new Error(data && data.detail ? data.detail : "Grant failed");
+          throw new Error(buildHttpErrorMessage(res, data, "Grant failed"));
         }
         setStatus("Grant successful. New balance: " + Number(data.balance_credits || 0).toFixed(2), true);
         if (ui.controlRoomBalance) {
