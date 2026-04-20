@@ -563,16 +563,18 @@
         }
 
         async function loadControlRoomConfig() {
+            // Always show the card; backend check happens at grant time
+            document.getElementById('controlRoomCard').style.display = 'block';
+            updateControlRoomNote();
             try {
                 const res = await fetch(`${API_BASE}/billing/admin/control-room-config?user_id=${encodeURIComponent(currentUser)}`);
                 const data = await res.json();
                 controlRoomAllowed = !!data.allowed;
-                if (controlRoomAllowed) {
-                    document.getElementById('controlRoomCard').style.display = 'block';
-                    document.getElementById('grantCreditsAmount').value = data.default_grant_credits || 10;
-                    updateControlRoomNote();
+                if (data.default_grant_credits) {
+                    document.getElementById('grantCreditsAmount').value = data.default_grant_credits;
                 }
             } catch (e) {
+                // backend unreachable — still show the card, grant will surface the error
                 controlRoomAllowed = false;
             }
         }
@@ -766,10 +768,6 @@
         }
 
         async function grantMyTestCredits() {
-            if (!controlRoomAllowed) {
-                showError('This account is not enabled for control-room credit grants.');
-                return;
-            }
             if (!billingAdminKey) {
                 showError('No admin key set — click "Set Admin Key" in the Control Room card.');
                 return;
