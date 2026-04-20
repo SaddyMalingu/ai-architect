@@ -398,7 +398,22 @@
         
         <div id="errorMessage"></div>
         <div id="successMessage"></div>
-        
+
+        <!-- CONTROL ROOM (always visible) -->
+        <div class="card" id="controlRoomCard" style="margin-bottom:30px;border:2px solid #667eea;">
+            <h3>🛠️ Control Room</h3>
+            <p style="color:#718096;margin-bottom:20px;">Run a test-only credit grant for the signed-in control-room user.</p>
+            <div class="control-room-grid">
+                <div class="control-room-field">
+                    <label for="grantCreditsAmount">Grant Credits</label>
+                    <input type="number" id="grantCreditsAmount" min="1" step="1" value="10">
+                </div>
+                <button class="btn btn-primary" onclick="grantMyTestCredits()">Grant My Test Credits</button>
+            </div>
+            <div class="control-room-note" id="controlRoomNote" style="margin-top:10px;font-size:0.9em;color:#718096;"></div>
+            <button class="btn" style="margin-top:10px;background:#edf2f7;color:#4a5568;font-size:0.85em;" onclick="openAdminKeyModal()">🔑 Set Admin Key</button>
+        </div>
+
         <!-- CONTENT GRID -->
         <div class="content-grid">
             <!-- SUBSCRIPTION & BILLING -->
@@ -491,19 +506,7 @@
             </div>
         </div>
 
-        <div class="card control-room-card" id="controlRoomCard">
-            <h3>🛠️ Control Room</h3>
-            <p style="color: #718096; margin-bottom: 20px;">Run a test-only credit grant for the signed-in control-room user.</p>
-            <div class="control-room-grid">
-                <div class="control-room-field">
-                    <label for="grantCreditsAmount">Grant Credits</label>
-                    <input type="number" id="grantCreditsAmount" min="1" step="1" value="10">
-                </div>
-                <button class="btn btn-primary" onclick="grantMyTestCredits()">Grant My Test Credits</button>
-            </div>
-            <div class="control-room-note" id="controlRoomNote"></div>
-            <button class="btn" style="margin-top:10px;background:#edf2f7;color:#4a5568;font-size:0.85em;" onclick="openAdminKeyModal()">🔑 Set Admin Key</button>
-        </div>
+
 
         <!-- Admin Key Modal -->
         <div id="adminKeyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
