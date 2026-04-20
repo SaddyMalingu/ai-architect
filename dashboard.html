@@ -502,8 +502,21 @@
                 </div>
                 <button class="btn btn-primary" onclick="grantMyTestCredits()">Grant My Test Credits</button>
             </div>
-            <div class="control-room-note" id="controlRoomNote">
-                Store your admin key in <strong>localStorage.billingAdminKey</strong> to enable this action in the browser.
+            <div class="control-room-note" id="controlRoomNote"></div>
+            <button class="btn" style="margin-top:10px;background:#edf2f7;color:#4a5568;font-size:0.85em;" onclick="openAdminKeyModal()">🔑 Set Admin Key</button>
+        </div>
+
+        <!-- Admin Key Modal -->
+        <div id="adminKeyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:12px;padding:32px 28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+                <h3 style="margin:0 0 8px;">🔑 Set Billing Admin Key</h3>
+                <p style="color:#718096;font-size:0.9em;margin:0 0 18px;">Enter the <code>BILLING_ADMIN_KEY</code> value from your server environment. It will be saved only in this browser.</p>
+                <input type="password" id="adminKeyInput" placeholder="Paste admin key here…"
+                    style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:1em;box-sizing:border-box;margin-bottom:16px;">
+                <div style="display:flex;gap:10px;justify-content:flex-end;">
+                    <button class="btn" style="background:#edf2f7;color:#4a5568;" onclick="closeAdminKeyModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveAdminKey()">Save</button>
+                </div>
             </div>
         </div>
     </div>
@@ -518,7 +531,7 @@
         let currentUser = null;
         let controlRoomAllowed = false;
         const stripePublicKey = localStorage.getItem('stripePublicKey') || '';
-        const billingAdminKey = localStorage.getItem('billingAdminKey') || '';
+        let billingAdminKey = localStorage.getItem('billingAdminKey') || '';
         
         // Initialize
         window.addEventListener('DOMContentLoaded', async () => {
@@ -557,11 +570,7 @@
                 if (controlRoomAllowed) {
                     document.getElementById('controlRoomCard').style.display = 'block';
                     document.getElementById('grantCreditsAmount').value = data.default_grant_credits || 10;
-                    if (!billingAdminKey) {
-                        document.getElementById('controlRoomNote').textContent = 'Set localStorage.billingAdminKey in this browser, then reload to enable the grant action.';
-                    } else {
-                        document.getElementById('controlRoomNote').textContent = 'This action grants test credits only to the configured control-room user.';
-                    }
+                    updateControlRoomNote();
                 }
             } catch (e) {
                 controlRoomAllowed = false;
@@ -728,13 +737,41 @@
             document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
         }
 
+        function updateControlRoomNote() {
+            const note = document.getElementById('controlRoomNote');
+            if (!note) return;
+            if (!billingAdminKey) {
+                note.innerHTML = 'No admin key set. Click <strong>Set Admin Key</strong> below to save it.';
+            } else {
+                note.textContent = 'Admin key is set. This action grants test credits only to you.';
+            }
+        }
+
+        function openAdminKeyModal() {
+            const modal = document.getElementById('adminKeyModal');
+            modal.style.display = 'flex';
+            document.getElementById('adminKeyInput').value = billingAdminKey || '';
+            setTimeout(() => document.getElementById('adminKeyInput').focus(), 50);
+        }
+        function closeAdminKeyModal() {
+            document.getElementById('adminKeyModal').style.display = 'none';
+        }
+        function saveAdminKey() {
+            const val = document.getElementById('adminKeyInput').value.trim();
+            if (!val) { alert('Please enter a key.'); return; }
+            localStorage.setItem('billingAdminKey', val);
+            billingAdminKey = val;
+            closeAdminKeyModal();
+            updateControlRoomNote();
+        }
+
         async function grantMyTestCredits() {
             if (!controlRoomAllowed) {
                 showError('This account is not enabled for control-room credit grants.');
                 return;
             }
             if (!billingAdminKey) {
-                showError('Missing billing admin key in localStorage.billingAdminKey.');
+                showError('No admin key set — click "Set Admin Key" in the Control Room card.');
                 return;
             }
 
