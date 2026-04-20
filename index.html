@@ -804,6 +804,10 @@
           <label for="userId">User UUID</label>
           <input id="userId" placeholder="ec470708-d89c-4575-9d94-b57cd681bb8b" />
         </div>
+        <div>
+          <label for="backendApiBase">Backend API Base (for grants)</label>
+          <input id="backendApiBase" placeholder="https://your-backend-domain.com" />
+        </div>
       </div>
       <div class="row" style="margin-top:8px">
         <div class="toggle">
@@ -812,6 +816,27 @@
         </div>
       </div>
       <p class="hint">Config is stored in your browser for fast retesting.</p>
+
+      <div class="module" style="margin-top:14px; border: 2px solid rgba(29, 78, 137, .32); background: #fffaf0;">
+        <div class="module-head">
+          <div>
+            <h4>Control Room Credits</h4>
+            <p>Set admin key in-browser and grant test credits for the active User UUID.</p>
+          </div>
+          <div class="badge">Always Visible</div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="controlGrantAmount">Grant Credits</label>
+            <input id="controlGrantAmount" type="number" min="1" step="1" value="10" />
+          </div>
+          <div style="display:flex; gap:10px; align-items:end;">
+            <button id="setAdminKeyBtn" class="cta" type="button" style="width:auto;">Set Admin Key</button>
+            <button id="grantCreditsBtn" class="cta" type="button" style="width:auto;">Grant My Test Credits</button>
+          </div>
+        </div>
+        <p id="controlRoomHint" class="hint" style="margin-top:8px;">No admin key set yet. Click Set Admin Key.</p>
+      </div>
     </div>
 
     <div class="split">
@@ -1191,7 +1216,12 @@
       supabaseUrl: $("supabaseUrl"),
       anonKey: $("anonKey"),
       userId: $("userId"),
+      backendApiBase: $("backendApiBase"),
       consistencyMode: $("consistencyMode"),
+      controlGrantAmount: $("controlGrantAmount"),
+      setAdminKeyBtn: $("setAdminKeyBtn"),
+      grantCreditsBtn: $("grantCreditsBtn"),
+      controlRoomHint: $("controlRoomHint"),
       renderStyle: $("renderStyle"),
       renderProfile: $("renderProfile"),
       renderPrompt: $("renderPrompt"),
@@ -1273,8 +1303,12 @@
       base: "cloudstudio.base",
       anon: "cloudstudio.anon",
       user: "cloudstudio.user",
-      latestRequest: "cloudstudio.latestRequest"
+      latestRequest: "cloudstudio.latestRequest",
+      backendApiBase: "cloudstudio.backendApiBase",
+      billingAdminKey: "cloudstudio.billingAdminKey"
     };
+
+    let billingAdminKey = localStorage.getItem(ls.billingAdminKey) || "";
 
     let batchInProgress = false;
     let dynamicBatchDelayMs = 2000;
@@ -1331,13 +1365,85 @@
       ui.supabaseUrl.value = localStorage.getItem(ls.base) || "https://eccvtkqkllegzbypaemw.supabase.co";
       ui.anonKey.value = localStorage.getItem(ls.anon) || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjY3Z0a3FrbGxlZ3pieXBhZW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTcxODcsImV4cCI6MjA5MTgzMzE4N30.F6ylVSRrYjOlOSZBYEBmuwpfrxBbeF74DImUNSspIgY";
       ui.userId.value = localStorage.getItem(ls.user) || "ec470708-d89c-4575-9d94-b57cd681bb8b";
+      ui.backendApiBase.value = localStorage.getItem(ls.backendApiBase) || window.location.origin;
       ui.requestId.value = localStorage.getItem(ls.latestRequest) || "";
+      syncControlRoomHint();
     }
 
     function saveConfig() {
       localStorage.setItem(ls.base, ui.supabaseUrl.value.trim().replace(/\/$/, ""));
       localStorage.setItem(ls.anon, ui.anonKey.value.trim());
       localStorage.setItem(ls.user, ui.userId.value.trim());
+      localStorage.setItem(ls.backendApiBase, ui.backendApiBase.value.trim().replace(/\/$/, ""));
+    }
+
+    function syncControlRoomHint() {
+      if (!ui.controlRoomHint) return;
+      if (!billingAdminKey) {
+        ui.controlRoomHint.textContent = "No admin key set yet. Click Set Admin Key.";
+      } else {
+        ui.controlRoomHint.textContent = "Admin key saved in this browser. You can now grant credits for the current User UUID.";
+      }
+    }
+
+    function setAdminKeyPrompt() {
+      const entered = window.prompt("Paste BILLING_ADMIN_KEY", billingAdminKey || "");
+      if (entered === null) return;
+      const trimmed = String(entered).trim();
+      if (!trimmed) {
+        setStatus("Admin key was empty. No changes made.", false);
+        return;
+      }
+      billingAdminKey = trimmed;
+      localStorage.setItem(ls.billingAdminKey, billingAdminKey);
+      syncControlRoomHint();
+      setStatus("Admin key saved for this browser.", true);
+    }
+
+    async function grantMyTestCreditsFromControlRoom() {
+      saveConfig();
+      const apiBase = ui.backendApiBase.value.trim().replace(/\/$/, "");
+      const userId = ui.userId.value.trim();
+      const amount = Number(ui.controlGrantAmount.value || 0);
+
+      if (!billingAdminKey) {
+        setStatus("Set admin key first.", false);
+        return;
+      }
+      if (!apiBase) {
+        setStatus("Set Backend API Base first.", false);
+        return;
+      }
+      if (!userId) {
+        setStatus("Set User UUID first.", false);
+        return;
+      }
+      if (!Number.isFinite(amount) || amount <= 0) {
+        setStatus("Grant amount must be a positive number.", false);
+        return;
+      }
+
+      setStatus("Submitting credit grant...", null);
+      try {
+        const res = await fetch(apiBase + "/billing/admin/grant-credits", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            admin_key: billingAdminKey,
+            user_id: userId,
+            amount_credits: amount,
+            reason: "control_room_test_grant"
+          })
+        });
+        const data = await parseResponse(res);
+        if (!res.ok) {
+          throw new Error(data && data.detail ? data.detail : "Grant failed");
+        }
+        setStatus("Grant successful. New balance: " + Number(data.balance_credits || 0).toFixed(2), true);
+        showJson(data);
+      } catch (err) {
+        setStatus("Grant failed: " + (err && err.message ? err.message : String(err)), false);
+      }
     }
 
     function setStatus(text, ok) {
@@ -1986,6 +2092,12 @@
     }
 
     function bindEvents() {
+      if (ui.setAdminKeyBtn) {
+        ui.setAdminKeyBtn.addEventListener("click", setAdminKeyPrompt);
+      }
+      if (ui.grantCreditsBtn) {
+        ui.grantCreditsBtn.addEventListener("click", grantMyTestCreditsFromControlRoom);
+      }
       ui.runRenderBtn.addEventListener("click", runRender);
       ui.runAllViewsBtn.addEventListener("click", runRenderAllViews);
       ui.runRegionalBtn.addEventListener("click", runRegional);
