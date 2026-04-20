@@ -26,6 +26,8 @@ LSQ_WEBHOOK_SECRET = os.getenv("LSQ_WEBHOOK_SECRET", "")
 LSQ_VARIANT_STARTER = os.getenv("LSQ_VARIANT_STARTER", "")
 LSQ_VARIANT_PRO = os.getenv("LSQ_VARIANT_PRO", "")
 BILLING_ADMIN_KEY = os.getenv("BILLING_ADMIN_KEY", "")
+CONTROL_ROOM_TEST_USER_ID = os.getenv("CONTROL_ROOM_TEST_USER_ID", "")
+CONTROL_ROOM_DEFAULT_GRANT_CREDITS = os.getenv("CONTROL_ROOM_DEFAULT_GRANT_CREDITS", "10")
 
 # =====================================================================
 # REQUEST/RESPONSE MODELS
@@ -186,6 +188,8 @@ async def admin_grant_credits(request: AdminGrantCreditsRequest):
         raise HTTPException(status_code=403, detail="Invalid admin key")
     if request.amount_credits <= 0:
         raise HTTPException(status_code=400, detail="amount_credits must be positive")
+    if CONTROL_ROOM_TEST_USER_ID and request.user_id != CONTROL_ROOM_TEST_USER_ID:
+        raise HTTPException(status_code=403, detail="Credit grants are restricted to the configured control-room test user")
 
     billing = get_billing_client()
     success = billing.add_credits(
@@ -203,6 +207,15 @@ async def admin_grant_credits(request: AdminGrantCreditsRequest):
         "user_id": request.user_id,
         "balance_credits": credits.get("balance_credits"),
         "subscription_tier": credits.get("subscription_tier"),
+    }
+
+@router.get("/admin/control-room-config")
+async def control_room_config(user_id: str):
+    """Return whether the current user is allowed to run test credit grants from the control room."""
+    allowed = bool(CONTROL_ROOM_TEST_USER_ID) and user_id == CONTROL_ROOM_TEST_USER_ID
+    return {
+        "allowed": allowed,
+        "default_grant_credits": float(Decimal(CONTROL_ROOM_DEFAULT_GRANT_CREDITS)),
     }
 
 @router.post("/confirm-payment")
