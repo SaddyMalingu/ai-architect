@@ -833,9 +833,12 @@
           <div style="display:flex; gap:10px; align-items:end;">
             <button id="setAdminKeyBtn" class="cta" type="button" style="width:auto;">Set Admin Key</button>
             <button id="grantCreditsBtn" class="cta" type="button" style="width:auto;">Grant My Test Credits</button>
+            <button id="checkCreditsBtn" class="cta" type="button" style="width:auto;">Check My Credits</button>
           </div>
         </div>
         <p id="controlRoomHint" class="hint" style="margin-top:8px;">No admin key set yet. Click Set Admin Key.</p>
+        <p id="controlRoomBalance" class="hint" style="margin-top:6px;">Current credits: unknown</p>
+        <p id="controlRoomResult" class="hint" style="margin-top:6px;">No grant action yet.</p>
       </div>
     </div>
 
@@ -1221,7 +1224,10 @@
       controlGrantAmount: $("controlGrantAmount"),
       setAdminKeyBtn: $("setAdminKeyBtn"),
       grantCreditsBtn: $("grantCreditsBtn"),
+      checkCreditsBtn: $("checkCreditsBtn"),
       controlRoomHint: $("controlRoomHint"),
+      controlRoomBalance: $("controlRoomBalance"),
+      controlRoomResult: $("controlRoomResult"),
       renderStyle: $("renderStyle"),
       renderProfile: $("renderProfile"),
       renderPrompt: $("renderPrompt"),
@@ -1386,6 +1392,51 @@
       }
     }
 
+    function setControlRoomResult(message, ok) {
+      if (!ui.controlRoomResult) return;
+      ui.controlRoomResult.textContent = message;
+      if (ok === true) {
+        ui.controlRoomResult.className = "status-ok";
+      } else if (ok === false) {
+        ui.controlRoomResult.className = "status-bad";
+      } else {
+        ui.controlRoomResult.className = "hint";
+      }
+    }
+
+    async function checkMyCreditsFromControlRoom() {
+      saveConfig();
+      const apiBase = ui.backendApiBase.value.trim().replace(/\/$/, "");
+      const userId = ui.userId.value.trim();
+
+      if (!apiBase) {
+        setControlRoomResult("Set Backend API Base first.", false);
+        return;
+      }
+      if (!userId) {
+        setControlRoomResult("Set User UUID first.", false);
+        return;
+      }
+
+      setControlRoomResult("Checking credits...", null);
+      try {
+        const res = await fetch(apiBase + "/billing/credits/" + encodeURIComponent(userId), {
+          method: "GET"
+        });
+        const data = await parseResponse(res);
+        if (!res.ok) {
+          throw new Error(data && data.detail ? data.detail : "Credit check failed");
+        }
+        const balance = Number(data.balance_credits || 0);
+        if (ui.controlRoomBalance) {
+          ui.controlRoomBalance.textContent = "Current credits: " + balance.toFixed(2);
+        }
+        setControlRoomResult("Credit check successful.", true);
+      } catch (err) {
+        setControlRoomResult("Credit check failed: " + (err && err.message ? err.message : String(err)), false);
+      }
+    }
+
     function setAdminKeyPrompt() {
       const entered = window.prompt("Paste BILLING_ADMIN_KEY", billingAdminKey || "");
       if (entered === null) return;
@@ -1408,22 +1459,27 @@
 
       if (!billingAdminKey) {
         setStatus("Set admin key first.", false);
+        setControlRoomResult("Set admin key first.", false);
         return;
       }
       if (!apiBase) {
         setStatus("Set Backend API Base first.", false);
+        setControlRoomResult("Set Backend API Base first.", false);
         return;
       }
       if (!userId) {
         setStatus("Set User UUID first.", false);
+        setControlRoomResult("Set User UUID first.", false);
         return;
       }
       if (!Number.isFinite(amount) || amount <= 0) {
         setStatus("Grant amount must be a positive number.", false);
+        setControlRoomResult("Grant amount must be a positive number.", false);
         return;
       }
 
       setStatus("Submitting credit grant...", null);
+      setControlRoomResult("Submitting credit grant...", null);
       try {
         const res = await fetch(apiBase + "/billing/admin/grant-credits", {
           method: "POST",
@@ -1440,9 +1496,14 @@
           throw new Error(data && data.detail ? data.detail : "Grant failed");
         }
         setStatus("Grant successful. New balance: " + Number(data.balance_credits || 0).toFixed(2), true);
+        if (ui.controlRoomBalance) {
+          ui.controlRoomBalance.textContent = "Current credits: " + Number(data.balance_credits || 0).toFixed(2);
+        }
+        setControlRoomResult("Grant successful. New balance: " + Number(data.balance_credits || 0).toFixed(2), true);
         showJson(data);
       } catch (err) {
         setStatus("Grant failed: " + (err && err.message ? err.message : String(err)), false);
+        setControlRoomResult("Grant failed: " + (err && err.message ? err.message : String(err)), false);
       }
     }
 
@@ -2098,6 +2159,9 @@
       if (ui.grantCreditsBtn) {
         ui.grantCreditsBtn.addEventListener("click", grantMyTestCreditsFromControlRoom);
       }
+      if (ui.checkCreditsBtn) {
+        ui.checkCreditsBtn.addEventListener("click", checkMyCreditsFromControlRoom);
+      }
       ui.runRenderBtn.addEventListener("click", runRender);
       ui.runAllViewsBtn.addEventListener("click", runRenderAllViews);
       ui.runRegionalBtn.addEventListener("click", runRegional);
@@ -2179,6 +2243,7 @@
     syncRenderSummary();
     setupTabs();
     bindEvents();
+    checkMyCreditsFromControlRoom();
   </script>
 </body>
 </html>
