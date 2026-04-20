@@ -816,7 +816,7 @@
         </div>
       </div>
       <p class="hint">Config is stored in your browser for fast retesting.</p>
-      <p class="hint" style="margin-top:6px;">Backend API Base must be your FastAPI server URL (for example <code>http://localhost:8000</code>), not this Cloud Studio frontend URL.</p>
+      <p class="hint" style="margin-top:6px;">Backend API Base must be either your FastAPI URL (example <code>http://localhost:8000</code>) or Supabase Functions base (<code>https://YOUR_PROJECT_REF.supabase.co/functions/v1</code>).</p>
 
       <div class="module" style="margin-top:14px; border: 2px solid rgba(29, 78, 137, .32); background: #fffaf0;">
         <div class="module-head">
@@ -1372,7 +1372,7 @@
       ui.supabaseUrl.value = localStorage.getItem(ls.base) || "https://eccvtkqkllegzbypaemw.supabase.co";
       ui.anonKey.value = localStorage.getItem(ls.anon) || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjY3Z0a3FrbGxlZ3pieXBhZW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTcxODcsImV4cCI6MjA5MTgzMzE4N30.F6ylVSRrYjOlOSZBYEBmuwpfrxBbeF74DImUNSspIgY";
       ui.userId.value = localStorage.getItem(ls.user) || "ec470708-d89c-4575-9d94-b57cd681bb8b";
-      ui.backendApiBase.value = localStorage.getItem(ls.backendApiBase) || window.location.origin;
+      ui.backendApiBase.value = localStorage.getItem(ls.backendApiBase) || (ui.supabaseUrl.value.trim().replace(/\/$/, "") + "/functions/v1");
       ui.requestId.value = localStorage.getItem(ls.latestRequest) || "";
       syncControlRoomHint();
     }
@@ -1411,9 +1411,31 @@
       return fallback + " (HTTP " + response.status + ")" + suffix;
     }
 
+    function normalizeBase(value) {
+      return String(value || "").trim().replace(/\/$/, "");
+    }
+
+    function isSupabaseFunctionsBase(base) {
+      return /\/functions\/v1$/i.test(base);
+    }
+
+    function creditsEndpoint(base, userId) {
+      if (isSupabaseFunctionsBase(base)) {
+        return base + "/billing-credits?user_id=" + encodeURIComponent(userId);
+      }
+      return base + "/billing/credits/" + encodeURIComponent(userId);
+    }
+
+    function grantEndpoint(base) {
+      if (isSupabaseFunctionsBase(base)) {
+        return base + "/billing-grant-credits";
+      }
+      return base + "/billing/admin/grant-credits";
+    }
+
     async function checkMyCreditsFromControlRoom() {
       saveConfig();
-      const apiBase = ui.backendApiBase.value.trim().replace(/\/$/, "");
+      const apiBase = normalizeBase(ui.backendApiBase.value);
       const userId = ui.userId.value.trim();
 
       if (!apiBase) {
@@ -1427,7 +1449,7 @@
 
       setControlRoomResult("Checking credits...", null);
       try {
-        const res = await fetch(apiBase + "/billing/credits/" + encodeURIComponent(userId), {
+        const res = await fetch(creditsEndpoint(apiBase, userId), {
           method: "GET"
         });
         const data = await parseResponse(res);
@@ -1460,7 +1482,7 @@
 
     async function grantMyTestCreditsFromControlRoom() {
       saveConfig();
-      const apiBase = ui.backendApiBase.value.trim().replace(/\/$/, "");
+      const apiBase = normalizeBase(ui.backendApiBase.value);
       const userId = ui.userId.value.trim();
       const amount = Number(ui.controlGrantAmount.value || 0);
 
@@ -1488,7 +1510,7 @@
       setStatus("Submitting credit grant...", null);
       setControlRoomResult("Submitting credit grant...", null);
       try {
-        const res = await fetch(apiBase + "/billing/admin/grant-credits", {
+        const res = await fetch(grantEndpoint(apiBase), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
