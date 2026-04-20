@@ -1,0 +1,2072 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Architect Cloud Studio</title>
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f5efe5;
+      --bg-deep: #efe5d6;
+      --ink: #162031;
+      --muted: #5f6b7e;
+      --line: #d8d2c8;
+      --panel: #ffffff;
+      --panel-alt: rgba(255, 255, 255, .72);
+      --accent: #0f766e;
+      --accent-2: #1d4e89;
+      --accent-3: #c97335;
+      --soft: #eef8f4;
+      --warn: #991b1b;
+      --ok: #166534;
+      --shadow: 0 18px 44px rgba(22, 32, 49, .1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Manrope", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:
+        radial-gradient(circle at 6% -10%, rgba(22, 163, 74, .14) 0%, transparent 38%),
+        radial-gradient(circle at 102% 2%, rgba(29, 78, 137, .14) 0%, transparent 42%),
+        linear-gradient(180deg, rgba(255, 255, 255, .65), rgba(255, 255, 255, 0)),
+        var(--bg);
+    }
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 16px 56px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .72);
+      border: 1px solid rgba(201, 115, 53, .22);
+      color: #8a4b1f;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      box-shadow: 0 10px 26px rgba(22, 32, 49, .06);
+    }
+    .masthead {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1.25fr) minmax(300px, .95fr);
+      align-items: start;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 960px) {
+      .masthead {
+        grid-template-columns: 1fr;
+      }
+    }
+    h1 {
+      margin: 10px 0 0;
+      font-size: clamp(2.35rem, 4vw, 4.15rem);
+      line-height: .96;
+      letter-spacing: -.05em;
+      font-family: "Space Grotesk", "Manrope", sans-serif;
+    }
+    .sub {
+      color: var(--muted);
+      margin: 12px 0 0;
+      max-width: 780px;
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+    .masthead-signals {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (max-width: 620px) {
+      .masthead-signals {
+        grid-template-columns: 1fr;
+      }
+    }
+    .signal-card {
+      background: rgba(255, 255, 255, .7);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, .85);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+    .signal-card strong {
+      display: block;
+      font-size: 1.75rem;
+      line-height: 1;
+      font-family: "Space Grotesk", sans-serif;
+    }
+    .signal-card span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.45;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .9));
+      border: 1px solid rgba(255, 255, 255, .9);
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .card-head h2,
+    .card-head h3 {
+      margin: 4px 0 0;
+      font-family: "Space Grotesk", sans-serif;
+      letter-spacing: -.03em;
+    }
+    .card-kicker {
+      color: #8a4b1f;
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .card-note {
+      max-width: 360px;
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.5;
+    }
+    .row {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    label {
+      display: block;
+      font-size: .87rem;
+      margin-bottom: 6px;
+      color: #334155;
+      font-weight: 700;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      border: 1px solid rgba(148, 163, 184, .38);
+      border-radius: 14px;
+      padding: 11px 13px;
+      font-size: .93rem;
+      background: rgba(255, 255, 255, .92);
+      transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: rgba(15, 118, 110, .55);
+      box-shadow: 0 0 0 4px rgba(15, 118, 110, .1);
+    }
+    textarea { resize: vertical; min-height: 78px; }
+    button {
+      cursor: pointer;
+      border: 0;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(130deg, var(--accent), var(--accent-2));
+      box-shadow: 0 14px 30px rgba(15, 118, 110, .22);
+    }
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: .65; cursor: not-allowed; }
+    .btn-soft {
+      background: linear-gradient(180deg, #f9fafb, #eceff3);
+      color: #162031;
+      box-shadow: none;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(300px, .92fr);
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 980px) {
+      .split { grid-template-columns: 1fr; }
+    }
+    .side-stack {
+      position: sticky;
+      top: 16px;
+    }
+    @media (max-width: 980px) {
+      .side-stack {
+        position: static;
+      }
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 8px;
+      background: rgba(245, 248, 251, .9);
+      border-radius: 18px;
+      border: 1px solid rgba(216, 226, 237, .95);
+    }
+    .tab {
+      border: 1px solid transparent;
+      background: transparent;
+      color: #1e293b;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: .86rem;
+      cursor: pointer;
+    }
+    .tab.active {
+      background: linear-gradient(135deg, rgba(15, 118, 110, .12), rgba(29, 78, 137, .14));
+      border-color: rgba(15, 118, 110, .16);
+      color: #0f766e;
+      font-weight: 700;
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .hint {
+      color: var(--muted);
+      font-size: .86rem;
+      margin-top: 6px;
+    }
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .9rem;
+      color: #334155;
+      margin: 3px 0 2px;
+    }
+    .toggle input { width: auto; }
+    .status-ok { color: var(--ok); font-weight: 600; }
+    .status-bad { color: var(--warn); font-weight: 600; }
+    .guardrail {
+      margin-top: 8px;
+      border: 1px solid #f3c266;
+      background: #fffbeb;
+      color: #78350f;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: .84rem;
+      line-height: 1.35;
+    }
+    .guardrail.hidden { display: none; }
+    .guardrail.bad {
+      border-color: #fca5a5;
+      background: #fef2f2;
+      color: #7f1d1d;
+    }
+    .guardrail.ok {
+      border-color: #86efac;
+      background: #f0fdf4;
+      color: #14532d;
+    }
+    .guardrail a {
+      color: inherit;
+      font-weight: 700;
+    }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .82rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #f8fafc;
+      padding: 12px;
+      min-height: 132px;
+      max-height: 340px;
+      overflow: auto;
+      margin-top: 8px;
+    }
+    .image {
+      width: 100%;
+      max-width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      display: none;
+      margin-top: 8px;
+      background: #fff;
+    }
+    .list {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+      max-height: 640px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+    }
+    .item h4 {
+      margin: 0 0 6px;
+      font-size: .93rem;
+      word-break: break-word;
+    }
+    .item p {
+      margin: 2px 0;
+      color: #475569;
+      font-size: .82rem;
+    }
+    .pill {
+      display: inline-block;
+      font-size: .74rem;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: #e2e8f0;
+      color: #0f172a;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+    .pill.good { background: #dcfce7; color: #166534; }
+    .pill.bad { background: #fee2e2; color: #991b1b; }
+    .hero {
+      border-radius: 28px;
+      padding: 22px;
+      margin-bottom: 18px;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(16, 185, 129, .2), transparent 38%),
+        radial-gradient(circle at 98% 4%, rgba(14, 165, 233, .18), transparent 40%),
+        linear-gradient(145deg, rgba(255, 252, 248, .96) 0%, rgba(243, 251, 255, .92) 100%);
+      border: 1px solid rgba(255, 255, 255, .85);
+      box-shadow: var(--shadow);
+    }
+    .hero-grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1.3fr) minmax(260px, .9fr);
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .hero h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: -.03em;
+      font-family: "Space Grotesk", sans-serif;
+    }
+    .hero p {
+      margin: 7px 0 0;
+      color: #334155;
+      font-size: .96rem;
+      line-height: 1.6;
+    }
+    .hero-stats {
+      display: grid;
+      gap: 10px;
+    }
+    .hero-stat {
+      border-radius: 18px;
+      padding: 14px;
+      background: rgba(255, 255, 255, .74);
+      border: 1px solid rgba(216, 226, 237, .9);
+    }
+    .hero-stat strong {
+      display: block;
+      font-size: .95rem;
+      font-weight: 800;
+      color: #162031;
+    }
+    .hero-stat span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.45;
+    }
+    .workflow {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 16px;
+    }
+    @media (max-width: 820px) {
+      .workflow { grid-template-columns: 1fr 1fr; }
+    }
+    .flow-btn {
+      border: 1px solid rgba(255, 255, 255, .84);
+      border-radius: 16px;
+      padding: 12px 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(248,250,252,.9));
+      color: #0f172a;
+      text-align: left;
+      line-height: 1.25;
+      font-size: .84rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, .06);
+    }
+    .flow-btn span {
+      display: block;
+      color: #475569;
+      font-weight: 500;
+      margin-top: 2px;
+      font-size: .79rem;
+    }
+    .section-title {
+      margin: 16px 0 8px;
+      font-size: .82rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: #0f766e;
+      font-weight: 700;
+    }
+    .module {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(216, 226, 237, .95);
+      background: linear-gradient(180deg, rgba(249, 250, 251, .9), rgba(255, 255, 255, .78));
+    }
+    .module:first-of-type {
+      margin-top: 12px;
+    }
+    .animate-in {
+      animation: riseIn .48s ease both;
+    }
+    .animate-in:nth-child(2) { animation-delay: .04s; }
+    .animate-in:nth-child(3) { animation-delay: .08s; }
+    .animate-in:nth-child(4) { animation-delay: .12s; }
+    .module-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .module-head h4 {
+      margin: 0;
+      font-size: 1rem;
+      font-family: "Space Grotesk", sans-serif;
+      letter-spacing: -.02em;
+    }
+    .module-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .83rem;
+      line-height: 1.45;
+      max-width: 430px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(15, 118, 110, .08);
+      color: #0f766e;
+      font-size: .74rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .summary-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    @media (max-width: 900px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 520px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .summary-card {
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(216, 226, 237, .95);
+      background: rgba(255, 255, 255, .7);
+    }
+    .summary-card strong {
+      display: block;
+      font-size: .76rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #8a4b1f;
+    }
+    .summary-card span {
+      display: block;
+      margin-top: 6px;
+      color: #162031;
+      font-weight: 700;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+    .grid-views {
+      margin-top: 12px;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (max-width: 700px) {
+      .grid-views { grid-template-columns: 1fr; }
+    }
+    .view-card {
+      border: 1px solid rgba(216, 226, 237, .95);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.92));
+      padding: 10px;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, .05);
+    }
+    .view-card.active {
+      border-color: rgba(29, 78, 137, .35);
+      box-shadow: 0 16px 28px rgba(29, 78, 137, .12);
+      transform: translateY(-1px);
+    }
+    .view-card.is-rendering {
+      border-color: rgba(14, 165, 233, .45);
+      box-shadow: 0 0 0 4px rgba(14, 165, 233, .08), 0 16px 32px rgba(21, 94, 117, .12);
+    }
+    .view-card.is-completed {
+      border-color: rgba(22, 101, 52, .26);
+    }
+    .view-card.is-failed {
+      border-color: rgba(153, 27, 27, .24);
+    }
+    .view-card h5 {
+      margin: 0 0 8px;
+      font-size: .8rem;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .view-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 1px dashed rgba(148, 163, 184, .4);
+      background: linear-gradient(180deg, #f8fafc, #eef2f7);
+    }
+    .view-state {
+      margin-top: 6px;
+      font-size: .78rem;
+      color: #64748b;
+      text-transform: capitalize;
+    }
+    .view-state.ok { color: #166534; font-weight: 700; }
+    .view-state.bad { color: #991b1b; font-weight: 700; }
+    .view-state.work { color: #155e75; font-weight: 700; }
+    .input-previews {
+      margin-top: 8px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    @media (max-width: 840px) {
+      .input-previews { grid-template-columns: 1fr; }
+    }
+    .preview-card {
+      border: 1px solid rgba(216, 226, 237, .95);
+      border-radius: 16px;
+      padding: 8px;
+      background: rgba(255, 255, 255, .86);
+    }
+    .preview-card h6 {
+      margin: 0 0 5px;
+      font-size: .76rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #334155;
+    }
+    .preview-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .chip {
+      border: 1px solid rgba(148, 163, 184, .34);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .86);
+      color: #0f172a;
+      padding: 7px 12px;
+      font-size: .78rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .chip.active {
+      border-color: #67e8f9;
+      background: #ecfeff;
+      color: #0e7490;
+      font-weight: 700;
+    }
+    .mode-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid rgba(148, 163, 184, .26);
+      border-radius: 14px;
+      background: rgba(248, 250, 252, .9);
+    }
+    .mode-row label {
+      margin: 0;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      font-size: .88rem;
+      color: #1e293b;
+      cursor: pointer;
+    }
+    .mode-row input {
+      width: auto;
+      margin: 0;
+      padding: 0;
+    }
+    .manual-box {
+      margin-top: 10px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: 18px;
+      padding: 12px;
+      background: rgba(248, 250, 252, .92);
+    }
+    .mask-editor {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0f172a;
+      position: relative;
+      margin-top: 8px;
+    }
+    #maskBackground {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background-size: cover;
+      background-position: center;
+      opacity: .34;
+      pointer-events: none;
+    }
+    #maskCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      cursor: crosshair;
+    }
+    .results-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .results-head h4 {
+      margin: 0;
+      font-size: 1rem;
+      font-family: "Space Grotesk", sans-serif;
+    }
+    .results-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .84rem;
+    }
+    .history-list-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .history-list-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+    @keyframes riseIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .animate-in {
+        animation: none;
+      }
+      button,
+      input,
+      select,
+      textarea,
+      .view-card {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="masthead">
+      <div>
+        <div class="eyebrow">Architectural Visualization Control Room</div>
+        <h1>AI Architect Cloud Studio</h1>
+        <p class="sub">A richer production-safe studio for architectural rendering, regional editing, request tracking, and history-aware batching across desktop, tablet, and mobile screens.</p>
+      </div>
+      <div class="masthead-signals">
+        <div class="signal-card">
+          <strong>4</strong>
+          <span>Orchestrated facade viewpoints with sequential batch safety and adaptive cooldowns.</span>
+        </div>
+        <div class="signal-card">
+          <strong>3</strong>
+          <span>Regional edit modes: prompt-guided, manual mask drawing, and automatic targeting.</span>
+        </div>
+        <div class="signal-card">
+          <strong>24/7</strong>
+          <span>History-aware warnings surface low credit, throttling, and provider model issues early.</span>
+        </div>
+        <div class="signal-card">
+          <strong>All screens</strong>
+          <span>Modular cards, stacked actions, and larger touch targets keep the workflow usable on phones.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-grid">
+        <div>
+          <h2>Unified Rendering Studio</h2>
+          <p>Built on the currently served production flow with stronger hierarchy, clearer modules, and more deliberate feedback states. Existing API routes, IDs, and core interactions remain unchanged.</p>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <strong>Compose richer prompts</strong>
+            <span>Source, reference, and background inputs now read like a single design brief instead of separate utilities.</span>
+          </div>
+          <div class="hero-stat">
+            <strong>Stay oriented in long runs</strong>
+            <span>Batch safety, status banners, and output view emphasis reduce context loss while renders are processing.</span>
+          </div>
+        </div>
+      </div>
+      <div class="workflow">
+        <button class="flow-btn" type="button" data-jump="renderTab">1. Compose Render<span>Prompt, source, reference, background</span></button>
+        <button class="flow-btn" type="button" data-jump="regionalTab">2. Regional Edit<span>Prompt/manual/automatic selection</span></button>
+        <button class="flow-btn" type="button" data-jump="statusTab">3. Track Status<span>Poll request completion</span></button>
+        <button class="flow-btn" type="button" data-jump="history">4. Compare History<span>Evaluate previous outputs</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-kicker">Connection Deck</div>
+          <h2>Project Runtime</h2>
+        </div>
+        <div class="card-note">Keep project credentials and consistency settings visible without burying them inside the main rendering controls.</div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="supabaseUrl">Supabase URL</label>
+          <input id="supabaseUrl" placeholder="https://YOUR_PROJECT_REF.supabase.co" />
+        </div>
+        <div>
+          <label for="anonKey">Supabase Anon Key</label>
+          <input id="anonKey" placeholder="eyJ..." />
+        </div>
+        <div>
+          <label for="userId">User UUID</label>
+          <input id="userId" placeholder="ec470708-d89c-4575-9d94-b57cd681bb8b" />
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div class="toggle">
+          <input type="checkbox" id="consistencyMode" checked />
+          <label for="consistencyMode" style="margin:0">Consistency mode (locks profile to balanced and keeps defaults stable)</label>
+        </div>
+      </div>
+      <p class="hint">Config is stored in your browser for fast retesting.</p>
+    </div>
+
+    <div class="split">
+      <div>
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-kicker">Studio Console</div>
+              <h2>Rendering And Editing Workspace</h2>
+            </div>
+            <div class="card-note">All existing render, edit, and status controls are preserved, but grouped into clearer modules for faster scanning.</div>
+          </div>
+          <div class="tabs">
+            <button class="tab active" data-tab="renderTab" type="button">Render</button>
+            <button class="tab" data-tab="regionalTab" type="button">Regional Edit</button>
+            <button class="tab" data-tab="statusTab" type="button">Request Status</button>
+          </div>
+
+          <div id="renderTab" class="panel active" style="margin-top:12px">
+            <div class="module animate-in">
+              <div class="module-head">
+                <div>
+                  <h4>Render Brief</h4>
+                  <p>Define the visual direction, choose the active camera angle, and keep the prompt centered in the workflow.</p>
+                </div>
+                <div class="badge">Batch Ready</div>
+              </div>
+              <div class="row">
+                <div>
+                  <label for="renderStyle">Style</label>
+                  <input id="renderStyle" value="photoreal exterior" />
+                </div>
+                <div>
+                  <label for="renderProfile">Model profile</label>
+                  <select id="renderProfile">
+                    <option value="fast">fast</option>
+                    <option value="balanced" selected>balanced</option>
+                    <option value="quality">quality</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="activeView">Active output view</label>
+                  <select id="activeView">
+                    <option value="front" selected>front</option>
+                    <option value="left">left</option>
+                    <option value="right">right</option>
+                    <option value="back">back</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top:8px">
+                <label for="renderPrompt">Prompt</label>
+                <textarea id="renderPrompt">Modern 2-storey facade, warm evening lighting</textarea>
+              </div>
+            </div>
+            <div class="module animate-in">
+              <div class="module-head">
+                <div>
+                  <h4>Live Brief Summary</h4>
+                  <p>A compact readout of the current render configuration so changes remain legible while you tune inputs.</p>
+                </div>
+                <div class="badge">At A Glance</div>
+              </div>
+              <div class="summary-grid">
+                <div class="summary-card">
+                  <strong>Prompt Focus</strong>
+                  <span id="summaryPrompt">Modern 2-storey facade, warm evening lighting</span>
+                </div>
+                <div class="summary-card">
+                  <strong>Camera View</strong>
+                  <span id="summaryView">front</span>
+                </div>
+                <div class="summary-card">
+                  <strong>Model Profile</strong>
+                  <span id="summaryProfile">balanced</span>
+                </div>
+                <div class="summary-card">
+                  <strong>Scene Context</strong>
+                  <span id="summaryBackground">no background preset</span>
+                </div>
+              </div>
+            </div>
+            <div class="module animate-in">
+              <div class="module-head">
+                <div>
+                  <h4>Reference Inputs</h4>
+                  <p>Blend source geometry, material references, and local uploads into a single context layer before inference.</p>
+                </div>
+                <div class="badge">Context Layer</div>
+              </div>
+              <div class="row">
+                <div>
+                  <label for="renderInputImageUrl">Image to render URL (optional)</label>
+                  <input id="renderInputImageUrl" placeholder="https://.../source-house.png" />
+                </div>
+                <div>
+                  <label for="renderReferenceImageUrl">Reference image URL (optional)</label>
+                  <input id="renderReferenceImageUrl" placeholder="https://.../reference-style.png" />
+                </div>
+              </div>
+              <div class="row" style="margin-top:8px">
+                <div>
+                  <label for="renderSourceUpload">Uploaded source image (preview / local editing)</label>
+                  <input id="renderSourceUpload" type="file" accept="image/*" />
+                  <p class="hint">Uploads stay local in this UI. Use an HTTPS URL above for API submission.</p>
+                </div>
+                <div>
+                  <img id="renderSourcePreview" class="image" alt="Source preview" />
+                </div>
+              </div>
+              <div class="input-previews">
+                <div class="preview-card">
+                  <h6>Main / Uploaded</h6>
+                  <img id="renderInputPreview" alt="Main input preview" />
+                </div>
+                <div class="preview-card">
+                  <h6>Reference</h6>
+                  <img id="renderReferencePreview" alt="Reference preview" />
+                </div>
+                <div class="preview-card">
+                  <h6>Background</h6>
+                  <img id="renderBackgroundPreview" alt="Background preview" />
+                </div>
+              </div>
+            </div>
+            <div class="module animate-in">
+              <div class="module-head">
+                <div>
+                  <h4>Background Context</h4>
+                  <p>Set the environmental story once, then let the four-view render board inherit that atmosphere consistently.</p>
+                </div>
+                <div class="badge">Scene Framing</div>
+              </div>
+              <div class="row">
+                <div>
+                  <label for="renderBackgroundPreset">Background theme</label>
+                  <select id="renderBackgroundPreset">
+                    <option value="">none</option>
+                    <option value="garden">garden</option>
+                    <option value="city">city</option>
+                    <option value="nature">nature</option>
+                    <option value="flowers">flowers</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="renderBackgroundImageUrl">Background image URL (optional)</label>
+                  <input id="renderBackgroundImageUrl" placeholder="https://.../background.png" />
+                </div>
+              </div>
+              <div class="chips" id="backgroundPresetChips">
+                <button class="chip" data-preset="garden" type="button">Garden</button>
+                <button class="chip" data-preset="city" type="button">City</button>
+                <button class="chip" data-preset="nature" type="button">Nature</button>
+                <button class="chip" data-preset="flowers" type="button">Flowers</button>
+                <button class="chip" data-preset="" type="button">None</button>
+              </div>
+            </div>
+            <div class="module animate-in">
+              <div class="module-head">
+                <div>
+                  <h4>Execution Controls</h4>
+                  <p>Run a single view, trigger a managed four-view batch, or poll the last request without leaving the workspace.</p>
+                </div>
+                <div class="badge">Guardrailed</div>
+              </div>
+              <div class="row">
+                <div><button id="runRenderBtn" type="button">Run Render</button></div>
+                <div><button id="runAllViewsBtn" class="btn-soft" type="button">Render All Views</button></div>
+                <div><button id="pollLatestBtn" class="btn-soft" type="button">Poll Latest Request</button></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="regionalTab" class="panel" style="margin-top:12px">
+            <div class="module animate-in">
+              <div class="module-head">
+                <div>
+                  <h4>Selection Strategy</h4>
+                  <p>Switch between prompt-led edits, direct manual painting, or automatic detection without leaving the same edit canvas.</p>
+                </div>
+                <div class="badge">3 Modes</div>
+              </div>
+              <div>
+                <label>Regional editing method</label>
+                <div class="mode-row">
+                  <label><input type="radio" name="editMethod" value="prompt_based" checked /> Prompt based editing</label>
+                  <label><input type="radio" name="editMethod" value="manual_selection" /> Manual selection editing</label>
+                  <label><input type="radio" name="editMethod" value="automatic_selection" /> Automatic selection editing</label>
+                </div>
+              </div>
+              <div class="row" style="margin-top:10px">
+                <div>
+                  <label for="editCategory">Edit category</label>
+                  <select id="editCategory">
+                    <option value="element_texture" selected>element_texture</option>
+                    <option value="whole_building">whole_building</option>
+                    <option value="prompt_only">prompt_only</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="selectionModeDisplay">Selection mode</label>
+                  <input id="selectionModeDisplay" value="automatic (derived from method)" disabled />
+                </div>
+                <div>
+                  <label for="editProfile">Model profile</label>
+                  <select id="editProfile">
+                    <option value="fast">fast</option>
+                    <option value="balanced" selected>balanced</option>
+                    <option value="quality">quality</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top:8px">
+                <label for="editPrompt">Edit prompt</label>
+                <textarea id="editPrompt">Apply warm wood facade texture to selected area</textarea>
+              </div>
+            </div>
+            <div class="module animate-in">
+              <div class="module-head">
+                <div>
+                  <h4>Edit Inputs</h4>
+                  <p>Target the active render, optionally bring in reference imagery, and control edit strength precisely.</p>
+                </div>
+                <div class="badge">Targeted</div>
+              </div>
+              <div class="row">
+                <div>
+                  <label for="targetImageUrl">Target image URL (required)</label>
+                  <input id="targetImageUrl" placeholder="https://.../target.png" />
+                </div>
+                <div>
+                  <label for="referenceImageUrl">Reference image URL (optional)</label>
+                  <input id="referenceImageUrl" placeholder="https://.../reference.png" />
+                </div>
+              </div>
+              <div class="row" style="margin-top:8px">
+                <div>
+                  <label for="targetMaskUrl">Target mask URL (required for manual mode)</label>
+                  <input id="targetMaskUrl" placeholder="https://.../mask.png" />
+                </div>
+                <div>
+                  <label for="strength">Strength (0.0 - 1.0)</label>
+                  <input id="strength" type="number" min="0" max="1" step="0.05" value="0.65" />
+                </div>
+              </div>
+            </div>
+            <div id="manualSelectionBox" class="manual-box" style="display:none">
+              <label>Manual selection canvas (mouse / cursor / touch)</label>
+              <div class="row" style="margin-top:6px">
+                <div>
+                  <label for="manualTargetImageUrl">Target image URL for canvas preview (optional)</label>
+                  <input id="manualTargetImageUrl" placeholder="https://.../target.png" />
+                </div>
+                <div>
+                  <label for="manualTargetUpload">Or upload target image</label>
+                  <input id="manualTargetUpload" type="file" accept="image/*" />
+                </div>
+              </div>
+              <div class="row" style="margin-top:8px">
+                <div><button id="loadManualImageBtn" class="btn-soft" type="button">Load Target For Selection</button></div>
+                <div>
+                  <label for="maskBrushSize">Brush size</label>
+                  <input id="maskBrushSize" type="range" min="2" max="40" value="14" />
+                </div>
+                <div><button id="clearMaskBtn" class="btn-soft" type="button">Clear Mask</button></div>
+              </div>
+              <div class="mask-editor">
+                <div id="maskBackground"></div>
+                <canvas id="maskCanvas" width="1280" height="720"></canvas>
+              </div>
+              <div class="row" style="margin-top:8px">
+                <div><button id="downloadMaskBtn" class="btn-soft" type="button">Download Mask PNG</button></div>
+                <div><p class="hint" style="margin:10px 0 0">Upload the downloaded PNG and paste its HTTPS URL into target mask URL.</p></div>
+              </div>
+            </div>
+            <div class="module animate-in">
+              <div class="module-head">
+                <div>
+                  <h4>Run Edit</h4>
+                  <p>Execute the current regional operation while keeping the same output monitor and status banner below.</p>
+                </div>
+                <div class="badge">Single Action</div>
+              </div>
+              <div>
+                <button id="runRegionalBtn" type="button">Run Regional Edit</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="statusTab" class="panel" style="margin-top:12px">
+            <div class="module animate-in">
+              <div class="module-head">
+                <div>
+                  <h4>Request Tracking</h4>
+                  <p>Inspect any request by ID or continue polling the latest render without re-entering identifiers.</p>
+                </div>
+                <div class="badge">Live Status</div>
+              </div>
+              <div class="row">
+                <div>
+                  <label for="requestId">Request ID</label>
+                  <input id="requestId" placeholder="paste request_id" />
+                </div>
+                <div style="display:flex; align-items:end; gap:8px">
+                  <button id="checkStatusBtn" type="button">Check Status</button>
+                </div>
+              </div>
+              <p class="hint">Tip: latest request ID is auto-saved after each render/edit call.</p>
+            </div>
+          </div>
+
+          <div style="margin-top:10px">
+            <div id="statusText" class="hint">Idle.</div>
+            <div id="guardrailBanner" class="guardrail hidden"></div>
+            <pre id="responseBox" class="mono">No API calls yet.</pre>
+            <img id="resultImage" class="image" alt="Result image" />
+            <div class="results-head">
+              <div>
+                <h4>Main Image Views</h4>
+                <p>Front, left, right, and back outputs stay visible together so composition drift is easier to catch.</p>
+              </div>
+              <div class="badge">Viewboard</div>
+            </div>
+            <div class="grid-views">
+              <div class="view-card">
+                <h5>Front</h5>
+                <img id="viewFrontImage" alt="Front render" />
+                <div id="viewFrontState" class="view-state">waiting</div>
+              </div>
+              <div class="view-card">
+                <h5>Left</h5>
+                <img id="viewLeftImage" alt="Left render" />
+                <div id="viewLeftState" class="view-state">waiting</div>
+              </div>
+              <div class="view-card">
+                <h5>Right</h5>
+                <img id="viewRightImage" alt="Right render" />
+                <div id="viewRightState" class="view-state">waiting</div>
+              </div>
+              <div class="view-card">
+                <h5>Back</h5>
+                <img id="viewBackImage" alt="Back render" />
+                <div id="viewBackState" class="view-state">waiting</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-stack">
+        <div class="card" id="historySection">
+          <div class="history-list-head">
+            <div>
+              <div class="card-kicker">Activity Rail</div>
+              <h3 style="margin:4px 0 0">Render History</h3>
+              <p>Review prior outputs, failures, and latency patterns while staying inside the same screen.</p>
+            </div>
+          </div>
+          <div class="row" style="grid-template-columns: 1fr auto; align-items:end;">
+            <div>
+              <label for="historyLimit">History limit</label>
+              <input id="historyLimit" type="number" min="1" max="50" value="10" />
+            </div>
+            <div>
+              <button id="loadHistoryBtn" class="btn-soft" type="button">Load History</button>
+            </div>
+          </div>
+          <div id="historyList" class="list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const ui = {
+      supabaseUrl: $("supabaseUrl"),
+      anonKey: $("anonKey"),
+      userId: $("userId"),
+      consistencyMode: $("consistencyMode"),
+      renderStyle: $("renderStyle"),
+      renderProfile: $("renderProfile"),
+      renderPrompt: $("renderPrompt"),
+      activeView: $("activeView"),
+      renderInputImageUrl: $("renderInputImageUrl"),
+      renderReferenceImageUrl: $("renderReferenceImageUrl"),
+      renderSourceUpload: $("renderSourceUpload"),
+      renderSourcePreview: $("renderSourcePreview"),
+      renderInputPreview: $("renderInputPreview"),
+      renderReferencePreview: $("renderReferencePreview"),
+      renderBackgroundPreview: $("renderBackgroundPreview"),
+      renderBackgroundPreset: $("renderBackgroundPreset"),
+      renderBackgroundImageUrl: $("renderBackgroundImageUrl"),
+      backgroundPresetChips: $("backgroundPresetChips"),
+      summaryPrompt: $("summaryPrompt"),
+      summaryView: $("summaryView"),
+      summaryProfile: $("summaryProfile"),
+      summaryBackground: $("summaryBackground"),
+      runRenderBtn: $("runRenderBtn"),
+      runAllViewsBtn: $("runAllViewsBtn"),
+      pollLatestBtn: $("pollLatestBtn"),
+      editCategory: $("editCategory"),
+      selectionModeDisplay: $("selectionModeDisplay"),
+      editProfile: $("editProfile"),
+      editPrompt: $("editPrompt"),
+      targetImageUrl: $("targetImageUrl"),
+      referenceImageUrl: $("referenceImageUrl"),
+      targetMaskUrl: $("targetMaskUrl"),
+      strength: $("strength"),
+      manualSelectionBox: $("manualSelectionBox"),
+      manualTargetImageUrl: $("manualTargetImageUrl"),
+      manualTargetUpload: $("manualTargetUpload"),
+      loadManualImageBtn: $("loadManualImageBtn"),
+      maskBrushSize: $("maskBrushSize"),
+      clearMaskBtn: $("clearMaskBtn"),
+      downloadMaskBtn: $("downloadMaskBtn"),
+      maskBackground: $("maskBackground"),
+      maskCanvas: $("maskCanvas"),
+      runRegionalBtn: $("runRegionalBtn"),
+      requestId: $("requestId"),
+      checkStatusBtn: $("checkStatusBtn"),
+      historyLimit: $("historyLimit"),
+      loadHistoryBtn: $("loadHistoryBtn"),
+      historyList: $("historyList"),
+      statusText: $("statusText"),
+      guardrailBanner: $("guardrailBanner"),
+      responseBox: $("responseBox"),
+      resultImage: $("resultImage"),
+      viewFrontImage: $("viewFrontImage"),
+      viewLeftImage: $("viewLeftImage"),
+      viewRightImage: $("viewRightImage"),
+      viewBackImage: $("viewBackImage"),
+      viewFrontState: $("viewFrontState"),
+      viewLeftState: $("viewLeftState"),
+      viewRightState: $("viewRightState"),
+      viewBackState: $("viewBackState")
+    };
+
+    const viewImageByKey = {
+      front: ui.viewFrontImage,
+      left: ui.viewLeftImage,
+      right: ui.viewRightImage,
+      back: ui.viewBackImage
+    };
+
+    const viewStateByKey = {
+      front: ui.viewFrontState,
+      left: ui.viewLeftState,
+      right: ui.viewRightState,
+      back: ui.viewBackState
+    };
+
+    let manualUploadObjectUrl = "";
+    let drawing = false;
+    let lastPoint = null;
+    const maskCtx = ui.maskCanvas.getContext("2d");
+
+    const ls = {
+      base: "cloudstudio.base",
+      anon: "cloudstudio.anon",
+      user: "cloudstudio.user",
+      latestRequest: "cloudstudio.latestRequest"
+    };
+
+    let batchInProgress = false;
+    let dynamicBatchDelayMs = 2000;
+
+    function waitMs(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    function parseRetryAfterSeconds(payload) {
+      if (!payload) return null;
+      if (typeof payload.retry_after === "number") return payload.retry_after;
+      const text = payload.error || "";
+      const match = String(text).match(/retry_after"?\s*:?\s*(\d+)|~\s*(\d+)s/i);
+      if (!match) return null;
+      return Number(match[1] || match[2] || 0) || null;
+    }
+
+    function parseGuardrail(payload) {
+      const guardrail = payload && payload.guardrail ? payload.guardrail : {};
+      const errorText = String((payload && payload.error) || "");
+      const providerStatus = Number((payload && payload.provider_status) || 0);
+      const retryAfter = parseRetryAfterSeconds(payload);
+      const lowCredit429 = providerStatus === 429 && /less than\s*\$?5/i.test(errorText);
+      const insufficientCredit = providerStatus === 402 || /insufficient credit/i.test(errorText);
+      const modelMissing = providerStatus === 404 || providerStatus === 502 || /could not be found|provider 404/i.test(errorText);
+
+      return {
+        type: guardrail.type || (lowCredit429 ? "rate_limit" : insufficientCredit ? "insufficient_credit" : modelMissing ? "provider_model_missing" : "unknown"),
+        retryAfter,
+        lowCredit: Boolean(guardrail.low_credit) || lowCredit429,
+        billingUrl: guardrail.billing_url || "https://replicate.com/account/billing#billing",
+        recommendedBatchSeconds: Number(guardrail.recommended_batch_interval_seconds || 0) || (lowCredit429 ? 10 : 0)
+      };
+    }
+
+    function showGuardrail(message, mode, actionUrl) {
+      ui.guardrailBanner.className = "guardrail";
+      if (mode === "bad") ui.guardrailBanner.classList.add("bad");
+      if (mode === "ok") ui.guardrailBanner.classList.add("ok");
+
+      if (actionUrl) {
+        ui.guardrailBanner.innerHTML = message + ' <a href="' + actionUrl + '" target="_blank" rel="noreferrer">Open billing</a>';
+      } else {
+        ui.guardrailBanner.textContent = message;
+      }
+    }
+
+    function hideGuardrail() {
+      ui.guardrailBanner.className = "guardrail hidden";
+      ui.guardrailBanner.textContent = "";
+    }
+
+    function loadDefaults() {
+      ui.supabaseUrl.value = localStorage.getItem(ls.base) || "https://eccvtkqkllegzbypaemw.supabase.co";
+      ui.anonKey.value = localStorage.getItem(ls.anon) || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjY3Z0a3FrbGxlZ3pieXBhZW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTcxODcsImV4cCI6MjA5MTgzMzE4N30.F6ylVSRrYjOlOSZBYEBmuwpfrxBbeF74DImUNSspIgY";
+      ui.userId.value = localStorage.getItem(ls.user) || "ec470708-d89c-4575-9d94-b57cd681bb8b";
+      ui.requestId.value = localStorage.getItem(ls.latestRequest) || "";
+    }
+
+    function saveConfig() {
+      localStorage.setItem(ls.base, ui.supabaseUrl.value.trim().replace(/\/$/, ""));
+      localStorage.setItem(ls.anon, ui.anonKey.value.trim());
+      localStorage.setItem(ls.user, ui.userId.value.trim());
+    }
+
+    function setStatus(text, ok) {
+      ui.statusText.textContent = text;
+      if (ok === true) {
+        ui.statusText.className = "status-ok";
+      } else if (ok === false) {
+        ui.statusText.className = "status-bad";
+      } else {
+        ui.statusText.className = "hint";
+      }
+    }
+
+    function showJson(data) {
+      ui.responseBox.textContent = JSON.stringify(data, null, 2);
+    }
+
+    function setLatestRequestId(requestId) {
+      if (!requestId) return;
+      ui.requestId.value = requestId;
+      localStorage.setItem(ls.latestRequest, requestId);
+    }
+
+    function setImagePreview(el, url) {
+      if (!el) return;
+      if (!url) {
+        el.removeAttribute("src");
+        return;
+      }
+      el.src = url;
+    }
+
+    function setViewState(view, state) {
+      const node = viewStateByKey[view];
+      if (!node) return;
+      node.textContent = state;
+      node.className = "view-state";
+      if (state === "rendering") node.classList.add("work");
+      if (state === "completed") node.classList.add("ok");
+      if (state === "failed") node.classList.add("bad");
+
+      const card = node.closest(".view-card");
+      if (card) {
+        card.classList.remove("is-rendering", "is-completed", "is-failed");
+        if (state === "rendering") card.classList.add("is-rendering");
+        if (state === "completed") card.classList.add("is-completed");
+        if (state === "failed") card.classList.add("is-failed");
+      }
+    }
+
+    function syncActiveViewCard() {
+      const active = ui.activeView.value;
+      Array.from(document.querySelectorAll(".view-card")).forEach((card) => {
+        const title = card.querySelector("h5");
+        const key = title ? title.textContent.trim().toLowerCase() : "";
+        card.classList.toggle("active", key === active);
+      });
+    }
+
+    function syncBackgroundPresetChips() {
+      const chips = ui.backgroundPresetChips ? Array.from(ui.backgroundPresetChips.querySelectorAll(".chip")) : [];
+      chips.forEach((chip) => {
+        const isActive = chip.getAttribute("data-preset") === ui.renderBackgroundPreset.value;
+        chip.classList.toggle("active", isActive);
+      });
+    }
+
+    function syncRenderSummary() {
+      const promptText = ui.renderPrompt.value.trim();
+      const bgPreset = ui.renderBackgroundPreset.value.trim();
+      const bgUrl = ui.renderBackgroundImageUrl.value.trim();
+      ui.summaryPrompt.textContent = promptText ? (promptText.length > 72 ? promptText.slice(0, 72) + "..." : promptText) : "No prompt yet";
+      ui.summaryView.textContent = ui.activeView.value || "front";
+      ui.summaryProfile.textContent = ui.renderProfile.value || "balanced";
+      ui.summaryBackground.textContent = bgPreset || (bgUrl ? "custom background image" : "no background preset");
+    }
+
+    function openTab(tabId) {
+      const btn = document.querySelector('.tab[data-tab="' + tabId + '"]');
+      if (btn) btn.click();
+    }
+
+    function authHeaders() {
+      const anon = ui.anonKey.value.trim();
+      return {
+        "Content-Type": "application/json",
+        apikey: anon,
+        Authorization: "Bearer " + anon
+      };
+    }
+
+    function baseUrl() {
+      return ui.supabaseUrl.value.trim().replace(/\/$/, "");
+    }
+
+    async function parseResponse(response) {
+      try {
+        return await response.json();
+      } catch {
+        return { error: "Non-JSON response" };
+      }
+    }
+
+    function applyConsistencyMode() {
+      if (!ui.consistencyMode.checked) return;
+      ui.renderProfile.value = "balanced";
+      ui.editProfile.value = "balanced";
+      if (!ui.renderStyle.value.trim()) {
+        ui.renderStyle.value = "photoreal exterior";
+      }
+    }
+
+    function activeEditMethod() {
+      const selected = document.querySelector('input[name="editMethod"]:checked');
+      return selected ? selected.value : "prompt_based";
+    }
+
+    function syncRegionalModeUi() {
+      const method = activeEditMethod();
+      if (method === "manual_selection") {
+        ui.selectionModeDisplay.value = "manual";
+        ui.manualSelectionBox.style.display = "block";
+      } else {
+        ui.selectionModeDisplay.value = "automatic";
+        ui.manualSelectionBox.style.display = "none";
+      }
+
+      if (method === "prompt_based") {
+        ui.editCategory.value = "prompt_only";
+      } else if (ui.editCategory.value === "prompt_only") {
+        ui.editCategory.value = "element_texture";
+      }
+    }
+
+    function buildPromptWithContext(basePrompt, view) {
+      const chunks = [basePrompt.trim()];
+      if (view) chunks.push("camera view: " + view);
+      const bgPreset = ui.renderBackgroundPreset.value;
+      if (bgPreset) chunks.push("background setting: " + bgPreset);
+      if (ui.renderBackgroundImageUrl.value.trim()) {
+        chunks.push("use provided background image as reference");
+      }
+      return chunks.filter(Boolean).join(". ");
+    }
+
+    async function runRenderForView(view, options) {
+      const cfg = options || { allowRetry429: false, retryLimit: 0 };
+      saveConfig();
+      applyConsistencyMode();
+
+      const b = baseUrl();
+      const body = {
+        user_id: ui.userId.value.trim(),
+        prompt: buildPromptWithContext(ui.renderPrompt.value, view),
+        style: ui.renderStyle.value.trim(),
+        input_image_url: ui.renderInputImageUrl.value.trim() || undefined,
+        reference_image_url: ui.renderReferenceImageUrl.value.trim() || ui.renderBackgroundImageUrl.value.trim() || undefined,
+        model_profile: ui.renderProfile.value,
+        num_outputs: 1
+      };
+
+      if (!body.user_id || !body.prompt) {
+        setStatus("user_id and prompt are required for render.", false);
+        setViewState(view, "failed");
+        return false;
+      }
+
+      setStatus("Calling /render for " + view + " view ...", null);
+      setViewState(view, "rendering");
+      ui.resultImage.style.display = "none";
+
+      try {
+        let attempt = 0;
+        const maxAttempts = 1 + (cfg.allowRetry429 ? (cfg.retryLimit || 0) : 0);
+        while (attempt < maxAttempts) {
+          const res = await fetch(b + "/functions/v1/render", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+          });
+          const data = await parseResponse(res);
+          showJson(data);
+
+          if (res.ok) {
+            setLatestRequestId(data.request_id);
+            setStatus("Render for " + view + " view succeeded.", true);
+            hideGuardrail();
+            if (data.image_url) {
+              ui.resultImage.src = data.image_url;
+              ui.resultImage.style.display = "block";
+              if (viewImageByKey[view]) {
+                viewImageByKey[view].src = data.image_url;
+              }
+              setViewState(view, "completed");
+            }
+            return true;
+          }
+
+          const g = parseGuardrail(data);
+          if (g.type === "insufficient_credit") {
+            showGuardrail(
+              "Rendering stopped because Replicate credit is insufficient. Top up credit, then retry.",
+              "bad",
+              g.billingUrl
+            );
+            setStatus("Render failed (insufficient credit)", false);
+            setViewState(view, "failed");
+            return false;
+          }
+
+          if (g.type === "provider_model_missing") {
+            showGuardrail(
+              "Provider model configuration looks invalid (404). Update REPLICATE model env settings.",
+              "bad"
+            );
+            setStatus("Render failed (provider model missing)", false);
+            setViewState(view, "failed");
+            return false;
+          }
+
+          if (g.type === "rate_limit" && cfg.allowRetry429 && attempt + 1 < maxAttempts) {
+            const waitSeconds = g.retryAfter || g.recommendedBatchSeconds || 10;
+            dynamicBatchDelayMs = Math.max(dynamicBatchDelayMs, waitSeconds * 1000);
+            showGuardrail(
+              "Rate limit reached. Auto-retrying after " + waitSeconds + "s to continue batch safely.",
+              "ok"
+            );
+            setStatus("Rate limited on " + view + " view. Waiting " + waitSeconds + "s before retry...", null);
+            await waitMs((waitSeconds + 1) * 1000);
+            attempt += 1;
+            continue;
+          }
+
+          setStatus("Render failed (" + res.status + ")", false);
+          if (g.type === "rate_limit") {
+            showGuardrail(
+              "Provider throttle detected. Use sequential rendering with at least " +
+                (g.recommendedBatchSeconds || 10) +
+                "s spacing between requests.",
+              "bad"
+            );
+          }
+          setViewState(view, "failed");
+          return false;
+        }
+      } catch (err) {
+        setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
+        setViewState(view, "failed");
+        return false;
+      }
+    }
+
+    async function runRender() {
+      ui.runRenderBtn.disabled = true;
+      ui.runAllViewsBtn.disabled = true;
+      const view = ui.activeView.value;
+      try {
+        await runRenderForView(view, { allowRetry429: true, retryLimit: 1 });
+      } finally {
+        ui.runRenderBtn.disabled = false;
+        ui.runAllViewsBtn.disabled = false;
+      }
+    }
+
+    async function runRenderAllViews() {
+      ui.runRenderBtn.disabled = true;
+      ui.runAllViewsBtn.disabled = true;
+      batchInProgress = true;
+      const views = ["front", "left", "right", "back"];
+      let completed = 0;
+
+      try {
+        hideGuardrail();
+        for (const view of views) {
+          const ok = await runRenderForView(view, { allowRetry429: true, retryLimit: 2 });
+          if (ok) {
+            completed += 1;
+          }
+          const waitBetweenViews = Math.max(dynamicBatchDelayMs, 2500);
+          if (view !== views[views.length - 1]) {
+            setStatus("Cooling down for " + Math.ceil(waitBetweenViews / 1000) + "s before next view...", null);
+            await waitMs(waitBetweenViews);
+          }
+        }
+        setStatus("Completed " + completed + " of 4 view renders.", completed > 0);
+      } finally {
+        batchInProgress = false;
+        ui.runRenderBtn.disabled = false;
+        ui.runAllViewsBtn.disabled = false;
+      }
+    }
+
+    async function runRegional() {
+      saveConfig();
+      applyConsistencyMode();
+
+      const b = baseUrl();
+      const method = activeEditMethod();
+      const resolvedSelectionMode = method === "manual_selection" ? "manual" : "automatic";
+      const resolvedEditCategory = method === "prompt_based" ? "prompt_only" : ui.editCategory.value;
+      const payload = {
+        user_id: ui.userId.value.trim(),
+        target_image_url: ui.targetImageUrl.value.trim(),
+        reference_image_url: ui.referenceImageUrl.value.trim() || undefined,
+        prompt: ui.editPrompt.value.trim(),
+        edit_category: resolvedEditCategory,
+        selection_mode: resolvedSelectionMode,
+        target_mask_url: ui.targetMaskUrl.value.trim() || undefined,
+        model_profile: ui.editProfile.value,
+        strength: ui.strength.value ? Number(ui.strength.value) : undefined
+      };
+
+      if (!payload.user_id || !payload.target_image_url || !payload.prompt) {
+        setStatus("user_id, target_image_url, and prompt are required for regional edit.", false);
+        return;
+      }
+      if (payload.selection_mode === "manual" && !payload.target_mask_url) {
+        setStatus("target_mask_url is required for manual selection mode.", false);
+        return;
+      }
+
+      ui.runRegionalBtn.disabled = true;
+      setStatus("Calling /edit-regional ...", null);
+      ui.resultImage.style.display = "none";
+
+      try {
+        const res = await fetch(b + "/functions/v1/edit-regional", {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const data = await parseResponse(res);
+        showJson(data);
+
+        if (!res.ok) {
+          const g = parseGuardrail(data);
+          if (g.type === "insufficient_credit") {
+            showGuardrail(
+              "Regional edit stopped because Replicate credit is insufficient.",
+              "bad",
+              g.billingUrl
+            );
+          } else if (g.type === "rate_limit") {
+            showGuardrail(
+              "Regional edit hit rate limit. Wait " + (g.retryAfter || 10) + "s before retrying.",
+              "ok"
+            );
+          } else if (g.type === "provider_model_missing") {
+            showGuardrail("Regional edit provider model looks misconfigured (404).", "bad");
+          }
+          setStatus("Regional edit failed (" + res.status + ")", false);
+          return;
+        }
+
+        setLatestRequestId(data.request_id);
+        setStatus("Regional edit succeeded.", true);
+        hideGuardrail();
+        if (data.image_url) {
+          ui.resultImage.src = data.image_url;
+          ui.resultImage.style.display = "block";
+        }
+      } catch (err) {
+        setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
+      } finally {
+        ui.runRegionalBtn.disabled = false;
+      }
+    }
+
+    async function checkStatus() {
+      saveConfig();
+      const requestId = ui.requestId.value.trim();
+      if (!requestId) {
+        setStatus("request_id is required.", false);
+        return;
+      }
+
+      const b = baseUrl();
+      const u = ui.userId.value.trim();
+      setStatus("Checking /render-status ...", null);
+
+      try {
+        const url = b + "/functions/v1/render-status?request_id=" + encodeURIComponent(requestId) + "&user_id=" + encodeURIComponent(u);
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            apikey: ui.anonKey.value.trim(),
+            Authorization: "Bearer " + ui.anonKey.value.trim()
+          }
+        });
+        const data = await parseResponse(res);
+        showJson(data);
+
+        if (!res.ok) {
+          setStatus("Status check failed (" + res.status + ")", false);
+          return;
+        }
+
+        setStatus("Status: " + data.status, data.status === "completed");
+        if (data.image_url) {
+          ui.resultImage.src = data.image_url;
+          ui.resultImage.style.display = "block";
+        }
+      } catch (err) {
+        setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
+      }
+    }
+
+    async function pollLatest() {
+      const maxTries = 20;
+      let attempt = 0;
+      setStatus("Polling latest request status ...", null);
+
+      while (attempt < maxTries) {
+        await checkStatus();
+        let parsed = null;
+        try {
+          parsed = JSON.parse(ui.responseBox.textContent);
+        } catch {
+          return;
+        }
+        if (!parsed) return;
+        if (parsed.status === "completed" || parsed.status === "failed" || parsed.status === "canceled") {
+          return;
+        }
+        attempt += 1;
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+      setStatus("Polling timed out. Check status manually.", false);
+    }
+
+    function historyItemHtml(item) {
+      const statusPill = item.status === "completed"
+        ? '<span class="pill good">completed</span>'
+        : item.status === "failed"
+          ? '<span class="pill bad">failed</span>'
+          : '<span class="pill">' + item.status + '</span>';
+
+      const modelPill = item.model_profile ? '<span class="pill">profile: ' + item.model_profile + '</span>' : '';
+      const img = item.image_url
+        ? '<img src="' + item.image_url + '" class="image" style="display:block; margin-top:6px" alt="history image" />'
+        : '';
+
+      return (
+        '<div class="item">' +
+          '<h4>' + (item.prompt || '(no prompt)') + '</h4>' +
+          '<div>' + statusPill + modelPill + '</div>' +
+          '<p><strong>request_id:</strong> ' + item.request_id + '</p>' +
+          '<p><strong>style:</strong> ' + (item.style || '-') + '</p>' +
+          '<p><strong>latency_ms:</strong> ' + (item.latency_ms == null ? '-' : item.latency_ms) + '</p>' +
+          (item.error ? '<p style="color:#991b1b"><strong>error:</strong> ' + item.error + '</p>' : '') +
+          img +
+        '</div>'
+      );
+    }
+
+    async function loadHistory() {
+      saveConfig();
+      const b = baseUrl();
+      const u = ui.userId.value.trim();
+      const limit = Number(ui.historyLimit.value || 10);
+      setStatus("Loading /render-history ...", null);
+
+      try {
+        const url = b + "/functions/v1/render-history?user_id=" + encodeURIComponent(u) + "&limit=" + encodeURIComponent(String(limit)) + "&offset=0";
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            apikey: ui.anonKey.value.trim(),
+            Authorization: "Bearer " + ui.anonKey.value.trim()
+          }
+        });
+        const data = await parseResponse(res);
+        showJson(data);
+
+        if (!res.ok) {
+          setStatus("History failed (" + res.status + ")", false);
+          return;
+        }
+
+        const items = Array.isArray(data.items) ? data.items : [];
+        if (!items.length) {
+          ui.historyList.innerHTML = '<div class="item"><p>No history items yet.</p></div>';
+        } else {
+          ui.historyList.innerHTML = items.map(historyItemHtml).join("");
+
+          const textJoined = items
+            .map((x) => [x.error, x.prompt].filter(Boolean).join(" "))
+            .join("\n")
+            .toLowerCase();
+
+          const hasThrottle = textJoined.includes("request was throttled") || textJoined.includes("retry_after");
+          const hasLowCredit = textJoined.includes("less than $5") || textJoined.includes("insufficient credit");
+
+          if (hasThrottle) {
+            dynamicBatchDelayMs = Math.max(dynamicBatchDelayMs, 10000);
+            showGuardrail(
+              "History indicates provider throttling. Batch rendering now uses at least 10s spacing between view requests.",
+              "ok"
+            );
+          }
+          if (hasLowCredit) {
+            showGuardrail(
+              "History indicates low credit / insufficient credit failures. Top up Replicate billing before long consecutive runs.",
+              "bad",
+              "https://replicate.com/account/billing#billing"
+            );
+          }
+        }
+        setStatus("History loaded.", true);
+      } catch (err) {
+        setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
+      }
+    }
+
+    function setupTabs() {
+      const tabs = Array.from(document.querySelectorAll(".tab"));
+      const panels = {
+        renderTab: document.getElementById("renderTab"),
+        regionalTab: document.getElementById("regionalTab"),
+        statusTab: document.getElementById("statusTab")
+      };
+
+      tabs.forEach((t) => {
+        t.addEventListener("click", () => {
+          if (batchInProgress) {
+            setStatus("Batch render is running. Please wait until it completes.", false);
+            return;
+          }
+          tabs.forEach((x) => x.classList.remove("active"));
+          t.classList.add("active");
+          Object.keys(panels).forEach((k) => panels[k].classList.remove("active"));
+          const key = t.getAttribute("data-tab");
+          if (panels[key]) panels[key].classList.add("active");
+        });
+      });
+    }
+
+    function setMaskBackground(url) {
+      if (url) {
+        ui.maskBackground.style.backgroundImage = 'url("' + url + '")';
+      } else {
+        ui.maskBackground.style.backgroundImage = "";
+      }
+    }
+
+    function clearMaskCanvas() {
+      maskCtx.clearRect(0, 0, ui.maskCanvas.width, ui.maskCanvas.height);
+    }
+
+    function canvasPointFromEvent(ev) {
+      const rect = ui.maskCanvas.getBoundingClientRect();
+      const scaleX = ui.maskCanvas.width / rect.width;
+      const scaleY = ui.maskCanvas.height / rect.height;
+      return {
+        x: (ev.clientX - rect.left) * scaleX,
+        y: (ev.clientY - rect.top) * scaleY
+      };
+    }
+
+    function beginMaskStroke(ev) {
+      drawing = true;
+      lastPoint = canvasPointFromEvent(ev);
+      maskCtx.lineCap = "round";
+      maskCtx.lineJoin = "round";
+      maskCtx.strokeStyle = "#ffffff";
+      maskCtx.lineWidth = Number(ui.maskBrushSize.value || 14);
+      maskCtx.beginPath();
+      maskCtx.moveTo(lastPoint.x, lastPoint.y);
+      ev.preventDefault();
+    }
+
+    function moveMaskStroke(ev) {
+      if (!drawing) return;
+      const p = canvasPointFromEvent(ev);
+      maskCtx.lineTo(p.x, p.y);
+      maskCtx.stroke();
+      lastPoint = p;
+      ev.preventDefault();
+    }
+
+    function endMaskStroke() {
+      if (!drawing) return;
+      drawing = false;
+      maskCtx.closePath();
+      lastPoint = null;
+    }
+
+    function downloadMaskPng() {
+      const out = document.createElement("canvas");
+      out.width = ui.maskCanvas.width;
+      out.height = ui.maskCanvas.height;
+      const outCtx = out.getContext("2d");
+      outCtx.fillStyle = "#000000";
+      outCtx.fillRect(0, 0, out.width, out.height);
+      outCtx.drawImage(ui.maskCanvas, 0, 0);
+
+      const a = document.createElement("a");
+      a.href = out.toDataURL("image/png");
+      a.download = "regional-mask.png";
+      a.click();
+    }
+
+    function updateRenderSourcePreview() {
+      const file = ui.renderSourceUpload.files && ui.renderSourceUpload.files[0];
+      if (!file) {
+        ui.renderSourcePreview.style.display = "none";
+        ui.renderSourcePreview.removeAttribute("src");
+        if (!ui.renderInputImageUrl.value.trim()) {
+          setImagePreview(ui.renderInputPreview, "");
+        }
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      ui.renderSourcePreview.src = url;
+      ui.renderSourcePreview.style.display = "block";
+      setImagePreview(ui.renderInputPreview, url);
+    }
+
+    function syncRenderReferencePreviews() {
+      setImagePreview(ui.renderInputPreview, ui.renderInputImageUrl.value.trim() || ui.renderInputPreview.src || "");
+      setImagePreview(ui.renderReferencePreview, ui.renderReferenceImageUrl.value.trim());
+      setImagePreview(ui.renderBackgroundPreview, ui.renderBackgroundImageUrl.value.trim());
+    }
+
+    function loadManualSelectionImage() {
+      if (manualUploadObjectUrl) {
+        URL.revokeObjectURL(manualUploadObjectUrl);
+        manualUploadObjectUrl = "";
+      }
+
+      const inputUrl = ui.manualTargetImageUrl.value.trim();
+      const file = ui.manualTargetUpload.files && ui.manualTargetUpload.files[0];
+
+      if (inputUrl) {
+        setMaskBackground(inputUrl);
+        return;
+      }
+
+      if (file) {
+        manualUploadObjectUrl = URL.createObjectURL(file);
+        setMaskBackground(manualUploadObjectUrl);
+        return;
+      }
+
+      setMaskBackground("");
+    }
+
+    function bindEvents() {
+      ui.runRenderBtn.addEventListener("click", runRender);
+      ui.runAllViewsBtn.addEventListener("click", runRenderAllViews);
+      ui.runRegionalBtn.addEventListener("click", runRegional);
+      ui.checkStatusBtn.addEventListener("click", checkStatus);
+      ui.pollLatestBtn.addEventListener("click", pollLatest);
+      ui.loadHistoryBtn.addEventListener("click", loadHistory);
+      ui.consistencyMode.addEventListener("change", applyConsistencyMode);
+      ui.renderSourceUpload.addEventListener("change", updateRenderSourcePreview);
+      ui.renderInputImageUrl.addEventListener("input", syncRenderReferencePreviews);
+      ui.renderReferenceImageUrl.addEventListener("input", syncRenderReferencePreviews);
+      ui.renderBackgroundImageUrl.addEventListener("input", syncRenderReferencePreviews);
+      ui.renderBackgroundImageUrl.addEventListener("input", syncRenderSummary);
+      ui.renderBackgroundPreset.addEventListener("change", () => {
+        syncBackgroundPresetChips();
+        syncRenderSummary();
+      });
+      ui.activeView.addEventListener("change", syncActiveViewCard);
+      ui.activeView.addEventListener("change", syncRenderSummary);
+      ui.renderPrompt.addEventListener("input", syncRenderSummary);
+      ui.renderProfile.addEventListener("change", syncRenderSummary);
+      ui.loadManualImageBtn.addEventListener("click", loadManualSelectionImage);
+      ui.clearMaskBtn.addEventListener("click", clearMaskCanvas);
+      ui.downloadMaskBtn.addEventListener("click", downloadMaskPng);
+
+      if (ui.backgroundPresetChips) {
+        Array.from(ui.backgroundPresetChips.querySelectorAll(".chip")).forEach((chip) => {
+          chip.addEventListener("click", () => {
+            ui.renderBackgroundPreset.value = chip.getAttribute("data-preset") || "";
+            syncBackgroundPresetChips();
+            syncRenderSummary();
+          });
+        });
+      }
+
+      Array.from(document.querySelectorAll('input[name="editMethod"]')).forEach((el) => {
+        el.addEventListener("change", syncRegionalModeUi);
+      });
+
+      Array.from(document.querySelectorAll(".flow-btn")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (batchInProgress) {
+            setStatus("Batch render is running. Navigation is locked until completion.", false);
+            return;
+          }
+          const jump = btn.getAttribute("data-jump");
+          if (jump === "history") {
+            const section = document.getElementById("historySection");
+            if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+            return;
+          }
+          if (jump) {
+            openTab(jump);
+            const split = document.querySelector(".split");
+            if (split) split.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+
+      ui.maskCanvas.addEventListener("pointerdown", beginMaskStroke);
+      ui.maskCanvas.addEventListener("pointermove", moveMaskStroke);
+      ui.maskCanvas.addEventListener("pointerup", endMaskStroke);
+      ui.maskCanvas.addEventListener("pointerleave", endMaskStroke);
+      ui.maskCanvas.addEventListener("pointercancel", endMaskStroke);
+
+      window.addEventListener("beforeunload", (ev) => {
+        if (!batchInProgress) return;
+        ev.preventDefault();
+        ev.returnValue = "A multi-view render batch is still running.";
+      });
+    }
+
+    loadDefaults();
+    applyConsistencyMode();
+    syncRegionalModeUi();
+    clearMaskCanvas();
+    syncRenderReferencePreviews();
+    syncBackgroundPresetChips();
+    syncActiveViewCard();
+    syncRenderSummary();
+    setupTabs();
+    bindEvents();
+  </script>
+</body>
+</html>
