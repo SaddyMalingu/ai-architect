@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Architect - Dashboard</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f7fafc;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 20px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar h2 {
+            color: #667eea;
+            font-size: 1.8em;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: #e2e8f0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .credit-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+        
+        .credit-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .credit-display {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .credit-label {
+            font-size: 0.95em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .credit-amount {
+            font-size: 3em;
+            font-weight: 700;
+        }
+        
+        .credit-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .card h3 {
+            font-size: 1.4em;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .subscription-info {
+            margin-bottom: 30px;
+        }
+        
+        .subscription-tier {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .tier-badge {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .tier-badge.free {
+            background: #cbd5e0;
+            color: #2d3748;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .info-item strong {
+            color: #2d3748;
+        }
+        
+        .buy-credits-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .credit-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .credit-option {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .credit-option:hover, .credit-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .credit-option-amount {
+            font-weight: 700;
+            font-size: 1.3em;
+            color: #667eea;
+        }
+        
+        .credit-option-price {
+            font-size: 0.9em;
+            color: #718096;
+        }
+        
+        .transaction-history {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .transaction-type {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .transaction-date {
+            font-size: 0.9em;
+            color: #718096;
+        }
+        
+        .transaction-amount {
+            font-weight: 700;
+        }
+        
+        .transaction-amount.positive {
+            color: #48bb78;
+        }
+        
+        .transaction-amount.negative {
+            color: #f56565;
+        }
+        
+        .referral-section {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .referral-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .referral-link input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+        
+        .btn-copy {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-copy:hover {
+            background: #5a67d8;
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .credit-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .credit-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .success {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .control-room-card {
+            margin-top: 30px;
+            border: 1px solid #cbd5e0;
+            display: none;
+        }
+
+        .control-room-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .control-room-field label {
+            display: block;
+            font-size: 0.9em;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+
+        .control-room-field input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+        }
+
+        .control-room-note {
+            margin-top: 12px;
+            font-size: 0.9em;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-content">
+            <h2>🏗️ AI Architect</h2>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/pricing">Pricing</a>
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- CREDIT CARD DISPLAY -->
+        <div class="credit-card">
+            <div class="credit-info">
+                <div class="credit-display">
+                    <div class="credit-label">Your Current Credits</div>
+                    <div class="credit-amount" id="creditAmount">0</div>
+                </div>
+                <div class="credit-buttons">
+                    <button class="btn btn-primary" onclick="scrollToSection('buyCredits')">Buy Credits</button>
+                    <button class="btn btn-secondary" onclick="window.location.href='/pricing'">View Plans</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="errorMessage"></div>
+        <div id="successMessage"></div>
+        
+        <!-- CONTENT GRID -->
+        <div class="content-grid">
+            <!-- SUBSCRIPTION & BILLING -->
+            <div class="card">
+                <h3>📊 Subscription & Billing</h3>
+                <div class="subscription-info">
+                    <div class="subscription-tier">
+                        <span>Current Plan:</span>
+                        <span class="tier-badge" id="tierBadge">Free</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span>Monthly Allowance:</span>
+                        <strong id="monthlyAllowance">5 renders</strong>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span>Subscription Status:</span>
+                        <strong id="subscriptionStatus">Active</strong>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span>Renews On:</span>
+                        <strong id="renewDate">Never</strong>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+                    <h4 style="margin-bottom: 15px; color: #2d3748;">Want to upgrade?</h4>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="window.location.href='/pricing'">View All Plans</button>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 10px; background: #fed7d7; color: #c53030; border: none;" id="cancelBtn" onclick="cancelSubscription()" style="display: none;">Cancel Subscription</button>
+                </div>
+            </div>
+            
+            <!-- BUY CREDITS -->
+            <div class="card" id="buyCredits">
+                <h3>💳 Buy Credits</h3>
+                <p style="color: #718096; margin-bottom: 20px;">Each render costs $0.50 (1 credit)</p>
+                
+                <div class="buy-credits-form">
+                    <div class="credit-options">
+                        <div class="credit-option" onclick="selectCreditOption(10)">
+                            <div class="credit-option-amount">10</div>
+                            <div class="credit-option-price">$5</div>
+                        </div>
+                        <div class="credit-option" onclick="selectCreditOption(50)">
+                            <div class="credit-option-amount">50</div>
+                            <div class="credit-option-price">$25</div>
+                        </div>
+                        <div class="credit-option" onclick="selectCreditOption(100)">
+                            <div class="credit-option-amount">100</div>
+                            <div class="credit-option-price">$50</div>
+                        </div>
+                    </div>
+                    
+                    <div id="stripeElement" style="padding: 12px; border: 1px solid #cbd5e0; border-radius: 6px; margin-bottom: 15px;"></div>
+                    
+                    <button class="btn btn-primary" style="width: 100%; padding: 15px;" id="purchaseBtn" onclick="purchaseCredits()">Pay</button>
+                    <p style="text-align: center; font-size: 0.85em; color: #718096; margin-top: 10px;">Secure payment powered by Stripe</p>
+                </div>
+                
+                <div class="loading" id="purchaseLoading">
+                    Processing payment...
+                </div>
+            </div>
+        </div>
+        
+        <!-- TRANSACTION HISTORY -->
+        <div class="card">
+            <h3>📜 Transaction History</h3>
+            <div class="transaction-history" id="transactionHistory">
+                <div style="color: #718096; text-align: center; padding: 30px;">Loading transactions...</div>
+            </div>
+        </div>
+        
+        <!-- REFERRAL PROGRAM -->
+        <div class="card" style="margin-top: 30px;">
+            <h3>🎁 Referral Program</h3>
+            <p style="color: #718096; margin-bottom: 20px;">Earn $5 for each friend who signs up through your link.</p>
+            
+            <div class="referral-section">
+                <strong style="color: #2d3748;">Your Referral Link:</strong>
+                <div class="referral-link">
+                    <input type="text" id="referralLink" readonly>
+                    <button class="btn-copy" onclick="copyReferralLink()">Copy</button>
+                </div>
+                <p style="font-size: 0.9em; margin-top: 10px; color: #4a5568;">
+                    Share this link with friends. When they sign up and make a purchase, you'll earn $5 in credits!
+                </p>
+            </div>
+        </div>
+
+        <div class="card control-room-card" id="controlRoomCard">
+            <h3>🛠️ Control Room</h3>
+            <p style="color: #718096; margin-bottom: 20px;">Run a test-only credit grant for the signed-in control-room user.</p>
+            <div class="control-room-grid">
+                <div class="control-room-field">
+                    <label for="grantCreditsAmount">Grant Credits</label>
+                    <input type="number" id="grantCreditsAmount" min="1" step="1" value="10">
+                </div>
+                <button class="btn btn-primary" onclick="grantMyTestCredits()">Grant My Test Credits</button>
+            </div>
+            <div class="control-room-note" id="controlRoomNote">
+                Store your admin key in <strong>localStorage.billingAdminKey</strong> to enable this action in the browser.
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let stripe = null;
+        let elements = null;
+        let cardElement = null;
+        let paymentProvider = 'stripe';
+        let selectedCredits = 10;
+        let currentUser = null;
+        let controlRoomAllowed = false;
+        const stripePublicKey = localStorage.getItem('stripePublicKey') || '';
+        const billingAdminKey = localStorage.getItem('billingAdminKey') || '';
+        
+        // Initialize
+        window.addEventListener('DOMContentLoaded', async () => {
+            initializeUser();
+            await loadPricing();
+            await loadControlRoomConfig();
+            loadCredits();
+            loadSubscriptionInfo();
+            loadTransactionHistory();
+            initializePayments();
+            initializeReferral();
+        });
+
+        async function loadPricing() {
+            try {
+                const res = await fetch(`${API_BASE}/billing/pricing`);
+                const data = await res.json();
+                paymentProvider = data.payment_provider || 'stripe';
+            } catch (e) {
+                paymentProvider = 'stripe';
+            }
+        }
+        
+        function initializeUser() {
+            currentUser = localStorage.getItem('userId');
+            if (!currentUser) {
+                window.location.href = '/';
+            }
+        }
+
+        async function loadControlRoomConfig() {
+            try {
+                const res = await fetch(`${API_BASE}/billing/admin/control-room-config?user_id=${encodeURIComponent(currentUser)}`);
+                const data = await res.json();
+                controlRoomAllowed = !!data.allowed;
+                if (controlRoomAllowed) {
+                    document.getElementById('controlRoomCard').style.display = 'block';
+                    document.getElementById('grantCreditsAmount').value = data.default_grant_credits || 10;
+                    if (!billingAdminKey) {
+                        document.getElementById('controlRoomNote').textContent = 'Set localStorage.billingAdminKey in this browser, then reload to enable the grant action.';
+                    } else {
+                        document.getElementById('controlRoomNote').textContent = 'This action grants test credits only to the configured control-room user.';
+                    }
+                }
+            } catch (e) {
+                controlRoomAllowed = false;
+            }
+        }
+        
+        function initializePayments() {
+            if (paymentProvider !== 'stripe') {
+                const stripeElement = document.getElementById('stripeElement');
+                stripeElement.style.display = 'none';
+                const helper = stripeElement.nextElementSibling;
+                helper.textContent = 'You will be redirected to secure checkout.';
+                if (paymentProvider === 'lemonsqueezy') {
+                    helper.textContent = 'You will be redirected to Lemon Squeezy checkout (global cards, PayPal, taxes handled).';
+                } else if (paymentProvider === 'flutterwave') {
+                    helper.textContent = 'You will be redirected to Flutterwave checkout (cards, M-Pesa, mobile money).';
+                }
+                return;
+            }
+
+            initializeStripe();
+        }
+
+        function initializeStripe() {
+            if (!stripePublicKey) {
+                showError('Missing Stripe publishable key. Set it in localStorage as stripePublicKey, or switch to Flutterwave.');
+                return;
+            }
+            stripe = Stripe(stripePublicKey); // Defined in backend response
+            elements = stripe.elements();
+            cardElement = elements.create('card', {
+                style: {
+                    base: {
+                        fontFamily: 'inherit',
+                        fontSize: '16px',
+                        color: '#32325d',
+                    }
+                }
+            });
+            cardElement.mount('#stripeElement');
+        }
+        
+        function loadCredits() {
+            fetch(`${API_BASE}/billing/credits/${currentUser}`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('creditAmount').textContent = data.balance_credits.toFixed(2);
+                })
+                .catch(e => showError('Failed to load credits'));
+        }
+        
+        function loadSubscriptionInfo() {
+            fetch(`${API_BASE}/billing/subscription-status/${currentUser}`)
+                .then(r => r.json())
+                .then(data => {
+                    const tierBadge = document.getElementById('tierBadge');
+                    tierBadge.textContent = data.subscription_tier.toUpperCase();
+                    
+                    if (data.subscription_tier !== 'free') {
+                        document.getElementById('cancelBtn').style.display = 'block';
+                    }
+                })
+                .catch(e => console.log('Failed to load subscription'));
+        }
+        
+        function loadTransactionHistory() {
+            // This would call the backend API to get transaction history
+            // For now, showing placeholder
+            document.getElementById('transactionHistory').innerHTML = `
+                <div style="text-align: center; color: #718096; padding: 30px;">
+                    <p>No transactions yet</p>
+                </div>
+            `;
+        }
+        
+        function initializeReferral() {
+            const userId = currentUser;
+            const referralLink = `${window.location.origin}?ref=${userId}`;
+            document.getElementById('referralLink').value = referralLink;
+        }
+        
+        function selectCreditOption(amount) {
+            selectedCredits = amount;
+            document.querySelectorAll('.credit-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.target.closest('.credit-option').classList.add('selected');
+        }
+        
+        function purchaseCredits() {
+            document.getElementById('purchaseLoading').style.display = 'block';
+            
+            // Create payment intent
+            fetch(`${API_BASE}/billing/create-payment-intent`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: currentUser,
+                    email: currentUser,
+                    amount_credits: selectedCredits
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.checkout_url) {
+                    // Redirect-based checkout: Flutterwave or Lemon Squeezy
+                    window.location.href = data.checkout_url;
+                    return null;
+                }
+
+                if (!data.client_secret || !stripe) {
+                    throw new Error('No payment session returned by provider');
+                }
+
+                // Confirm with Stripe
+                return stripe.confirmCardPayment(data.client_secret, {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: { email: currentUser }
+                    }
+                });
+            })
+            .then(result => {
+                document.getElementById('purchaseLoading').style.display = 'none';
+                if (result === null) {
+                    return;
+                }
+                if (result.error) {
+                    showError(result.error.message);
+                } else {
+                    showSuccess('Payment successful! Credits added to your account.');
+                    loadCredits();
+                    setTimeout(() => window.location.reload(), 2000);
+                }
+            })
+            .catch(e => {
+                document.getElementById('purchaseLoading').style.display = 'none';
+                showError('Payment failed: ' + e.message);
+            });
+        }
+        
+        function cancelSubscription() {
+            if (confirm('Are you sure you want to cancel your subscription?')) {
+                fetch(`${API_BASE}/billing/cancel-subscription/${currentUser}`, {
+                    method: 'POST'
+                })
+                .then(r => r.json())
+                .then(data => {
+                    showSuccess(data.message);
+                    setTimeout(() => window.location.reload(), 2000);
+                })
+                .catch(e => showError('Failed to cancel subscription'));
+            }
+        }
+        
+        function copyReferralLink() {
+            const link = document.getElementById('referralLink');
+            link.select();
+            document.execCommand('copy');
+            showSuccess('Referral link copied to clipboard!');
+        }
+        
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function grantMyTestCredits() {
+            if (!controlRoomAllowed) {
+                showError('This account is not enabled for control-room credit grants.');
+                return;
+            }
+            if (!billingAdminKey) {
+                showError('Missing billing admin key in localStorage.billingAdminKey.');
+                return;
+            }
+
+            const amount = Number(document.getElementById('grantCreditsAmount').value || 0);
+            if (!Number.isFinite(amount) || amount <= 0) {
+                showError('Enter a valid positive credit amount.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/billing/admin/grant-credits`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        admin_key: billingAdminKey,
+                        user_id: currentUser,
+                        amount_credits: amount,
+                        reason: 'control_room_test_grant'
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Grant failed');
+                }
+                showSuccess(`Granted ${amount} credits. New balance: ${Number(data.balance_credits).toFixed(2)}`);
+                loadCredits();
+            } catch (e) {
+                showError(`Failed to grant credits: ${e.message}`);
+            }
+        }
+        
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.innerHTML = `<div class="error">${message}</div>`;
+            setTimeout(() => el.innerHTML = '', 5000);
+        }
+        
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.innerHTML = `<div class="success">${message}</div>`;
+            setTimeout(() => el.innerHTML = '', 5000);
+        }
+        
+        function logout() {
+            localStorage.removeItem('userId');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
