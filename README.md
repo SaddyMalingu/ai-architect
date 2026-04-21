@@ -14,6 +14,7 @@ This repository now supports two parallel stacks:
 - `docs/SUPABASE_REPLICATE_SETUP.md` - end-to-end setup guide
 - `docs/API_CONTRACT.md` - strict payload/response contracts
 - `docs/BLENDER_CONSISTENCY_MODE.md` - exact Blender-conditioned workflow for maximum consistency
+- `docs/BLENDER_TEST_RUN_SHEET.md` - one-page execution sheet for strict consistency test runs
 
 ## Local stack quick run
 
@@ -48,3 +49,4 @@ The smoke check verifies required controls/IDs, endpoint references, and that
 See `docs/SUPABASE_REPLICATE_SETUP.md` for exact payloads and steps.
 
 For production-level consistency (including interiors), use `docs/BLENDER_CONSISTENCY_MODE.md`.
+For immediate execution, use `docs/BLENDER_TEST_RUN_SHEET.md`.
