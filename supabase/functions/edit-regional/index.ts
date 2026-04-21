@@ -6,27 +6,25 @@ declare const Deno: {
   serve(handler: (request: Request) => Response | Promise<Response>): void;
 };
 
+type EditCategory = "element_texture" | "whole_building" | "prompt_only";
+type SelectionMode = "automatic" | "manual";
 type ProfileName = "fast" | "balanced" | "quality";
 
-type RenderRequest = {
+type RegionalEditRequest = {
   user_id: string;
-  prompt: string;
-  style?: string;
-  input_image_url?: string;
+  target_image_url: string;
   reference_image_url?: string;
-  mask_url?: string;
-  model?: string;
-  model_profile?: ProfileName;
-  num_outputs?: number;
-  consistency_key?: string;
+  prompt?: string;
+  edit_category: EditCategory;
+  region_hint?: string;
+  selection_mode: SelectionMode;
+  target_mask_url?: string;
+  target_mask_data_url?: string;
+  reference_mask_url?: string;
   strict_consistency?: boolean;
-};
-
-type ModelProfile = {
-  label: ProfileName;
-  model: string;
-  guidance_scale: number;
-  num_inference_steps: number;
+  model_profile?: ProfileName;
+  strength?: number;
+  num_outputs?: number;
 };
 
 type ProviderErrorMeta = {
@@ -42,52 +40,41 @@ type ErrorWithProviderMeta = Error & {
   provider_meta?: ProviderErrorMeta;
 };
 
-const PROMPT_MAX_CHARS = 1200;
-const NUM_OUTPUTS_MIN = 1;
-const NUM_OUTPUTS_MAX = 4;
 const POLL_MAX_ATTEMPTS = 60;
 const POLL_INTERVAL_MS = 2000;
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
 const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const replicateApiToken = Deno.env.get("REPLICATE_API_TOKEN") || "";
-const defaultModel = Deno.env.get("REPLICATE_MODEL") || "stability-ai/sdxl";
 const DAILY_QUOTA_LIMIT = parseInt(Deno.env.get("DAILY_QUOTA_LIMIT") || "100", 10);
 const CREATE_RETRY_MAX_ATTEMPTS = parseInt(Deno.env.get("REPLICATE_CREATE_RETRY_MAX_ATTEMPTS") || "3", 10);
 const CREATE_RETRY_FALLBACK_SECONDS = parseInt(
   Deno.env.get("REPLICATE_CREATE_RETRY_FALLBACK_SECONDS") || "10",
   10,
 );
-const RENDER_AB_TEST_ENABLED =
-  (Deno.env.get("REPLICATE_RENDER_AB_TEST_ENABLED") || "false").toLowerCase() === "true";
-const RENDER_AB_TEST_MODEL =
-  Deno.env.get("REPLICATE_RENDER_AB_TEST_MODEL") || "black-forest-labs/flux-2-pro";
-const RENDER_AB_TEST_PERCENT = Math.max(
-  0,
-  Math.min(100, parseInt(Deno.env.get("REPLICATE_RENDER_AB_TEST_PERCENT") || "0", 10)),
-);
-const PROMPT_FIRST_ASPECT_RATIO = Deno.env.get("REPLICATE_PROMPT_FIRST_ASPECT_RATIO") || "1:1";
 
-const MODEL_PROFILES: Record<ProfileName, ModelProfile> = {
-  fast: {
-    label: "fast",
-    model: Deno.env.get("REPLICATE_MODEL_FAST") || defaultModel,
-    guidance_scale: 5,
-    num_inference_steps: 20,
-  },
-  balanced: {
-    label: "balanced",
-    model: Deno.env.get("REPLICATE_MODEL_BALANCED") || defaultModel,
-    guidance_scale: 7,
-    num_inference_steps: 30,
-  },
-  quality: {
-    label: "quality",
-    model: Deno.env.get("REPLICATE_MODEL_QUALITY") || defaultModel,
-    guidance_scale: 9,
-    num_inference_steps: 50,
-  },
+const supportsReference =
+  (Deno.env.get("REPLICATE_SUPPORTS_REFERENCE") || "false").toLowerCase() === "true";
+
+const fallbackModel =
+  Deno.env.get("REPLICATE_REGIONAL_MODEL") ||
+  Deno.env.get("REPLICATE_MODEL") ||
+  "stability-ai/sdxl";
+
+const REGIONAL_MODELS: Record<ProfileName, string> = {
+  fast: Deno.env.get("REPLICATE_REGIONAL_MODEL_FAST") || fallbackModel,
+  balanced: Deno.env.get("REPLICATE_REGIONAL_MODEL_BALANCED") || fallbackModel,
+  quality: Deno.env.get("REPLICATE_REGIONAL_MODEL_QUALITY") || fallbackModel,
 };
+const RENDER_MODELS: Record<ProfileName, string> = {
+  fast: Deno.env.get("REPLICATE_MODEL_FAST") || Deno.env.get("REPLICATE_MODEL") || "",
+  balanced: Deno.env.get("REPLICATE_MODEL_BALANCED") || Deno.env.get("REPLICATE_MODEL") || "",
+  quality: Deno.env.get("REPLICATE_MODEL_QUALITY") || Deno.env.get("REPLICATE_MODEL") || "",
+};
+const renderAbModel = Deno.env.get("REPLICATE_RENDER_AB_TEST_MODEL") || "";
+
+const GUIDANCE_BY_PROFILE: Record<ProfileName, number> = { fast: 5, balanced: 7, quality: 9 };
+const STEPS_BY_PROFILE: Record<ProfileName, number> = { fast: 20, balanced: 30, quality: 50 };
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") || "*",
@@ -172,10 +159,6 @@ function extractProviderMeta(error: unknown): ProviderErrorMeta | undefined {
   return (error as ErrorWithProviderMeta).provider_meta;
 }
 
-function isValidUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-}
-
 function isHttpsUrl(value?: string): boolean {
   if (!value) return false;
   try {
@@ -185,28 +168,122 @@ function isHttpsUrl(value?: string): boolean {
   }
 }
 
-function hashToBucket(input: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < input.length; i++) {
-    h ^= input.charCodeAt(i);
-    h = Math.imul(h, 16777619);
+function isValidUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function validatePayload(payload: RegionalEditRequest): string | null {
+  if (!payload.user_id) return "user_id is required";
+  if (!isValidUuid(payload.user_id)) return "user_id must be a valid UUID";
+  if (!payload.target_image_url) return "target_image_url is required";
+  if (!isHttpsUrl(payload.target_image_url)) return "target_image_url must be a valid https URL";
+  if (payload.reference_image_url && !isHttpsUrl(payload.reference_image_url)) {
+    return "reference_image_url must be a valid https URL";
   }
-  return Math.abs(h >>> 0) % 100;
+  if (payload.target_mask_url && !isHttpsUrl(payload.target_mask_url)) {
+    return "target_mask_url must be a valid https URL";
+  }
+  if (payload.target_mask_data_url && !payload.target_mask_data_url.startsWith("data:image/png;base64,")) {
+    return "target_mask_data_url must be a PNG data URL";
+  }
+  if (payload.reference_mask_url && !isHttpsUrl(payload.reference_mask_url)) {
+    return "reference_mask_url must be a valid https URL";
+  }
+
+  const validCategories: EditCategory[] = ["element_texture", "whole_building", "prompt_only"];
+  if (!validCategories.includes(payload.edit_category)) {
+    return "edit_category must be one of: element_texture, whole_building, prompt_only";
+  }
+
+  const validSelectionModes: SelectionMode[] = ["automatic", "manual"];
+  if (!validSelectionModes.includes(payload.selection_mode)) {
+    return "selection_mode must be one of: automatic, manual";
+  }
+
+  if (payload.edit_category === "prompt_only") {
+    if (!payload.prompt || payload.prompt.trim().length === 0) {
+      return "prompt is required when edit_category is prompt_only";
+    }
+    if (payload.prompt.length > 1200) {
+      return "prompt exceeds maximum length of 1200 characters";
+    }
+  }
+
+  if (payload.selection_mode === "manual" && !payload.target_mask_url && !payload.target_mask_data_url) {
+    return "target_mask_url or target_mask_data_url is required when selection_mode is manual";
+  }
+
+  if (payload.strength !== undefined && (payload.strength < 0 || payload.strength > 1)) {
+    return "strength must be between 0.0 and 1.0";
+  }
+
+  if (payload.num_outputs !== undefined && (payload.num_outputs < 1 || payload.num_outputs > 4)) {
+    return "num_outputs must be between 1 and 4";
+  }
+
+  if (payload.model_profile && !["fast", "balanced", "quality"].includes(payload.model_profile)) {
+    return "model_profile must be one of: fast, balanced, quality";
+  }
+
+  return null;
 }
 
-function isFluxLikeModel(model: string): boolean {
-  const m = model.toLowerCase();
-  return m.includes("flux-2-pro") || m.includes("flux");
+async function checkDailyQuota(userId: string): Promise<boolean> {
+  const todayStart = new Date();
+  todayStart.setUTCHours(0, 0, 0, 0);
+  const { count, error } = await supabase
+    .from("render_requests")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .gte("created_at", todayStart.toISOString());
+
+  if (error) return true;
+  return (count ?? 0) < DAILY_QUOTA_LIMIT;
 }
 
-function isPromptFirstModel(model: string): boolean {
-  const m = model.toLowerCase();
-  return (
-    isFluxLikeModel(model) ||
-    m.includes("seedance") ||
-    m.includes("seedream") ||
-    m.includes("text-to-image")
-  );
+function buildPrompt(payload: RegionalEditRequest): string {
+  const basePrompt = payload.prompt?.trim() || "Apply reference-guided architectural edit";
+  const profile = payload.model_profile || "balanced";
+  const promptParts = [
+    basePrompt,
+    `Edit category: ${payload.edit_category}`,
+    `Selection mode: ${payload.selection_mode}`,
+    `Model profile: ${profile}`,
+  ];
+
+  if (payload.region_hint) {
+    promptParts.push(`Target region: ${payload.region_hint}`);
+  }
+  if (payload.strict_consistency) {
+    promptParts.push(
+      "Strict consistency: preserve the same building geometry, camera framing, window layout, openings, structure, and all unselected regions"
+    );
+  }
+
+  return promptParts.join(". ");
+}
+
+function buildReplicateInput(payload: RegionalEditRequest): Record<string, unknown> {
+  const profile = (payload.model_profile || "balanced") as ProfileName;
+  const guidanceBoost = payload.strict_consistency ? 1 : 0;
+  const input: Record<string, unknown> = {
+    prompt: buildPrompt(payload),
+    image: payload.target_image_url,
+    num_outputs: payload.num_outputs ?? 1,
+    output_format: "png",
+    guidance_scale: GUIDANCE_BY_PROFILE[profile] + guidanceBoost,
+    num_inference_steps: STEPS_BY_PROFILE[profile],
+  };
+
+  if (payload.target_mask_url) input.mask = payload.target_mask_url;
+  if (payload.strength !== undefined) input.prompt_strength = payload.strength;
+
+  if (supportsReference) {
+    if (payload.reference_image_url) input.reference_image = payload.reference_image_url;
+    if (payload.reference_mask_url) input.reference_mask = payload.reference_mask_url;
+  }
+
+  return input;
 }
 
 function resolveReplicateTarget(modelRef: string): {
@@ -239,103 +316,46 @@ function resolveReplicateTarget(modelRef: string): {
   };
 }
 
-function selectRenderModel(baseModel: string, payload: RenderRequest): { model: string; variant: "control" | "ab" } {
-  if (payload.strict_consistency || !RENDER_AB_TEST_ENABLED || RENDER_AB_TEST_PERCENT <= 0) {
-    return { model: baseModel, variant: "control" };
-  }
-
-  const bucketKey = payload.consistency_key?.trim() || payload.user_id;
-  const bucket = hashToBucket(bucketKey);
-  if (bucket < RENDER_AB_TEST_PERCENT) {
-    return { model: RENDER_AB_TEST_MODEL, variant: "ab" };
-  }
-
-  return { model: baseModel, variant: "control" };
+function isReplicate404(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return error.message.includes("Replicate create failed: 404");
 }
 
-function validatePayload(payload: RenderRequest): string | null {
-  if (!payload.user_id) return "user_id is required";
-  if (!isValidUuid(payload.user_id)) return "user_id must be a valid UUID";
-  if (!payload.prompt || payload.prompt.trim().length === 0) return "prompt is required";
-  if (payload.prompt.length > PROMPT_MAX_CHARS) {
-    return `prompt exceeds maximum length of ${PROMPT_MAX_CHARS} characters`;
-  }
-  if (payload.num_outputs !== undefined) {
-    if (
-      !Number.isInteger(payload.num_outputs) ||
-      payload.num_outputs < NUM_OUTPUTS_MIN ||
-      payload.num_outputs > NUM_OUTPUTS_MAX
-    ) {
-      return `num_outputs must be an integer between ${NUM_OUTPUTS_MIN} and ${NUM_OUTPUTS_MAX}`;
-    }
-  }
-  if (payload.input_image_url && !isHttpsUrl(payload.input_image_url)) {
-    return "input_image_url must be a valid https URL";
-  }
-  if (payload.reference_image_url && !isHttpsUrl(payload.reference_image_url)) {
-    return "reference_image_url must be a valid https URL";
-  }
-  if (payload.mask_url && !isHttpsUrl(payload.mask_url)) {
-    return "mask_url must be a valid https URL";
-  }
-  if (payload.model_profile && !Object.keys(MODEL_PROFILES).includes(payload.model_profile)) {
-    return "model_profile must be one of: fast, balanced, quality";
-  }
-  return null;
+function candidateModelsForRegional(profile: ProfileName): string[] {
+  const candidates = [
+    REGIONAL_MODELS[profile],
+    RENDER_MODELS[profile],
+    renderAbModel,
+    Deno.env.get("REPLICATE_MODEL") || "",
+  ];
+
+  return candidates.filter((m, idx) => !!m && candidates.indexOf(m) === idx);
 }
 
-async function checkDailyQuota(userId: string): Promise<boolean> {
-  const todayStart = new Date();
-  todayStart.setUTCHours(0, 0, 0, 0);
-  const { count, error } = await supabase
-    .from("render_requests")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .gte("created_at", todayStart.toISOString());
+async function uploadMaskDataUrlToSupabase(userId: string, requestId: string, dataUrl: string) {
+  const prefix = "data:image/png;base64,";
+  const base64 = dataUrl.slice(prefix.length);
+  const binary = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  const path = `${userId}/${requestId}-mask.png`;
 
-  if (error) return true;
-  return (count ?? 0) < DAILY_QUOTA_LIMIT;
+  const { error: uploadError } = await supabase.storage
+    .from("renders")
+    .upload(path, binary, { contentType: "image/png", upsert: true });
+
+  if (uploadError) {
+    throw new Error(`Supabase mask upload failed: ${uploadError.message}`);
+  }
+
+  const { data } = supabase.storage.from("renders").getPublicUrl(path);
+  return data.publicUrl;
 }
 
-function resolveModelProfile(payload: RenderRequest): ModelProfile {
-  if (payload.model_profile && MODEL_PROFILES[payload.model_profile]) {
-    return MODEL_PROFILES[payload.model_profile];
-  }
-  if (payload.model) {
-    return { label: "balanced", model: payload.model, guidance_scale: 7, num_inference_steps: 30 };
-  }
-  return MODEL_PROFILES["balanced"];
-}
-
-async function replicateCreatePrediction(payload: RenderRequest, model: string, profile: ModelProfile) {
-  const promptText = payload.style
-    ? `${payload.prompt}. Style: ${payload.style}`
-    : payload.prompt;
-
-  const promptFirst = isPromptFirstModel(model);
-
-  const input: Record<string, unknown> = promptFirst
-    ? {
-        // Keep prompt-first path stable across Flux / Seedance-like schemas.
-        prompt: promptText,
-        output_format: "png",
-        aspect_ratio: PROMPT_FIRST_ASPECT_RATIO,
-      }
-    : {
-        prompt: promptText,
-        num_outputs: payload.num_outputs ?? 1,
-        output_format: "png",
-        guidance_scale: profile.guidance_scale,
-        num_inference_steps: profile.num_inference_steps,
-      };
-
-  if (!promptFirst) {
-    if (payload.input_image_url) input.image = payload.input_image_url;
-    if (payload.mask_url) input.mask = payload.mask_url;
-  }
+async function replicateCreatePrediction(payload: RegionalEditRequest, overrideModel?: string) {
+  const profile = (payload.model_profile || "balanced") as ProfileName;
+  const model = overrideModel || REGIONAL_MODELS[profile];
 
   const target = resolveReplicateTarget(model);
-  const requestBody = { ...target.bodyBase, input };
+  const requestBody = { ...target.bodyBase, input: buildReplicateInput(payload) };
 
   for (let attempt = 1; attempt <= CREATE_RETRY_MAX_ATTEMPTS; attempt++) {
     const response = await fetch(target.endpoint, {
@@ -448,7 +468,7 @@ Deno.serve(async (request: Request) => {
     });
   }
 
-  let payload: RenderRequest;
+  let payload: RegionalEditRequest;
   try {
     payload = await request.json();
   } catch {
@@ -467,20 +487,20 @@ Deno.serve(async (request: Request) => {
     });
   }
 
-  const profile = resolveModelProfile(payload);
-  const selected = selectRenderModel(profile.model, payload);
+  const profile = (payload.model_profile || "balanced") as ProfileName;
+  const requestPrompt = buildPrompt(payload);
 
   const { data: requestRow, error: insertError } = await supabase
     .from("render_requests")
     .insert({
       user_id: payload.user_id,
-      prompt: payload.prompt,
-      style: payload.style ?? null,
-      input_image_url: payload.input_image_url ?? null,
+      prompt: requestPrompt,
+      style: payload.model_profile ?? null,
+      input_image_url: payload.target_image_url,
       reference_image_url: payload.reference_image_url ?? null,
-      mask_url: payload.mask_url ?? null,
+      mask_url: payload.target_mask_url ?? null,
       provider: "replicate",
-      model_profile: profile.label,
+      model_profile: profile,
       status: "processing",
     })
     .select("id")
@@ -488,7 +508,7 @@ Deno.serve(async (request: Request) => {
 
   if (insertError || !requestRow?.id) {
     return jsonResponse(500, {
-      error: "Failed to insert render request",
+      error: "Failed to insert edit request",
       details: insertError?.message,
     });
   }
@@ -497,7 +517,40 @@ Deno.serve(async (request: Request) => {
   const replicateStartMs = Date.now();
 
   try {
-    const prediction = await replicateCreatePrediction(payload, selected.model, profile);
+    if (payload.target_mask_data_url && !payload.target_mask_url) {
+      payload.target_mask_url = await uploadMaskDataUrlToSupabase(
+        payload.user_id,
+        requestId,
+        payload.target_mask_data_url,
+      );
+    }
+
+    let prediction: Record<string, unknown> | null = null;
+    let modelUsed = REGIONAL_MODELS[profile];
+    let lastError: unknown = null;
+
+    const candidateModels = payload.strict_consistency
+      ? [REGIONAL_MODELS[profile]]
+      : candidateModelsForRegional(profile);
+
+    for (const candidateModel of candidateModels) {
+      modelUsed = candidateModel;
+      try {
+        prediction = await replicateCreatePrediction(payload, candidateModel);
+        lastError = null;
+        break;
+      } catch (error) {
+        lastError = error;
+        if (!isReplicate404(error)) {
+          throw error;
+        }
+      }
+    }
+
+    if (!prediction) {
+      throw (lastError instanceof Error ? lastError : new Error("No valid Replicate model available"));
+    }
+
     const predictionId = prediction.id as string;
 
     await supabase
@@ -514,21 +567,41 @@ Deno.serve(async (request: Request) => {
     const replicateOutputUrl = pickOutputUrl(finalPrediction);
     const publicUrl = await uploadImageToSupabase(payload.user_id, requestId, replicateOutputUrl);
 
+    const coverageRatio = payload.selection_mode === "manual" ? 0.25 : 0.35;
+    const editTarget =
+      payload.edit_category === "whole_building"
+        ? "multi_feature"
+        : payload.edit_category === "element_texture"
+        ? "regional_element"
+        : "semantic_region";
+
     const { error: resultError } = await supabase.from("render_results").insert({
       request_id: requestId,
       user_id: payload.user_id,
       output_image_url: publicUrl,
       metadata: {
         replicate_prediction_id: predictionId,
-        replicate_model: selected.model,
-        model_profile: profile.label,
-        ab_variant: selected.variant,
-        ab_percent: RENDER_AB_TEST_PERCENT,
-        used_flux_path: isFluxLikeModel(selected.model),
-        guidance_scale: profile.guidance_scale,
-        num_inference_steps: profile.num_inference_steps,
+        replicate_model: modelUsed,
+        model_profile: profile,
+        guidance_scale: GUIDANCE_BY_PROFILE[profile],
+        num_inference_steps: STEPS_BY_PROFILE[profile],
         latency_ms: latencyMs,
-        num_outputs: payload.num_outputs ?? 1,
+        edit_category: payload.edit_category,
+        selection_mode: payload.selection_mode,
+        region_hint: payload.region_hint ?? null,
+        strict_consistency: Boolean(payload.strict_consistency),
+        strength: payload.strength ?? null,
+        target_mask_url: payload.target_mask_url ?? null,
+        reference_mask_url: supportsReference ? (payload.reference_mask_url ?? null) : null,
+        applied_region: { mode: payload.selection_mode, coverage_ratio: coverageRatio },
+        edit_summary: {
+          category: payload.edit_category,
+          target: editTarget,
+          changes:
+            payload.edit_category === "prompt_only"
+              ? ["semantic_transform"]
+              : ["material", "color", "finish"],
+        },
       },
     });
 
@@ -546,20 +619,28 @@ Deno.serve(async (request: Request) => {
       status: "completed",
       image_url: publicUrl,
       meta: {
-        model: selected.model,
-        model_profile: profile.label,
-        ab_variant: selected.variant,
+        model: modelUsed,
+        model_profile: profile,
         latency_ms: latencyMs,
+      },
+      applied_region: { mode: payload.selection_mode, coverage_ratio: coverageRatio },
+      edit_summary: {
+        category: payload.edit_category,
+        target: editTarget,
+        changes:
+          payload.edit_category === "prompt_only"
+            ? ["semantic_transform"]
+            : ["material", "color", "finish"],
       },
     });
   } catch (error) {
     const providerMeta = extractProviderMeta(error);
-    let message = error instanceof Error ? error.message : "Unknown render error";
+    let message = error instanceof Error ? error.message : "Unknown regional edit error";
 
     if (providerMeta?.status === 404) {
       message =
         "Replicate model endpoint could not be found (provider 404). " +
-        "Check REPLICATE_MODEL / profile model env variables.";
+        "Check REPLICATE_REGIONAL_MODEL / REPLICATE_MODEL env variables.";
     }
 
     await supabase
