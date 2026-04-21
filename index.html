@@ -1033,6 +1033,9 @@
                   <input id="blenderBackPassUrl" placeholder="https://.../CAM_BACK_EXTERIOR_beauty.png" />
                 </div>
               </div>
+              <div class="row" style="margin-top:8px">
+                <div><button id="validateBlenderBtn" class="btn-soft" type="button">Validate Blender Readiness</button></div>
+              </div>
               <p id="blenderModeHint" class="hint" style="margin-top:8px;">Blender-conditioned mode is off. Manual input image URL is used.</p>
             </div>
             <div class="module animate-in">
@@ -1345,6 +1348,7 @@
       blenderLeftPassUrl: $("blenderLeftPassUrl"),
       blenderRightPassUrl: $("blenderRightPassUrl"),
       blenderBackPassUrl: $("blenderBackPassUrl"),
+      validateBlenderBtn: $("validateBlenderBtn"),
       blenderModeHint: $("blenderModeHint"),
       renderBackgroundPreset: $("renderBackgroundPreset"),
       renderBackgroundImageUrl: $("renderBackgroundImageUrl"),
@@ -1529,6 +1533,7 @@
       if (!ui.blenderModeHint) return;
       if (!ui.blenderConditionedMode.checked) {
         ui.blenderModeHint.textContent = "Blender-conditioned mode is off. Manual input image URL is used.";
+        updateRunActionAvailability();
         return;
       }
       const passes = blenderPassMap();
@@ -1538,6 +1543,93 @@
       } else {
         ui.blenderModeHint.textContent = "Blender-conditioned mode is ON. All four view passes are ready.";
       }
+      updateRunActionAvailability();
+    }
+
+    function blenderReadinessForView(view) {
+      const issues = [];
+      const passes = blenderPassMap();
+
+      if (!ui.blenderConsistencyKey.value.trim()) {
+        issues.push("Blender consistency key is missing");
+      }
+
+      if (!passes[view]) {
+        issues.push("Missing Blender pass URL for " + view + " view");
+      }
+
+      return {
+        ok: issues.length === 0,
+        issues
+      };
+    }
+
+    function blenderReadinessAllViews() {
+      const passes = blenderPassMap();
+      const issues = [];
+
+      if (!ui.blenderConsistencyKey.value.trim()) {
+        issues.push("Blender consistency key is missing");
+      }
+
+      ["front", "left", "right", "back"].forEach((view) => {
+        if (!passes[view]) {
+          issues.push("Missing Blender pass URL for " + view + " view");
+        }
+      });
+
+      return {
+        ok: issues.length === 0,
+        issues
+      };
+    }
+
+    function updateRunActionAvailability() {
+      if (batchInProgress) return;
+
+      if (!ui.blenderConditionedMode.checked) {
+        ui.runRenderBtn.disabled = false;
+        ui.runAllViewsBtn.disabled = false;
+        ui.runRegionalBtn.disabled = false;
+        ui.runRenderBtn.title = "";
+        ui.runAllViewsBtn.title = "";
+        ui.runRegionalBtn.title = "";
+        return;
+      }
+
+      const view = ui.activeView.value || "front";
+      const viewReadiness = blenderReadinessForView(view);
+      const allReadiness = blenderReadinessAllViews();
+
+      ui.runRenderBtn.disabled = !viewReadiness.ok;
+      ui.runRegionalBtn.disabled = !viewReadiness.ok;
+      ui.runAllViewsBtn.disabled = !allReadiness.ok;
+
+      ui.runRenderBtn.title = viewReadiness.ok ? "" : viewReadiness.issues.join("; ");
+      ui.runRegionalBtn.title = viewReadiness.ok ? "" : viewReadiness.issues.join("; ");
+      ui.runAllViewsBtn.title = allReadiness.ok ? "" : allReadiness.issues.join("; ");
+    }
+
+    function validateBlenderReadiness() {
+      if (!ui.blenderConditionedMode.checked) {
+        setStatus("Blender-conditioned mode is off. Enable it to run strict readiness checks.", true);
+        return;
+      }
+
+      const view = ui.activeView.value || "front";
+      const viewReadiness = blenderReadinessForView(view);
+      const allReadiness = blenderReadinessAllViews();
+
+      if (viewReadiness.ok && allReadiness.ok) {
+        setStatus("Blender readiness passed: active view and all four view passes are configured.", true);
+        showGuardrail("Blender preflight passed. You can run single-view, all-views, and regional edits safely.", "ok");
+      } else {
+        const issues = Array.from(new Set([].concat(viewReadiness.issues, allReadiness.issues)));
+        setStatus("Blender readiness failed: " + issues.join(" | "), false);
+        showGuardrail("Blender preflight failed. Fix missing key/passes before running to avoid wasted credits.", "bad");
+      }
+
+      updateRunActionAvailability();
     }
 
     function resolveRenderInputImage(view) {
@@ -2535,8 +2627,10 @@
       });
       ui.activeView.addEventListener("change", syncActiveViewCard);
       ui.activeView.addEventListener("change", syncRenderSummary);
+      ui.activeView.addEventListener("change", updateRunActionAvailability);
       ui.renderPrompt.addEventListener("input", syncRenderSummary);
       ui.renderProfile.addEventListener("change", syncRenderSummary);
+      ui.validateBlenderBtn.addEventListener("click", validateBlenderReadiness);
       ui.loadManualImageBtn.addEventListener("click", loadManualSelectionImage);
       ui.useCurrentTargetBtn.addEventListener("click", useCurrentTargetImage);
       ui.clearMaskBtn.addEventListener("click", clearMaskCanvas);
@@ -2606,6 +2700,7 @@
     syncRenderSummary();
     setupTabs();
     bindEvents();
+    updateRunActionAvailability();
     checkMyCreditsFromControlRoom();
   </script>
 </body>
