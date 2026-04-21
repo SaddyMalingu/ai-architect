@@ -677,6 +677,35 @@
       touch-action: none;
       cursor: crosshair;
     }
+    #maskCursor {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(255,255,255,.95);
+      border-radius: 999px;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, .55);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .12s ease;
+      z-index: 3;
+    }
+    .manual-toolbar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .mask-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .mask-meta .hint {
+      margin: 0;
+    }
     .results-head {
       display: flex;
       align-items: flex-start;
@@ -1041,6 +1070,21 @@
                   </select>
                 </div>
                 <div>
+                  <label for="editRegionHint">Region target</label>
+                  <select id="editRegionHint">
+                    <option value="auto" selected>auto</option>
+                    <option value="facade">facade</option>
+                    <option value="roof">roof</option>
+                    <option value="windows">windows</option>
+                    <option value="entry">entry</option>
+                    <option value="balcony">balcony</option>
+                    <option value="ground-floor">ground-floor</option>
+                    <option value="upper-floor">upper-floor</option>
+                    <option value="landscape">landscape</option>
+                    <option value="interior-zone">interior-zone</option>
+                  </select>
+                </div>
+                <div>
                   <label for="selectionModeDisplay">Selection mode</label>
                   <input id="selectionModeDisplay" value="automatic (derived from method)" disabled />
                 </div>
@@ -1101,19 +1145,34 @@
               </div>
               <div class="row" style="margin-top:8px">
                 <div><button id="loadManualImageBtn" class="btn-soft" type="button">Load Target For Selection</button></div>
+                <div><button id="useCurrentTargetBtn" class="btn-soft" type="button">Use Current Target Image</button></div>
                 <div>
                   <label for="maskBrushSize">Brush size</label>
                   <input id="maskBrushSize" type="range" min="2" max="40" value="14" />
                 </div>
                 <div><button id="clearMaskBtn" class="btn-soft" type="button">Clear Mask</button></div>
               </div>
+              <div class="manual-toolbar">
+                <div>
+                  <label for="maskToolMode">Tool mode</label>
+                  <select id="maskToolMode">
+                    <option value="paint" selected>paint mask</option>
+                    <option value="erase">erase mask</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="maskOverlayOpacity">Overlay opacity</label>
+                  <input id="maskOverlayOpacity" type="range" min="0.15" max="0.9" step="0.05" value="0.34" />
+                </div>
+              </div>
               <div class="mask-editor">
                 <div id="maskBackground"></div>
                 <canvas id="maskCanvas" width="1280" height="720"></canvas>
+                <div id="maskCursor"></div>
               </div>
-              <div class="row" style="margin-top:8px">
-                <div><button id="downloadMaskBtn" class="btn-soft" type="button">Download Mask PNG</button></div>
-                <div><p class="hint" style="margin:10px 0 0">Upload the downloaded PNG and paste its HTTPS URL into target mask URL.</p></div>
+              <div class="mask-meta">
+                <button id="downloadMaskBtn" class="btn-soft" type="button">Download Mask PNG</button>
+                <p id="maskStatusText" class="hint">Manual masks are now sent directly with the edit request. Target mask URL is optional unless you prefer an external mask.</p>
               </div>
             </div>
             <div class="module animate-in">
@@ -1251,6 +1310,7 @@
       runAllViewsBtn: $("runAllViewsBtn"),
       pollLatestBtn: $("pollLatestBtn"),
       editCategory: $("editCategory"),
+      editRegionHint: $("editRegionHint"),
       selectionModeDisplay: $("selectionModeDisplay"),
       editProfile: $("editProfile"),
       editPrompt: $("editPrompt"),
@@ -1262,11 +1322,16 @@
       manualTargetImageUrl: $("manualTargetImageUrl"),
       manualTargetUpload: $("manualTargetUpload"),
       loadManualImageBtn: $("loadManualImageBtn"),
+      useCurrentTargetBtn: $("useCurrentTargetBtn"),
       maskBrushSize: $("maskBrushSize"),
+      maskToolMode: $("maskToolMode"),
+      maskOverlayOpacity: $("maskOverlayOpacity"),
       clearMaskBtn: $("clearMaskBtn"),
       downloadMaskBtn: $("downloadMaskBtn"),
       maskBackground: $("maskBackground"),
       maskCanvas: $("maskCanvas"),
+      maskCursor: $("maskCursor"),
+      maskStatusText: $("maskStatusText"),
       runRegionalBtn: $("runRegionalBtn"),
       requestId: $("requestId"),
       checkStatusBtn: $("checkStatusBtn"),
@@ -1304,6 +1369,7 @@
     let manualUploadObjectUrl = "";
     let drawing = false;
     let lastPoint = null;
+    let maskHasPixels = false;
     const maskCtx = ui.maskCanvas.getContext("2d");
 
     const ls = {
@@ -1661,6 +1727,9 @@
       if (!ui.renderBackgroundPreset.value.trim() && !ui.renderBackgroundImageUrl.value.trim()) {
         ui.renderBackgroundPreset.value = "urban_dusk";
       }
+      if (ui.editRegionHint.value === "auto") {
+        ui.editRegionHint.value = "facade";
+      }
     }
 
     function activeEditMethod() {
@@ -1727,6 +1796,7 @@
         reference_image_url: ui.renderReferenceImageUrl.value.trim() || ui.renderBackgroundImageUrl.value.trim() || undefined,
         model_profile: ui.renderProfile.value,
         consistency_key: buildConsistencyKey(),
+        strict_consistency: ui.consistencyMode.checked,
         num_outputs: 1
       };
 
@@ -1875,8 +1945,11 @@
         reference_image_url: ui.referenceImageUrl.value.trim() || undefined,
         prompt: ui.editPrompt.value.trim(),
         edit_category: resolvedEditCategory,
+        region_hint: ui.editRegionHint.value === "auto" ? undefined : ui.editRegionHint.value,
         selection_mode: resolvedSelectionMode,
         target_mask_url: ui.targetMaskUrl.value.trim() || undefined,
+        target_mask_data_url: resolvedSelectionMode === "manual" ? buildMaskDataUrl() : undefined,
+        strict_consistency: ui.consistencyMode.checked,
         model_profile: ui.editProfile.value,
         strength: ui.strength.value ? Number(ui.strength.value) : undefined
       };
@@ -1885,8 +1958,8 @@
         setStatus("user_id, target_image_url, and prompt are required for regional edit.", false);
         return;
       }
-      if (payload.selection_mode === "manual" && !payload.target_mask_url) {
-        setStatus("target_mask_url is required for manual selection mode.", false);
+      if (payload.selection_mode === "manual" && !payload.target_mask_url && !payload.target_mask_data_url) {
+        setStatus("Paint a mask or provide target_mask_url for manual selection mode.", false);
         return;
       }
 
@@ -2116,6 +2189,10 @@
 
     function clearMaskCanvas() {
       maskCtx.clearRect(0, 0, ui.maskCanvas.width, ui.maskCanvas.height);
+      maskHasPixels = false;
+      if (ui.maskStatusText) {
+        ui.maskStatusText.textContent = "Manual masks are now sent directly with the edit request. Target mask URL is optional unless you prefer an external mask.";
+      }
     }
 
     function canvasPointFromEvent(ev) {
@@ -2133,19 +2210,26 @@
       lastPoint = canvasPointFromEvent(ev);
       maskCtx.lineCap = "round";
       maskCtx.lineJoin = "round";
+      maskCtx.globalCompositeOperation = ui.maskToolMode.value === "erase" ? "destination-out" : "source-over";
       maskCtx.strokeStyle = "#ffffff";
       maskCtx.lineWidth = Number(ui.maskBrushSize.value || 14);
       maskCtx.beginPath();
       maskCtx.moveTo(lastPoint.x, lastPoint.y);
+      updateMaskCursor(ev);
       ev.preventDefault();
     }
 
     function moveMaskStroke(ev) {
+      updateMaskCursor(ev);
       if (!drawing) return;
       const p = canvasPointFromEvent(ev);
       maskCtx.lineTo(p.x, p.y);
       maskCtx.stroke();
+      maskHasPixels = true;
       lastPoint = p;
+      if (ui.maskStatusText) {
+        ui.maskStatusText.textContent = "Mask ready. Run Regional Edit directly or download the PNG if you want an external copy.";
+      }
       ev.preventDefault();
     }
 
@@ -2154,9 +2238,28 @@
       drawing = false;
       maskCtx.closePath();
       lastPoint = null;
+      maskCtx.globalCompositeOperation = "source-over";
     }
 
-    function downloadMaskPng() {
+    function updateMaskCursor(ev) {
+      if (!ui.maskCursor) return;
+      const rect = ui.maskCanvas.getBoundingClientRect();
+      const brushSize = Number(ui.maskBrushSize.value || 14);
+      ui.maskCursor.style.width = brushSize + "px";
+      ui.maskCursor.style.height = brushSize + "px";
+      ui.maskCursor.style.left = (ev.clientX - rect.left) + "px";
+      ui.maskCursor.style.top = (ev.clientY - rect.top) + "px";
+      ui.maskCursor.style.opacity = "1";
+      ui.maskCursor.style.borderStyle = ui.maskToolMode.value === "erase" ? "dashed" : "solid";
+    }
+
+    function hideMaskCursor() {
+      if (!ui.maskCursor) return;
+      ui.maskCursor.style.opacity = "0";
+    }
+
+    function buildMaskDataUrl() {
+      if (!maskHasPixels) return undefined;
       const out = document.createElement("canvas");
       out.width = ui.maskCanvas.width;
       out.height = ui.maskCanvas.height;
@@ -2164,11 +2267,41 @@
       outCtx.fillStyle = "#000000";
       outCtx.fillRect(0, 0, out.width, out.height);
       outCtx.drawImage(ui.maskCanvas, 0, 0);
+      return out.toDataURL("image/png");
+    }
+
+    function downloadMaskPng() {
+      const dataUrl = buildMaskDataUrl();
+      if (!dataUrl) {
+        setStatus("Draw a mask first before downloading it.", false);
+        return;
+      }
 
       const a = document.createElement("a");
-      a.href = out.toDataURL("image/png");
+      a.href = dataUrl;
       a.download = "regional-mask.png";
       a.click();
+    }
+
+    function useCurrentTargetImage() {
+      const direct = ui.targetImageUrl.value.trim();
+      const active = ui.resultImage && ui.resultImage.src ? ui.resultImage.src : "";
+      const view = viewImageByKey[ui.activeView.value] && viewImageByKey[ui.activeView.value].src
+        ? viewImageByKey[ui.activeView.value].src
+        : "";
+      const resolved = direct || active || view;
+      if (!resolved) {
+        setStatus("No current target image is available yet. Render or paste a target image URL first.", false);
+        return;
+      }
+      ui.manualTargetImageUrl.value = resolved;
+      setMaskBackground(resolved);
+      if (!ui.targetImageUrl.value.trim()) {
+        ui.targetImageUrl.value = resolved;
+      }
+      if (ui.maskStatusText) {
+        ui.maskStatusText.textContent = "Current target image loaded into the selection canvas.";
+      }
     }
 
     function updateRenderSourcePreview() {
@@ -2247,8 +2380,13 @@
       ui.renderPrompt.addEventListener("input", syncRenderSummary);
       ui.renderProfile.addEventListener("change", syncRenderSummary);
       ui.loadManualImageBtn.addEventListener("click", loadManualSelectionImage);
+      ui.useCurrentTargetBtn.addEventListener("click", useCurrentTargetImage);
       ui.clearMaskBtn.addEventListener("click", clearMaskCanvas);
       ui.downloadMaskBtn.addEventListener("click", downloadMaskPng);
+      ui.maskOverlayOpacity.addEventListener("input", () => {
+        ui.maskBackground.style.opacity = String(ui.maskOverlayOpacity.value || 0.34);
+      });
+      ui.maskToolMode.addEventListener("change", hideMaskCursor);
 
       if (ui.backgroundPresetChips) {
         Array.from(ui.backgroundPresetChips.querySelectorAll(".chip")).forEach((chip) => {
@@ -2289,6 +2427,9 @@
       ui.maskCanvas.addEventListener("pointerup", endMaskStroke);
       ui.maskCanvas.addEventListener("pointerleave", endMaskStroke);
       ui.maskCanvas.addEventListener("pointercancel", endMaskStroke);
+      ui.maskCanvas.addEventListener("pointerleave", hideMaskCursor);
+      ui.maskCanvas.addEventListener("pointercancel", hideMaskCursor);
+      ui.maskCanvas.addEventListener("pointerup", hideMaskCursor);
 
       window.addEventListener("beforeunload", (ev) => {
         if (!batchInProgress) return;
