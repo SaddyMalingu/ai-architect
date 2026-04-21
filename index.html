@@ -1311,11 +1311,10 @@
       anon: "cloudstudio.anon",
       user: "cloudstudio.user",
       latestRequest: "cloudstudio.latestRequest",
-      backendApiBase: "cloudstudio.backendApiBase",
-      billingAdminKey: "cloudstudio.billingAdminKey"
+      backendApiBase: "cloudstudio.backendApiBase"
     };
 
-    let billingAdminKey = localStorage.getItem(ls.billingAdminKey) || "";
+    let billingAdminKey = "";
 
     let batchInProgress = false;
     let dynamicBatchDelayMs = 2000;
@@ -1374,6 +1373,7 @@
       ui.userId.value = localStorage.getItem(ls.user) || "ec470708-d89c-4575-9d94-b57cd681bb8b";
       ui.backendApiBase.value = localStorage.getItem(ls.backendApiBase) || (ui.supabaseUrl.value.trim().replace(/\/$/, "") + "/functions/v1");
       ui.requestId.value = localStorage.getItem(ls.latestRequest) || "";
+      localStorage.removeItem("cloudstudio.billingAdminKey");
       syncControlRoomHint();
     }
 
@@ -1389,7 +1389,7 @@
       if (!billingAdminKey) {
         ui.controlRoomHint.textContent = "No admin key set yet. Click Set Admin Key.";
       } else {
-        ui.controlRoomHint.textContent = "Admin key saved in this browser. You can now grant credits for the current User UUID.";
+        ui.controlRoomHint.textContent = "Admin key loaded for this session only. It will be cleared when this page reloads.";
       }
     }
 
@@ -1475,9 +1475,8 @@
         return;
       }
       billingAdminKey = trimmed;
-      localStorage.setItem(ls.billingAdminKey, billingAdminKey);
       syncControlRoomHint();
-      setStatus("Admin key saved for this browser.", true);
+      setStatus("Admin key loaded for this session only.", true);
     }
 
     async function grantMyTestCreditsFromControlRoom() {

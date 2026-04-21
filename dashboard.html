@@ -533,10 +533,11 @@
         let currentUser = null;
         let controlRoomAllowed = false;
         const stripePublicKey = localStorage.getItem('stripePublicKey') || '';
-        let billingAdminKey = localStorage.getItem('billingAdminKey') || '';
+        let billingAdminKey = '';
         
         // Initialize
         window.addEventListener('DOMContentLoaded', async () => {
+            localStorage.removeItem('billingAdminKey');
             initializeUser();
             await loadPricing();
             await loadControlRoomConfig();
@@ -745,9 +746,9 @@
             const note = document.getElementById('controlRoomNote');
             if (!note) return;
             if (!billingAdminKey) {
-                note.innerHTML = 'No admin key set. Click <strong>Set Admin Key</strong> below to save it.';
+                note.innerHTML = 'No admin key set. Click <strong>Set Admin Key</strong> below to load it for this session.';
             } else {
-                note.textContent = 'Admin key is set. This action grants test credits only to you.';
+                note.textContent = 'Admin key is loaded for this session only and will clear on page reload.';
             }
         }
 
@@ -763,7 +764,6 @@
         function saveAdminKey() {
             const val = document.getElementById('adminKeyInput').value.trim();
             if (!val) { alert('Please enter a key.'); return; }
-            localStorage.setItem('billingAdminKey', val);
             billingAdminKey = val;
             closeAdminKeyModal();
             updateControlRoomNote();
