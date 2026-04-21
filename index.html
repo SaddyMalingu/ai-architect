@@ -995,6 +995,46 @@
                 </div>
               </div>
             </div>
+            <div class="module animate-in" style="border: 2px solid rgba(2, 132, 199, .25); background: rgba(236, 254, 255, .55);">
+              <div class="module-head">
+                <div>
+                  <h4>Blender-Conditioned Mode</h4>
+                  <p>When enabled, each exterior view must use its matching Blender base pass to lock geometry and camera consistency.</p>
+                </div>
+                <div class="badge">Foolproof</div>
+              </div>
+              <div class="row">
+                <div class="toggle">
+                  <input type="checkbox" id="blenderConditionedMode" />
+                  <label for="blenderConditionedMode" style="margin:0">Require Blender passes for render runs</label>
+                </div>
+                <div>
+                  <label for="blenderConsistencyKey">Blender consistency key</label>
+                  <input id="blenderConsistencyKey" placeholder="project-name|revision" />
+                </div>
+              </div>
+              <div class="row" style="margin-top:8px">
+                <div>
+                  <label for="blenderFrontPassUrl">Front pass URL</label>
+                  <input id="blenderFrontPassUrl" placeholder="https://.../CAM_FRONT_EXTERIOR_beauty.png" />
+                </div>
+                <div>
+                  <label for="blenderLeftPassUrl">Left pass URL</label>
+                  <input id="blenderLeftPassUrl" placeholder="https://.../CAM_LEFT_EXTERIOR_beauty.png" />
+                </div>
+              </div>
+              <div class="row" style="margin-top:8px">
+                <div>
+                  <label for="blenderRightPassUrl">Right pass URL</label>
+                  <input id="blenderRightPassUrl" placeholder="https://.../CAM_RIGHT_EXTERIOR_beauty.png" />
+                </div>
+                <div>
+                  <label for="blenderBackPassUrl">Back pass URL</label>
+                  <input id="blenderBackPassUrl" placeholder="https://.../CAM_BACK_EXTERIOR_beauty.png" />
+                </div>
+              </div>
+              <p id="blenderModeHint" class="hint" style="margin-top:8px;">Blender-conditioned mode is off. Manual input image URL is used.</p>
+            </div>
             <div class="module animate-in">
               <div class="module-head">
                 <div>
@@ -1299,6 +1339,13 @@
       renderInputPreview: $("renderInputPreview"),
       renderReferencePreview: $("renderReferencePreview"),
       renderBackgroundPreview: $("renderBackgroundPreview"),
+      blenderConditionedMode: $("blenderConditionedMode"),
+      blenderConsistencyKey: $("blenderConsistencyKey"),
+      blenderFrontPassUrl: $("blenderFrontPassUrl"),
+      blenderLeftPassUrl: $("blenderLeftPassUrl"),
+      blenderRightPassUrl: $("blenderRightPassUrl"),
+      blenderBackPassUrl: $("blenderBackPassUrl"),
+      blenderModeHint: $("blenderModeHint"),
       renderBackgroundPreset: $("renderBackgroundPreset"),
       renderBackgroundImageUrl: $("renderBackgroundImageUrl"),
       backgroundPresetChips: $("backgroundPresetChips"),
@@ -1377,7 +1424,13 @@
       anon: "cloudstudio.anon",
       user: "cloudstudio.user",
       latestRequest: "cloudstudio.latestRequest",
-      backendApiBase: "cloudstudio.backendApiBase"
+      backendApiBase: "cloudstudio.backendApiBase",
+      blenderMode: "cloudstudio.blenderConditionedMode",
+      blenderConsistencyKey: "cloudstudio.blenderConsistencyKey",
+      blenderFrontPassUrl: "cloudstudio.blenderFrontPassUrl",
+      blenderLeftPassUrl: "cloudstudio.blenderLeftPassUrl",
+      blenderRightPassUrl: "cloudstudio.blenderRightPassUrl",
+      blenderBackPassUrl: "cloudstudio.blenderBackPassUrl"
     };
 
     let billingAdminKey = "";
@@ -1438,9 +1491,16 @@
       ui.anonKey.value = localStorage.getItem(ls.anon) || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjY3Z0a3FrbGxlZ3pieXBhZW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTcxODcsImV4cCI6MjA5MTgzMzE4N30.F6ylVSRrYjOlOSZBYEBmuwpfrxBbeF74DImUNSspIgY";
       ui.userId.value = localStorage.getItem(ls.user) || "ec470708-d89c-4575-9d94-b57cd681bb8b";
       ui.backendApiBase.value = supabaseFunctionsBase() || localStorage.getItem(ls.backendApiBase) || "";
+      ui.blenderConditionedMode.checked = localStorage.getItem(ls.blenderMode) === "1";
+      ui.blenderConsistencyKey.value = localStorage.getItem(ls.blenderConsistencyKey) || "";
+      ui.blenderFrontPassUrl.value = localStorage.getItem(ls.blenderFrontPassUrl) || "";
+      ui.blenderLeftPassUrl.value = localStorage.getItem(ls.blenderLeftPassUrl) || "";
+      ui.blenderRightPassUrl.value = localStorage.getItem(ls.blenderRightPassUrl) || "";
+      ui.blenderBackPassUrl.value = localStorage.getItem(ls.blenderBackPassUrl) || "";
       ui.requestId.value = localStorage.getItem(ls.latestRequest) || "";
       localStorage.removeItem("cloudstudio.billingAdminKey");
       syncControlRoomHint();
+      syncBlenderModeHint();
     }
 
     function saveConfig() {
@@ -1448,6 +1508,44 @@
       localStorage.setItem(ls.anon, ui.anonKey.value.trim());
       localStorage.setItem(ls.user, ui.userId.value.trim());
       localStorage.setItem(ls.backendApiBase, ui.backendApiBase.value.trim().replace(/\/$/, ""));
+      localStorage.setItem(ls.blenderMode, ui.blenderConditionedMode.checked ? "1" : "0");
+      localStorage.setItem(ls.blenderConsistencyKey, ui.blenderConsistencyKey.value.trim());
+      localStorage.setItem(ls.blenderFrontPassUrl, ui.blenderFrontPassUrl.value.trim());
+      localStorage.setItem(ls.blenderLeftPassUrl, ui.blenderLeftPassUrl.value.trim());
+      localStorage.setItem(ls.blenderRightPassUrl, ui.blenderRightPassUrl.value.trim());
+      localStorage.setItem(ls.blenderBackPassUrl, ui.blenderBackPassUrl.value.trim());
+    }
+
+    function blenderPassMap() {
+      return {
+        front: ui.blenderFrontPassUrl.value.trim(),
+        left: ui.blenderLeftPassUrl.value.trim(),
+        right: ui.blenderRightPassUrl.value.trim(),
+        back: ui.blenderBackPassUrl.value.trim()
+      };
+    }
+
+    function syncBlenderModeHint() {
+      if (!ui.blenderModeHint) return;
+      if (!ui.blenderConditionedMode.checked) {
+        ui.blenderModeHint.textContent = "Blender-conditioned mode is off. Manual input image URL is used.";
+        return;
+      }
+      const passes = blenderPassMap();
+      const missing = Object.keys(passes).filter((k) => !passes[k]);
+      if (missing.length) {
+        ui.blenderModeHint.textContent = "Blender-conditioned mode is ON. Missing passes for: " + missing.join(", ") + ".";
+      } else {
+        ui.blenderModeHint.textContent = "Blender-conditioned mode is ON. All four view passes are ready.";
+      }
+    }
+
+    function resolveRenderInputImage(view) {
+      if (!ui.blenderConditionedMode.checked) {
+        return ui.renderInputImageUrl.value.trim() || undefined;
+      }
+      const byView = blenderPassMap();
+      return byView[view] || "";
     }
 
     function syncControlRoomHint() {
@@ -1730,6 +1828,10 @@
       if (ui.editRegionHint.value === "auto") {
         ui.editRegionHint.value = "facade";
       }
+      if (ui.blenderConditionedMode.checked) {
+        ui.renderInputImageUrl.value = "";
+      }
+      syncBlenderModeHint();
     }
 
     function activeEditMethod() {
@@ -1772,6 +1874,9 @@
 
     function buildConsistencyKey() {
       if (!ui.consistencyMode.checked) return undefined;
+      if (ui.blenderConditionedMode.checked && ui.blenderConsistencyKey.value.trim()) {
+        return ui.blenderConsistencyKey.value.trim();
+      }
       const keyParts = [
         ui.userId.value.trim(),
         ui.renderPrompt.value.trim(),
@@ -1787,16 +1892,33 @@
       saveConfig();
       applyConsistencyMode();
 
+      const resolvedInputImage = resolveRenderInputImage(view);
+      if (ui.blenderConditionedMode.checked) {
+        if (!resolvedInputImage) {
+          setStatus("Blender-conditioned mode requires a Blender pass URL for " + view + " view.", false);
+          setViewState(view, "failed");
+          syncBlenderModeHint();
+          return false;
+        }
+        if (!ui.blenderConsistencyKey.value.trim()) {
+          setStatus("Set Blender consistency key before running Blender-conditioned renders.", false);
+          setViewState(view, "failed");
+          return false;
+        }
+      }
+
       const b = baseUrl();
       const body = {
         user_id: ui.userId.value.trim(),
         prompt: buildPromptWithContext(ui.renderPrompt.value, view),
         style: ui.renderStyle.value.trim(),
-        input_image_url: ui.renderInputImageUrl.value.trim() || undefined,
+        input_image_url: resolvedInputImage,
         reference_image_url: ui.renderReferenceImageUrl.value.trim() || ui.renderBackgroundImageUrl.value.trim() || undefined,
         model_profile: ui.renderProfile.value,
         consistency_key: buildConsistencyKey(),
-        strict_consistency: ui.consistencyMode.checked,
+        strict_consistency: ui.consistencyMode.checked || ui.blenderConditionedMode.checked,
+        blender_conditioned: ui.blenderConditionedMode.checked,
+        blender_pass_type: ui.blenderConditionedMode.checked ? view : undefined,
         num_outputs: 1
       };
 
@@ -2370,6 +2492,19 @@
       ui.renderInputImageUrl.addEventListener("input", syncRenderReferencePreviews);
       ui.renderReferenceImageUrl.addEventListener("input", syncRenderReferencePreviews);
       ui.renderBackgroundImageUrl.addEventListener("input", syncRenderReferencePreviews);
+      ui.blenderConditionedMode.addEventListener("change", () => {
+        applyConsistencyMode();
+        saveConfig();
+      });
+      ui.blenderConsistencyKey.addEventListener("input", () => {
+        syncBlenderModeHint();
+      });
+      [ui.blenderFrontPassUrl, ui.blenderLeftPassUrl, ui.blenderRightPassUrl, ui.blenderBackPassUrl].forEach((el) => {
+        el.addEventListener("input", () => {
+          syncBlenderModeHint();
+          saveConfig();
+        });
+      });
       ui.renderBackgroundImageUrl.addEventListener("input", syncRenderSummary);
       ui.renderBackgroundPreset.addEventListener("change", () => {
         syncBackgroundPresetChips();
