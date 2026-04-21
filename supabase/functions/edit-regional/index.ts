@@ -22,6 +22,9 @@ type RegionalEditRequest = {
   target_mask_data_url?: string;
   reference_mask_url?: string;
   strict_consistency?: boolean;
+  consistency_key?: string;
+  blender_conditioned?: boolean;
+  blender_pass_type?: "front" | "left" | "right" | "back" | string;
   model_profile?: ProfileName;
   strength?: number;
   num_outputs?: number;
@@ -211,6 +214,15 @@ function validatePayload(payload: RegionalEditRequest): string | null {
 
   if (payload.selection_mode === "manual" && !payload.target_mask_url && !payload.target_mask_data_url) {
     return "target_mask_url or target_mask_data_url is required when selection_mode is manual";
+  }
+
+  if (payload.blender_conditioned) {
+    if (!payload.consistency_key || !payload.consistency_key.trim()) {
+      return "consistency_key is required when blender_conditioned is true";
+    }
+    if (!payload.strict_consistency) {
+      return "strict_consistency must be true when blender_conditioned is true";
+    }
   }
 
   if (payload.strength !== undefined && (payload.strength < 0 || payload.strength > 1)) {
@@ -583,6 +595,9 @@ Deno.serve(async (request: Request) => {
         replicate_prediction_id: predictionId,
         replicate_model: modelUsed,
         model_profile: profile,
+        blender_conditioned: Boolean(payload.blender_conditioned),
+        blender_pass_type: payload.blender_pass_type ?? null,
+        consistency_key: payload.consistency_key ?? null,
         guidance_scale: GUIDANCE_BY_PROFILE[profile],
         num_inference_steps: STEPS_BY_PROFILE[profile],
         latency_ms: latencyMs,
@@ -621,6 +636,8 @@ Deno.serve(async (request: Request) => {
       meta: {
         model: modelUsed,
         model_profile: profile,
+        blender_conditioned: Boolean(payload.blender_conditioned),
+        blender_pass_type: payload.blender_pass_type ?? null,
         latency_ms: latencyMs,
       },
       applied_region: { mode: payload.selection_mode, coverage_ratio: coverageRatio },
