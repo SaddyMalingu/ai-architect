@@ -2173,6 +2173,29 @@
       ui.runRenderBtn.disabled = true;
       ui.runAllViewsBtn.disabled = true;
       const view = ui.activeView.value;
+      // Automatic backend preflight before running
+      if (ui.blenderConditionedMode.checked) {
+        setStatus("Running backend preflight ...", null);
+        let backend = null;
+        try {
+          backend = await runBackendPreflight("render", view);
+        } catch (err) {
+          const msg = err && err.message ? err.message : String(err);
+          setStatus("Backend preflight unavailable: " + msg, false);
+          showGuardrail("Backend preflight could not be completed. Verify backend connectivity before costly runs.", "bad");
+          ui.runRenderBtn.disabled = false;
+          ui.runAllViewsBtn.disabled = false;
+          return;
+        }
+        const backendIssues = Array.isArray(backend.issues) ? backend.issues : [];
+        if (backendIssues.length) {
+          setStatus("Blender-conditioned preflight failed: " + backendIssues.join(" | "), false);
+          showGuardrail("Blender preflight failed. Fix issues before running to avoid wasted credits.", "bad");
+          ui.runRenderBtn.disabled = false;
+          ui.runAllViewsBtn.disabled = false;
+          return;
+        }
+      }
       try {
         await runRenderForView(view, { allowRetry429: true, retryLimit: 1 });
       } finally {
@@ -2238,13 +2261,24 @@
         strength: ui.strength.value ? Number(ui.strength.value) : undefined
       };
 
+      // Automatic backend preflight before running
       if (ui.blenderConditionedMode.checked) {
-        if (!ui.blenderConsistencyKey.value.trim()) {
-          setStatus("Set Blender consistency key before regional edit in Blender-conditioned mode.", false);
+        setStatus("Running backend preflight ...", null);
+        let backend = null;
+        try {
+          backend = await runBackendPreflight("regional", activeView);
+        } catch (err) {
+          const msg = err && err.message ? err.message : String(err);
+          setStatus("Backend preflight unavailable: " + msg, false);
+          showGuardrail("Backend preflight could not be completed. Verify backend connectivity before costly runs.", "bad");
+          ui.runRegionalBtn.disabled = false;
           return;
         }
-        if (!payload.target_image_url) {
-          setStatus("Blender-conditioned regional edit requires a target image URL or current view render.", false);
+        const backendIssues = Array.isArray(backend.issues) ? backend.issues : [];
+        if (backendIssues.length) {
+          setStatus("Blender-conditioned preflight failed: " + backendIssues.join(" | "), false);
+          showGuardrail("Blender preflight failed. Fix issues before running to avoid wasted credits.", "bad");
+          ui.runRegionalBtn.disabled = false;
           return;
         }
       }
