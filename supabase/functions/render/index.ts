@@ -20,6 +20,8 @@ type RenderRequest = {
   num_outputs?: number;
   consistency_key?: string;
   strict_consistency?: boolean;
+  blender_conditioned?: boolean;
+  blender_pass_type?: "front" | "left" | "right" | "back" | string;
 };
 
 type ModelProfile = {
@@ -278,6 +280,17 @@ function validatePayload(payload: RenderRequest): string | null {
   if (payload.mask_url && !isHttpsUrl(payload.mask_url)) {
     return "mask_url must be a valid https URL";
   }
+  if (payload.blender_conditioned) {
+    if (!payload.input_image_url) {
+      return "input_image_url is required when blender_conditioned is true";
+    }
+    if (!payload.consistency_key || !payload.consistency_key.trim()) {
+      return "consistency_key is required when blender_conditioned is true";
+    }
+    if (!payload.strict_consistency) {
+      return "strict_consistency must be true when blender_conditioned is true";
+    }
+  }
   if (payload.model_profile && !Object.keys(MODEL_PROFILES).includes(payload.model_profile)) {
     return "model_profile must be one of: fast, balanced, quality";
   }
@@ -522,6 +535,8 @@ Deno.serve(async (request: Request) => {
         replicate_prediction_id: predictionId,
         replicate_model: selected.model,
         model_profile: profile.label,
+        blender_conditioned: Boolean(payload.blender_conditioned),
+        blender_pass_type: payload.blender_pass_type ?? null,
         ab_variant: selected.variant,
         ab_percent: RENDER_AB_TEST_PERCENT,
         used_flux_path: isFluxLikeModel(selected.model),
@@ -548,6 +563,8 @@ Deno.serve(async (request: Request) => {
       meta: {
         model: selected.model,
         model_profile: profile.label,
+        blender_conditioned: Boolean(payload.blender_conditioned),
+        blender_pass_type: payload.blender_pass_type ?? null,
         ab_variant: selected.variant,
         latency_ms: latencyMs,
       },
