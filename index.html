@@ -2061,9 +2061,14 @@
       const method = activeEditMethod();
       const resolvedSelectionMode = method === "manual_selection" ? "manual" : "automatic";
       const resolvedEditCategory = method === "prompt_based" ? "prompt_only" : ui.editCategory.value;
+      const activeView = ui.activeView.value || "front";
+      const blenderPassForView = resolveRenderInputImage(activeView);
+      const latestResult = ui.resultImage && ui.resultImage.src ? ui.resultImage.src : "";
+      const boardViewImage = viewImageByKey[activeView] && viewImageByKey[activeView].src ? viewImageByKey[activeView].src : "";
+      const resolvedTargetImage = ui.targetImageUrl.value.trim() || latestResult || boardViewImage || blenderPassForView;
       const payload = {
         user_id: ui.userId.value.trim(),
-        target_image_url: ui.targetImageUrl.value.trim(),
+        target_image_url: resolvedTargetImage,
         reference_image_url: ui.referenceImageUrl.value.trim() || undefined,
         prompt: ui.editPrompt.value.trim(),
         edit_category: resolvedEditCategory,
@@ -2071,10 +2076,28 @@
         selection_mode: resolvedSelectionMode,
         target_mask_url: ui.targetMaskUrl.value.trim() || undefined,
         target_mask_data_url: resolvedSelectionMode === "manual" ? buildMaskDataUrl() : undefined,
-        strict_consistency: ui.consistencyMode.checked,
+        strict_consistency: ui.consistencyMode.checked || ui.blenderConditionedMode.checked,
+        consistency_key: buildConsistencyKey(),
+        blender_conditioned: ui.blenderConditionedMode.checked,
+        blender_pass_type: ui.blenderConditionedMode.checked ? activeView : undefined,
         model_profile: ui.editProfile.value,
         strength: ui.strength.value ? Number(ui.strength.value) : undefined
       };
+
+      if (ui.blenderConditionedMode.checked) {
+        if (!ui.blenderConsistencyKey.value.trim()) {
+          setStatus("Set Blender consistency key before regional edit in Blender-conditioned mode.", false);
+          return;
+        }
+        if (!payload.target_image_url) {
+          setStatus("Blender-conditioned regional edit requires a target image URL or current view render.", false);
+          return;
+        }
+      }
+
+      if (payload.target_image_url && !ui.targetImageUrl.value.trim()) {
+        ui.targetImageUrl.value = payload.target_image_url;
+      }
 
       if (!payload.user_id || !payload.target_image_url || !payload.prompt) {
         setStatus("user_id, target_image_url, and prompt are required for regional edit.", false);
