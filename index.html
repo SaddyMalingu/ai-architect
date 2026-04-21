@@ -1584,6 +1584,46 @@
       };
     }
 
+    function activeViewKey() {
+      return ui.activeView.value || "front";
+    }
+
+    function resolveRegionalTargetImageCandidate(view) {
+      const active = ui.resultImage && ui.resultImage.src ? ui.resultImage.src : "";
+      const boardViewImage = viewImageByKey[view] && viewImageByKey[view].src ? viewImageByKey[view].src : "";
+      const blenderPassForView = resolveRenderInputImage(view);
+      return ui.targetImageUrl.value.trim() || active || boardViewImage || blenderPassForView;
+    }
+
+    async function runBackendPreflight(mode, view) {
+      const b = baseUrl();
+      const payload = {
+        mode,
+        user_id: ui.userId.value.trim(),
+        blender_conditioned: ui.blenderConditionedMode.checked,
+        strict_consistency: ui.consistencyMode.checked || ui.blenderConditionedMode.checked,
+        consistency_key: buildConsistencyKey(),
+        active_view: view,
+        passes: blenderPassMap(),
+        target_image_url: resolveRegionalTargetImageCandidate(view),
+        prompt: ui.renderPrompt.value.trim(),
+        selection_mode: activeEditMethod() === "manual_selection" ? "manual" : "automatic",
+        target_mask_url: ui.targetMaskUrl.value.trim() || undefined,
+        target_mask_data_url: buildMaskDataUrl()
+      };
+
+      const res = await fetch(b + "/functions/v1/preflight", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(payload)
+      });
+      const data = await parseResponse(res);
+      if (!res.ok) {
+        throw new Error(buildHttpErrorMessage(res, data, "Backend preflight failed"));
+      }
+      return data;
+    }
+
     function updateRunActionAvailability() {
       if (batchInProgress) return;
 
@@ -1610,21 +1650,45 @@
       ui.runAllViewsBtn.title = allReadiness.ok ? "" : allReadiness.issues.join("; ");
     }
 
-    function validateBlenderReadiness() {
+    async function validateBlenderReadiness() {
       if (!ui.blenderConditionedMode.checked) {
         setStatus("Blender-conditioned mode is off. Enable it to run strict readiness checks.", true);
         return;
       }
 
-      const view = ui.activeView.value || "front";
+      const view = activeViewKey();
       const viewReadiness = blenderReadinessForView(view);
       const allReadiness = blenderReadinessAllViews();
+      const localIssues = Array.from(new Set([].concat(viewReadiness.issues, allReadiness.issues)));
 
-      if (viewReadiness.ok && allReadiness.ok) {
+      if (localIssues.length) {
+        setStatus("Blender readiness failed: " + localIssues.join(" | "), false);
+        showGuardrail("Blender preflight failed locally. Fix missing key/passes before running to avoid wasted credits.", "bad");
+        updateRunActionAvailability();
+        return;
+      }
+
+      setStatus("Running backend preflight ...", null);
+      let backend = null;
+      try {
+        backend = await runBackendPreflight("all", view);
+      } catch (err) {
+        const msg = err && err.message ? err.message : String(err);
+        setStatus("Backend preflight unavailable: " + msg, false);
+        showGuardrail("Local checks passed, but backend preflight could not be completed. Verify backend connectivity before costly runs.", "bad");
+        updateRunActionAvailability();
+        return;
+      }
+
+      const backendIssues = Array.isArray(backend.issues) ? backend.issues : [];
+      const backendWarnings = Array.isArray(backend.warnings) ? backend.warnings : [];
+
+      if (!backendIssues.length && viewReadiness.ok && allReadiness.ok) {
         setStatus("Blender readiness passed: active view and all four view passes are configured.", true);
-        showGuardrail("Blender preflight passed. You can run single-view, all-views, and regional edits safely.", "ok");
+        const warningText = backendWarnings.length ? (" Warnings: " + backendWarnings.join(" | ")) : "";
+        showGuardrail("Blender preflight passed. You can run single-view, all-views, and regional edits safely." + warningText, "ok");
       } else {
-        const issues = Array.from(new Set([].concat(viewReadiness.issues, allReadiness.issues)));
+        const issues = Array.from(new Set([].concat(localIssues, backendIssues)));
         setStatus("Blender readiness failed: " + issues.join(" | "), false);
         showGuardrail("Blender preflight failed. Fix missing key/passes before running to avoid wasted credits.", "bad");
       }
@@ -2153,11 +2217,9 @@
       const method = activeEditMethod();
       const resolvedSelectionMode = method === "manual_selection" ? "manual" : "automatic";
       const resolvedEditCategory = method === "prompt_based" ? "prompt_only" : ui.editCategory.value;
-      const activeView = ui.activeView.value || "front";
+      const activeView = activeViewKey();
       const blenderPassForView = resolveRenderInputImage(activeView);
-      const latestResult = ui.resultImage && ui.resultImage.src ? ui.resultImage.src : "";
-      const boardViewImage = viewImageByKey[activeView] && viewImageByKey[activeView].src ? viewImageByKey[activeView].src : "";
-      const resolvedTargetImage = ui.targetImageUrl.value.trim() || latestResult || boardViewImage || blenderPassForView;
+      const resolvedTargetImage = resolveRegionalTargetImageCandidate(activeView);
       const payload = {
         user_id: ui.userId.value.trim(),
         target_image_url: resolvedTargetImage,
