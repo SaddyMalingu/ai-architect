@@ -1371,7 +1371,7 @@
       ui.supabaseUrl.value = localStorage.getItem(ls.base) || "https://eccvtkqkllegzbypaemw.supabase.co";
       ui.anonKey.value = localStorage.getItem(ls.anon) || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjY3Z0a3FrbGxlZ3pieXBhZW13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTcxODcsImV4cCI6MjA5MTgzMzE4N30.F6ylVSRrYjOlOSZBYEBmuwpfrxBbeF74DImUNSspIgY";
       ui.userId.value = localStorage.getItem(ls.user) || "ec470708-d89c-4575-9d94-b57cd681bb8b";
-      ui.backendApiBase.value = localStorage.getItem(ls.backendApiBase) || (ui.supabaseUrl.value.trim().replace(/\/$/, "") + "/functions/v1");
+      ui.backendApiBase.value = supabaseFunctionsBase() || localStorage.getItem(ls.backendApiBase) || "";
       ui.requestId.value = localStorage.getItem(ls.latestRequest) || "";
       localStorage.removeItem("cloudstudio.billingAdminKey");
       syncControlRoomHint();
@@ -1415,6 +1415,21 @@
       return String(value || "").trim().replace(/\/$/, "");
     }
 
+    function supabaseFunctionsBase() {
+      const b = normalizeBase(ui.supabaseUrl.value);
+      return b ? b + "/functions/v1" : "";
+    }
+
+    function resolveControlRoomApiBase() {
+      const preferred = supabaseFunctionsBase();
+      if (preferred) {
+        ui.backendApiBase.value = preferred;
+        localStorage.setItem(ls.backendApiBase, preferred);
+        return preferred;
+      }
+      return normalizeBase(ui.backendApiBase.value);
+    }
+
     function isSupabaseFunctionsBase(base) {
       return /\/functions\/v1$/i.test(base);
     }
@@ -1435,7 +1450,7 @@
 
     async function checkMyCreditsFromControlRoom() {
       saveConfig();
-      const apiBase = normalizeBase(ui.backendApiBase.value);
+      const apiBase = resolveControlRoomApiBase();
       const userId = ui.userId.value.trim();
 
       if (!apiBase) {
@@ -1481,7 +1496,7 @@
 
     async function grantMyTestCreditsFromControlRoom() {
       saveConfig();
-      const apiBase = normalizeBase(ui.backendApiBase.value);
+      const apiBase = resolveControlRoomApiBase();
       const userId = ui.userId.value.trim();
       const amount = Number(ui.controlGrantAmount.value || 0);
 
@@ -1643,6 +1658,9 @@
       if (!ui.renderStyle.value.trim()) {
         ui.renderStyle.value = "photoreal exterior";
       }
+      if (!ui.renderBackgroundPreset.value.trim() && !ui.renderBackgroundImageUrl.value.trim()) {
+        ui.renderBackgroundPreset.value = "urban_dusk";
+      }
     }
 
     function activeEditMethod() {
@@ -1669,6 +1687,11 @@
 
     function buildPromptWithContext(basePrompt, view) {
       const chunks = [basePrompt.trim()];
+      if (ui.consistencyMode.checked) {
+        chunks.push(
+          "maintain identical building identity across all camera views: same massing, window layout, facade proportions, and core material palette"
+        );
+      }
       if (view) chunks.push("camera view: " + view);
       const bgPreset = ui.renderBackgroundPreset.value;
       if (bgPreset) chunks.push("background setting: " + bgPreset);
@@ -1676,6 +1699,18 @@
         chunks.push("use provided background image as reference");
       }
       return chunks.filter(Boolean).join(". ");
+    }
+
+    function buildConsistencyKey() {
+      if (!ui.consistencyMode.checked) return undefined;
+      const keyParts = [
+        ui.userId.value.trim(),
+        ui.renderPrompt.value.trim(),
+        ui.renderStyle.value.trim(),
+        ui.renderBackgroundPreset.value.trim(),
+        ui.renderBackgroundImageUrl.value.trim()
+      ];
+      return keyParts.join("|");
     }
 
     async function runRenderForView(view, options) {
@@ -1691,6 +1726,7 @@
         input_image_url: ui.renderInputImageUrl.value.trim() || undefined,
         reference_image_url: ui.renderReferenceImageUrl.value.trim() || ui.renderBackgroundImageUrl.value.trim() || undefined,
         model_profile: ui.renderProfile.value,
+        consistency_key: buildConsistencyKey(),
         num_outputs: 1
       };
 
