@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Architect - Agency Services</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f7fafc;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+        }
+        
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar h2 {
+            color: #667eea;
+            font-size: 1.8em;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+            border-radius: 12px;
+            margin-bottom: 60px;
+        }
+        
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .hero p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 15px 40px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1.1em;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .services-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .service-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .service-card h3 {
+            font-size: 1.5em;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        .service-card p {
+            color: #718096;
+            margin-bottom: 20px;
+        }
+        
+        .service-list {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+        
+        .service-list li {
+            padding: 8px 0;
+            color: #4a5568;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .service-list li:before {
+            content: "✓ ";
+            color: #48bb78;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        
+        .pricing-table {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+            margin-bottom: 60px;
+        }
+        
+        .pricing-table h2 {
+            margin-bottom: 30px;
+            color: #2d3748;
+            font-size: 2em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .price {
+            color: #667eea;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        
+        .portfolio {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 60px;
+        }
+        
+        .portfolio h2 {
+            font-size: 2em;
+            color: #2d3748;
+            margin-bottom: 30px;
+        }
+        
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+        
+        .portfolio-item {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .portfolio-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .portfolio-item p {
+            color: #718096;
+            font-size: 0.95em;
+        }
+        
+        .contact-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 50px;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .contact-section h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        
+        .contact-section p {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+        
+        .contact-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-white {
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 13px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .timeline {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 60px;
+        }
+        
+        .timeline h2 {
+            font-size: 2em;
+            color: #2d3748;
+            margin-bottom: 40px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin-bottom: 30px;
+        }
+        
+        .timeline-number {
+            background: #667eea;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-right: 20px;
+        }
+        
+        .timeline-content h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-content p {
+            color: #718096;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2em;
+            }
+            
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-content">
+            <h2>🏗️ AI Architect</h2>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/dashboard">Dashboard</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- HERO -->
+        <div class="hero">
+            <h1>🚀 Agency & Professional Services</h1>
+            <p>Let us handle the bulk rendering. Scale your design output 10x without hiring. Focus on creativity, we handle the AI.</p>
+            <button class="cta-button" onclick="scrollToContact()">Get a Quote</button>
+        </div>
+        
+        <!-- SERVICES -->
+        <div class="services-section">
+            <div class="service-card">
+                <div class="service-icon">🏢</div>
+                <h3>Architectural Renders</h3>
+                <p>Photorealistic 3D renders of buildings, facades, and interiors.</p>
+                <ul class="service-list">
+                    <li>Custom architectural styles</li>
+                    <li>Multiple color variations</li>
+                    <li>Lighting & environment setup</li>
+                    <li>High-res output (4K+)</li>
+                </ul>
+                <strong>Starting: $50 per batch (5 renders)</strong>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">🏘️</div>
+                <h3>Property Visualizations</h3>
+                <p>Transform property listings with AI-generated images for real estate.</p>
+                <ul class="service-list">
+                    <li>Exterior renovations</li>
+                    <li>Interior redesigns</li>
+                    <li>Staging variations</li>
+                    <li>Multiple property styles</li>
+                </ul>
+                <strong>Starting: $75 per batch (10 renders)</strong>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">🎨</div>
+                <h3>Design Concepts</h3>
+                <p>Rapid design exploration and iteration for presentations and client pitches.</p>
+                <ul class="service-list">
+                    <li>Style exploration</li>
+                    <li>Material swaps</li>
+                    <li>Fast turnaround</li>
+                    <li>Unlimited revisions</li>
+                </ul>
+                <strong>Starting: $100 per batch (20 renders)</strong>
+            </div>
+        </div>
+        
+        <!-- PRICING TABLE -->
+        <div class="pricing-table">
+            <h2>📋 Batch Pricing</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Batch Size</th>
+                        <th>Renders Included</th>
+                        <th>Per Render Cost</th>
+                        <th>Total Price</th>
+                        <th>Turnaround</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Small</td>
+                        <td>5 renders</td>
+                        <td>$15/render</td>
+                        <td class="price">$75</td>
+                        <td>24-48 hours</td>
+                    </tr>
+                    <tr>
+                        <td>Medium</td>
+                        <td>25 renders</td>
+                        <td>$12/render</td>
+                        <td class="price">$300</td>
+                        <td>48-72 hours</td>
+                    </tr>
+                    <tr>
+                        <td>Large</td>
+                        <td>100 renders</td>
+                        <td>$8/render</td>
+                        <td class="price">$800</td>
+                        <td>5-7 days</td>
+                    </tr>
+                    <tr>
+                        <td>Enterprise</td>
+                        <td>500+ renders</td>
+                        <td>$5/render</td>
+                        <td class="price">Custom</td>
+                        <td>Negotiable</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- PORTFOLIO -->
+        <div class="portfolio">
+            <h2>✨ Featured Work</h2>
+            <div class="portfolio-grid">
+                <div class="portfolio-item">
+                    <h4>Modern Residential Complex</h4>
+                    <p>50 renders showcasing different design variations and material options for a luxury development project.</p>
+                </div>
+                <div class="portfolio-item">
+                    <h4>Commercial Facade Redesign</h4>
+                    <p>200 renders across 40+ buildings for a portfolio refresh and client presentations.</p>
+                </div>
+                <div class="portfolio-item">
+                    <h4>Real Estate Photo Enhancement</h4>
+                    <p>500+ property images remastered with AI rendering for a national brokerage.</p>
+                </div>
+                <div class="portfolio-item">
+                    <h4>Interior Style Exploration</h4>
+                    <p>100 variations of interior spaces in 5 different design styles for a studio.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PROCESS TIMELINE -->
+        <div class="timeline">
+            <h2>⏱️ How It Works</h2>
+            <div class="timeline-item">
+                <div class="timeline-number">1</div>
+                <div class="timeline-content">
+                    <h4>Submit Your Request</h4>
+                    <p>Share your designs, photos, and specifications. Tell us your style preferences and requirements.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-number">2</div>
+                <div class="timeline-content">
+                    <h4>We Process & Generate</h4>
+                    <p>Our team inputs your requirements and generates high-quality AI renders using advanced models.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-number">3</div>
+                <div class="timeline-content">
+                    <h4>Quality Review</h4>
+                    <p>Each render is reviewed for quality, accuracy, and adherence to your specifications.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-number">4</div>
+                <div class="timeline-content">
+                    <h4>Deliver & Revise</h4>
+                    <p>Renders delivered in your preferred format. Unlimited revisions within the batch scope.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CONTACT SECTION -->
+        <div class="contact-section" id="contact">
+            <h2>Ready to Scale?</h2>
+            <p>Contact our team to discuss your project and get a custom quote</p>
+            <div class="contact-buttons">
+                <a href="mailto:agencies@aiarchitect.com" class="btn-white">📧 Email Us</a>
+                <a href="https://calendly.com/aiarchitect/consultation" target="_blank" class="btn-white">📅 Schedule Call</a>
+                <a href="https://forms.gle/YOUR_FORM_ID" class="btn-outline">💼 Request Quote</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function scrollToContact() {
+            document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

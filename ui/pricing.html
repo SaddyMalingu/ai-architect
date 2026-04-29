@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Architect - Pricing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        .pricing-card.featured {
+            border: 3px solid #667eea;
+            transform: scale(1.05);
+        }
+        
+        .pricing-badge {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .plan-name {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .plan-price {
+            font-size: 3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .plan-price span {
+            font-size: 0.4em;
+            color: #718096;
+        }
+        
+        .plan-duration {
+            color: #718096;
+            font-size: 1em;
+            margin-bottom: 30px;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        
+        .plan-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+        }
+        
+        .plan-features li:before {
+            content: "✓";
+            color: #48bb78;
+            font-weight: 700;
+            margin-right: 12px;
+            font-size: 1.2em;
+        }
+        
+        .plan-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .plan-btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .plan-btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .plan-btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+        
+        .plan-btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        .faq-section {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-top: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .faq-title {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #2d3748;
+        }
+        
+        .faq-item {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .faq-question {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .faq-answer {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-links">
+            <a href="/">← Back to Home</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+        
+        <div class="header">
+            <h1>💰 Simple, Transparent Pricing</h1>
+            <p>Pay only for what you use, or upgrade for unlimited renders</p>
+        </div>
+        
+        <div class="pricing-grid">
+            <!-- FREE TIER -->
+            <div class="pricing-card">
+                <div class="plan-name">Free</div>
+                <div class="plan-price">$0<span>/month</span></div>
+                <div class="plan-duration">Perfect to get started</div>
+                <ul class="plan-features">
+                    <li>5 free renders/month</li>
+                    <li>Basic feature set</li>
+                    <li>Community support</li>
+                    <li>Output storage</li>
+                </ul>
+                <button class="plan-btn plan-btn-secondary" onclick="selectPlan('free')">Get Started</button>
+            </div>
+            
+            <!-- STARTER TIER -->
+            <div class="pricing-card featured">
+                <div class="pricing-badge">POPULAR</div>
+                <div class="plan-name">Starter</div>
+                <div class="plan-price">$9<span>/month</span></div>
+                <div class="plan-duration">Billed monthly</div>
+                <ul class="plan-features">
+                    <li>50 renders/month</li>
+                    <li>All features included</li>
+                    <li>Email support</li>
+                    <li>Advanced history</li>
+                    <li>Export options</li>
+                </ul>
+                <button class="plan-btn plan-btn-primary" onclick="selectPlan('starter')">Subscribe Now</button>
+            </div>
+            
+            <!-- PROFESSIONAL TIER -->
+            <div class="pricing-card">
+                <div class="plan-name">Professional</div>
+                <div class="plan-price">$29<span>/month</span></div>
+                <div class="plan-duration">Billed monthly</div>
+                <ul class="plan-features">
+                    <li>500 renders/month</li>
+                    <li>Batch API access</li>
+                    <li>Priority support</li>
+                    <li>Team collaboration</li>
+                    <li>Custom integrations</li>
+                </ul>
+                <button class="plan-btn plan-btn-primary" onclick="selectPlan('pro')">Subscribe Now</button>
+            </div>
+            
+            <!-- PAY-AS-YOU-GO -->
+            <div class="pricing-card" style="grid-column: 1 / -1;">
+                <div class="plan-name">Pay As You Go</div>
+                <div class="plan-price">$0.50<span>/render</span></div>
+                <div class="plan-duration">No commitment needed</div>
+                <div style="display: flex; gap: 15px;">
+                    <button class="plan-btn plan-btn-secondary" style="flex: 1;" onclick="selectPlan('buyCredits')">Buy 10 Credits ($5)</button>
+                    <button class="plan-btn plan-btn-secondary" style="flex: 1;" onclick="selectPlan('buyCredits')">Buy 100 Credits ($50)</button>
+                    <button class="plan-btn plan-btn-secondary" style="flex: 1;" onclick="selectPlan('buyCredits')">Buy 500 Credits ($250)</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FAQ SECTION -->
+        <div class="faq-section">
+            <h2 class="faq-title">❓ Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">What happens if I exceed my monthly renders?</div>
+                <div class="faq-answer">You can always purchase additional credits to continue rendering. Unused renders do not roll over to the next month.</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Can I cancel my subscription anytime?</div>
+                <div class="faq-answer">Yes! Cancel anytime with one click. Your access will remain until the end of your current billing period.</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Is there an API for programmatic access?</div>
+                <div class="faq-answer">Yes! Pro and Enterprise customers get access to our REST API for batch rendering and integrations.</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">What about enterprise/team plans?</div>
+                <div class="faq-answer">Contact our sales team for custom pricing, dedicated support, and unlimited renders. <a href="mailto:sales@aiarchitect.com" style="color: #667eea;">sales@aiarchitect.com</a></div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Do you offer refunds?</div>
+                <div class="faq-answer">We offer a 14-day money-back guarantee if you're not satisfied. No questions asked.</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function selectPlan(plan) {
+            if (plan === 'free') {
+                window.location.href = '/';
+            } else if (plan === 'starter' || plan === 'pro') {
+                // Login required for subscription
+                const tier = plan === 'starter' ? 'starter' : 'pro';
+                localStorage.setItem('selectedTier', tier);
+                window.location.href = '/dashboard?action=subscribe';
+            } else if (plan === 'buyCredits') {
+                localStorage.setItem('buyCredits', 'true');
+                window.location.href = '/dashboard?action=buyCredits';
+            }
+        }
+        
+        // Analytics
+        console.log('Pricing page loaded');
+    </script>
+</body>
+</html>

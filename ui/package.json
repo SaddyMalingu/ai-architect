@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "start": "http-server -c-1 . -p 8080",
+    "sync:ui": "node scripts/sync-ui.js",
+    "smoke:ui": "node scripts/ui-compat-smoke.js",
+    "check": "npm run smoke:ui",
+    "predeploy": "npm run sync:ui && npm run smoke:ui"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
