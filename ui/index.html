@@ -1978,8 +1978,7 @@
 
     function applyConsistencyMode() {
       if (!ui.consistencyMode.checked) return;
-      ui.renderProfile.value = "balanced";
-      ui.editProfile.value = "balanced";
+      if (ui.editProfile) ui.editProfile.value = "balanced";
       if (!ui.renderStyle.value.trim()) {
         ui.renderStyle.value = "photoreal exterior";
       }
