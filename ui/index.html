@@ -904,7 +904,7 @@
                 </div>
                 <div>
                   <label for="renderModel">Model</label>
-                  <select id="renderModel">
+                  <select id="renderModel" style="display:block !important; min-width:180px; background:#fff; color:#162031; z-index:10; position:relative;">
                     <option value="fluxly/flux" selected>Flux (creative, prompt-first)</option>
                     <option value="helios-infotech/sketch_to_image">Sketch to Image (sketch/line-art)</option>
                     <option value="stability-ai/stable-diffusion">Stable Diffusion (general)</option>
@@ -913,6 +913,7 @@
                     <option value="h94/IP-Adapter">IP-Adapter (reference conditioning)</option>
                     <option value="stability-ai/stable-diffusion-inpainting">Inpainting (regional edits)</option>
                   </select>
+                  <noscript><div style="color:#991b1b; font-size:.9rem;">If you do not see the model dropdown above, please enable JavaScript or contact support.</div></noscript>
                 </div>
                 <div>
                   <label for="activeView">Active output view</label>
