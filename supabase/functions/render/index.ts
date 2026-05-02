@@ -337,7 +337,7 @@ async function replicateCreatePrediction(payload: RenderRequest, model: string, 
   const promptFirst = isPromptFirstModel(model);
 
 
-  // Per-model input mapping
+  // Per-model input mapping (extended)
   let input: Record<string, unknown>;
   if (model.startsWith("jagilley/controlnet-scribble")) {
     input = {
@@ -354,6 +354,76 @@ async function replicateCreatePrediction(payload: RenderRequest, model: string, 
       num_outputs: payload.num_outputs ?? 1,
     };
   } else if (model.startsWith("helios-infotech/sketch_to_image")) {
+    input = {
+      prompt: promptText,
+      image: payload.input_image_url,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("xai/grok-imagine-image")) {
+    input = {
+      instruction: promptText,
+      image: payload.input_image_url,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("bytedance/seedream-5-lite") || model.startsWith("bytedance/seedream-4.5")) {
+    input = {
+      prompt: promptText,
+      image: payload.input_image_url,
+      reference_image: payload.reference_image_url,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("prunaai/flux-fast")) {
+    input = {
+      prompt: promptText,
+      image: payload.input_image_url,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("ideogram-ai/ideogram-v3-turbo")) {
+    input = {
+      prompt: promptText,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("wan-video/wan-2.7-image-pro")) {
+    input = {
+      prompt: promptText,
+      image: payload.input_image_url,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("black-forest-labs/flux-2-max") || model.startsWith("black-forest-labs/flux-2-pro")) {
+    input = {
+      prompt: promptText,
+      output_format: "png",
+      aspect_ratio: PROMPT_FIRST_ASPECT_RATIO,
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("sourceful/riverflow-2.0-pro")) {
+    input = {
+      prompt: promptText,
+      image: payload.input_image_url,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("google/nano-banana")) {
+    input = {
+      prompt: promptText,
+      image: payload.input_image_url,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("google/nano-banana-2")) {
+    input = {
+      prompt: promptText,
+      image: payload.input_image_url,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("lightweight-ai/test_sk2ig_f")) {
     input = {
       prompt: promptText,
       image: payload.input_image_url,
