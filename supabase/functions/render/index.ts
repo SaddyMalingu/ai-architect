@@ -91,6 +91,13 @@ const MODEL_PROFILES: Record<ProfileName, ModelProfile> = {
   },
 };
 
+// Map UI dropdown model keys to environment variables
+function resolveModelFromDropdown(modelKey?: string): string {
+  if (!modelKey) return defaultModel;
+  const envVar = `REPLICATE_MODEL_${modelKey.toUpperCase()}`;
+  return Deno.env.get(envVar) || defaultModel;
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") || "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -217,12 +224,12 @@ function resolveReplicateTarget(modelRef: string): {
 } {
   const trimmed = modelRef.trim();
 
-  // owner/model:versionId
+  // owner/model:versionId (versioned slug)
   if (trimmed.includes("/") && trimmed.includes(":")) {
     const [slug, version] = trimmed.split(":", 2);
     return {
-      endpoint: `https://api.replicate.com/v1/models/${slug}/predictions`,
-      bodyBase: { version },
+      endpoint: `https://api.replicate.com/v1/models/${slug}/versions/${version}/predictions`,
+      bodyBase: {}, // Do NOT send version in body
     };
   }
 
@@ -234,7 +241,7 @@ function resolveReplicateTarget(modelRef: string): {
     };
   }
 
-  // version id
+  // version id only
   return {
     endpoint: "https://api.replicate.com/v1/predictions",
     bodyBase: { version: trimmed },
@@ -315,7 +322,9 @@ function resolveModelProfile(payload: RenderRequest): ModelProfile {
     return MODEL_PROFILES[payload.model_profile];
   }
   if (payload.model) {
-    return { label: "balanced", model: payload.model, guidance_scale: 7, num_inference_steps: 30 };
+    // Use the mapping for dropdown values
+    const mappedModel = resolveModelFromDropdown(payload.model);
+    return { label: "balanced", model: mappedModel, guidance_scale: 7, num_inference_steps: 30 };
   }
   return MODEL_PROFILES["balanced"];
 }
@@ -327,24 +336,48 @@ async function replicateCreatePrediction(payload: RenderRequest, model: string, 
 
   const promptFirst = isPromptFirstModel(model);
 
-  const input: Record<string, unknown> = promptFirst
-    ? {
-        // Keep prompt-first path stable across Flux / Seedance-like schemas.
-        prompt: promptText,
-        output_format: "png",
-        aspect_ratio: PROMPT_FIRST_ASPECT_RATIO,
-      }
-    : {
-        prompt: promptText,
-        num_outputs: payload.num_outputs ?? 1,
-        output_format: "png",
-        guidance_scale: profile.guidance_scale,
-        num_inference_steps: profile.num_inference_steps,
-      };
 
-  if (!promptFirst) {
-    if (payload.input_image_url) input.image = payload.input_image_url;
-    if (payload.mask_url) input.mask = payload.mask_url;
+  // Per-model input mapping
+  let input: Record<string, unknown>;
+  if (model.startsWith("jagilley/controlnet-scribble")) {
+    input = {
+      prompt: promptText,
+      image: payload.input_image_url,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("qr2ai/outline")) {
+    input = {
+      prompt: promptText,
+      input_image: payload.input_image_url,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else if (model.startsWith("helios-infotech/sketch_to_image")) {
+    input = {
+      prompt: promptText,
+      image: payload.input_image_url,
+      output_format: "png",
+      num_outputs: payload.num_outputs ?? 1,
+    };
+  } else {
+    input = promptFirst
+      ? {
+          prompt: promptText,
+          output_format: "png",
+          aspect_ratio: PROMPT_FIRST_ASPECT_RATIO,
+        }
+      : {
+          prompt: promptText,
+          num_outputs: payload.num_outputs ?? 1,
+          output_format: "png",
+          guidance_scale: profile.guidance_scale,
+          num_inference_steps: profile.num_inference_steps,
+        };
+    if (!promptFirst) {
+      if (payload.input_image_url) input.image = payload.input_image_url;
+      if (payload.mask_url) input.mask = payload.mask_url;
+    }
   }
 
   const target = resolveReplicateTarget(model);
