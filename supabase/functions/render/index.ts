@@ -353,13 +353,15 @@ async function replicateCreatePrediction(payload: RenderRequest, model: string, 
       output_format: "png",
       num_outputs: payload.num_outputs ?? 1,
     };
-  } else if (model.startsWith("helios-infotech/sketch_to_image")) {
+  } else if (model.startsWith("helios-infotech/sketch-to-image")) {
+    // Always send 'image' field for Helios
     input = {
-      prompt: promptText,
       image: payload.input_image_url,
       output_format: "png",
       num_outputs: payload.num_outputs ?? 1,
     };
+    // Optionally include prompt if required by the model (uncomment if needed)
+    // if (promptText) input.prompt = promptText;
   } else if (model.startsWith("xai/grok-imagine-image")) {
     input = {
       instruction: promptText,
