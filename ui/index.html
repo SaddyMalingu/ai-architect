@@ -1093,6 +1093,9 @@
                 </div>
                 <div class="badge">Guardrailed</div>
               </div>
+              <div id="inputSummaryBanner" class="guardrail" style="margin-bottom:12px; background:#f0fdf4; border-color:#86efac; color:#14532d; font-size:.95em;">
+                <strong>Input Summary:</strong> <span id="inputSummaryText">Preparing...</span>
+              </div>
               <div class="row">
                 <div><button id="runRenderBtn" type="button">Run Render</button></div>
                 <div><button id="runAllViewsBtn" class="btn-soft" type="button">Render All Views</button></div>
@@ -1332,6 +1335,57 @@
   </div>
 
   <script>
+        // --- Model capability registry (must match backend) ---
+        const MODEL_CAPABILITIES = {
+          "bytedance/seedream-5-lite": { supportsReference: true },
+          "bytedance/seedream-4.5": { supportsReference: true },
+          "prunaai/flux-fast": { supportsReference: false },
+          "helios-infotech/sketch-to-image": { supportsReference: false },
+          "jagilley/controlnet-scribble": { supportsReference: false },
+          "qr2ai/outline": { supportsReference: false },
+          "xai/grok-imagine-image": { supportsReference: false },
+          "ideogram-ai/ideogram-v3-turbo": { supportsReference: false },
+          "wan-video/wan-2.7-image-pro": { supportsReference: false },
+          "black-forest-labs/flux-2-max": { supportsReference: false },
+          "black-forest-labs/flux-2-pro": { supportsReference: false },
+          "sourceful/riverflow-2.0-pro": { supportsReference: false },
+          "google/nano-banana": { supportsReference: false },
+          "google/nano-banana-2": { supportsReference: false },
+          "lightweight-ai/test_sk2ig_f": { supportsReference: false },
+        };
+
+        function updateInputSummaryBanner() {
+          const modelKey = ui.renderModel.value.split(":")[0];
+          const capabilities = MODEL_CAPABILITIES[modelKey] || { supportsReference: false };
+          const blenderMode = ui.blenderConditionedMode.checked;
+          const view = ui.activeView.value || "front";
+          let inputImage = "";
+          if (blenderMode) {
+            inputImage = blenderPassMap()[view] || "(none)";
+          } else {
+            inputImage = ui.renderInputImageUrl.value.trim() || "(none)";
+          }
+          const referenceImage = ui.renderReferenceImageUrl.value.trim() || "(none)";
+          let msg = `Source image: <span style='color:#166534'>${inputImage}</span>`;
+          if (capabilities.supportsReference) {
+            msg += ` &nbsp;|&nbsp; Reference image: <span style='color:#166534'>${referenceImage}</span>`;
+            msg += "<br><em>This model <strong>WILL</strong> use both source and reference images.</em>";
+          } else {
+            msg += ` &nbsp;|&nbsp; Reference image: <span style='color:#64748b'>${referenceImage}</span>`;
+            msg += "<br><em>This model <strong>will NOT</strong> use the reference image.</em>";
+          }
+          if (blenderMode) {
+            msg += "<br><strong>Blender-conditioned mode is ON.</strong> Source image is set by Blender pass for this view.";
+          }
+          document.getElementById("inputSummaryText").innerHTML = msg;
+        }
+
+        // --- Hook up summary banner updates ---
+        [ui.renderModel, ui.renderInputImageUrl, ui.renderReferenceImageUrl, ui.blenderConditionedMode, ui.activeView, ui.blenderFrontPassUrl, ui.blenderLeftPassUrl, ui.blenderRightPassUrl, ui.blenderBackPassUrl].forEach((el) => {
+          if (el) el.addEventListener("input", updateInputSummaryBanner);
+          if (el) el.addEventListener("change", updateInputSummaryBanner);
+        });
+        document.addEventListener("DOMContentLoaded", updateInputSummaryBanner);
     const $ = (id) => document.getElementById(id);
     const ui = {
       supabaseUrl: $("supabaseUrl"),
