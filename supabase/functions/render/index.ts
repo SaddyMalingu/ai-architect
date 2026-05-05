@@ -22,6 +22,10 @@ type RenderRequest = {
   strict_consistency?: boolean;
   blender_conditioned?: boolean;
   blender_pass_type?: "front" | "left" | "right" | "back" | string;
+  blender_front_pass_url?: string;
+  blender_left_pass_url?: string;
+  blender_right_pass_url?: string;
+  blender_back_pass_url?: string;
 };
 
 type ModelProfile = {
@@ -91,7 +95,26 @@ const MODEL_PROFILES: Record<ProfileName, ModelProfile> = {
   },
 };
 
-// Map UI dropdown model keys to environment variables
+
+// Model capability registry
+const MODEL_CAPABILITIES: Record<string, { supportsReference: boolean }> = {
+  "bytedance/seedream-5-lite": { supportsReference: true },
+  "bytedance/seedream-4.5": { supportsReference: true },
+  "prunaai/flux-fast": { supportsReference: false },
+  "helios-infotech/sketch-to-image": { supportsReference: false },
+  "jagilley/controlnet-scribble": { supportsReference: false },
+  "qr2ai/outline": { supportsReference: false },
+  "xai/grok-imagine-image": { supportsReference: false },
+  "ideogram-ai/ideogram-v3-turbo": { supportsReference: false },
+  "wan-video/wan-2.7-image-pro": { supportsReference: false },
+  "black-forest-labs/flux-2-max": { supportsReference: false },
+  "black-forest-labs/flux-2-pro": { supportsReference: false },
+  "sourceful/riverflow-2.0-pro": { supportsReference: false },
+  "google/nano-banana": { supportsReference: false },
+  "google/nano-banana-2": { supportsReference: false },
+  "lightweight-ai/test_sk2ig_f": { supportsReference: false },
+};
+
 function resolveModelFromDropdown(modelKey?: string): string {
   if (!modelKey) return defaultModel;
   const envVar = `REPLICATE_MODEL_${modelKey.toUpperCase()}`;
@@ -337,120 +360,66 @@ async function replicateCreatePrediction(payload: RenderRequest, model: string, 
   const promptFirst = isPromptFirstModel(model);
 
 
-  // Per-model input mapping (extended)
-  let input: Record<string, unknown>;
-  if (model.startsWith("jagilley/controlnet-scribble")) {
-    input = {
-      prompt: promptText,
-      image: payload.input_image_url,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-  } else if (model.startsWith("qr2ai/outline")) {
-    input = {
-      prompt: promptText,
-      input_image: payload.input_image_url,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-  } else if (model.startsWith("helios-infotech/sketch-to-image")) {
-    // Always send 'image' field for Helios
-    input = {
-      image: payload.input_image_url,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-    // Optionally include prompt if required by the model (uncomment if needed)
-    // if (promptText) input.prompt = promptText;
+
+  // Find the canonical model key for capability lookup
+  const modelKey = Object.keys(MODEL_CAPABILITIES).find((k) => model.startsWith(k));
+  const capabilities = modelKey ? MODEL_CAPABILITIES[modelKey] : { supportsReference: false };
+
+  // --- Blender-conditioned mode: override input_image_url with Blender pass if enabled ---
+  let inputImageUrl = payload.input_image_url;
+  if (payload.blender_conditioned && payload.blender_pass_type) {
+    switch (payload.blender_pass_type) {
+      case "front":
+        if (payload.blender_front_pass_url) inputImageUrl = payload.blender_front_pass_url;
+        break;
+      case "left":
+        if (payload.blender_left_pass_url) inputImageUrl = payload.blender_left_pass_url;
+        break;
+      case "right":
+        if (payload.blender_right_pass_url) inputImageUrl = payload.blender_right_pass_url;
+        break;
+      case "back":
+        if (payload.blender_back_pass_url) inputImageUrl = payload.blender_back_pass_url;
+        break;
+      default:
+        break;
+    }
+  }
+
+  // Default input mapping
+  let input: Record<string, unknown> = {
+    prompt: promptText,
+    output_format: "png",
+    num_outputs: payload.num_outputs ?? 1,
+  };
+
+  // Add image if available
+  if (inputImageUrl) input.image = inputImageUrl;
+
+  // Add reference_image if supported and available
+  if (capabilities.supportsReference && payload.reference_image_url) {
+    input.reference_image = payload.reference_image_url;
+  }
+
+  // Special cases for models with different field names
+  if (model.startsWith("qr2ai/outline")) {
+    input.input_image = inputImageUrl;
+    delete input.image;
   } else if (model.startsWith("xai/grok-imagine-image")) {
-    input = {
-      instruction: promptText,
-      image: payload.input_image_url,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-  } else if (model.startsWith("bytedance/seedream-5-lite") || model.startsWith("bytedance/seedream-4.5")) {
-    input = {
-      prompt: promptText,
-      image: payload.input_image_url,
-      reference_image: payload.reference_image_url,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-  } else if (model.startsWith("prunaai/flux-fast")) {
-    input = {
-      prompt: promptText,
-      image: payload.input_image_url,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-  } else if (model.startsWith("ideogram-ai/ideogram-v3-turbo")) {
-    input = {
-      prompt: promptText,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-  } else if (model.startsWith("wan-video/wan-2.7-image-pro")) {
-    input = {
-      prompt: promptText,
-      image: payload.input_image_url,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-  } else if (model.startsWith("black-forest-labs/flux-2-max") || model.startsWith("black-forest-labs/flux-2-pro")) {
+    input.instruction = promptText;
+    // image field is already set
+  } else if (model.startsWith("ideogram-ai/ideogram-v3-turbo") || model.startsWith("black-forest-labs/flux-2-max") || model.startsWith("black-forest-labs/flux-2-pro")) {
+    // These models do not use image/reference_image
     input = {
       prompt: promptText,
       output_format: "png",
       aspect_ratio: PROMPT_FIRST_ASPECT_RATIO,
       num_outputs: payload.num_outputs ?? 1,
     };
-  } else if (model.startsWith("sourceful/riverflow-2.0-pro")) {
-    input = {
-      prompt: promptText,
-      image: payload.input_image_url,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-  } else if (model.startsWith("google/nano-banana")) {
-    input = {
-      prompt: promptText,
-      image: payload.input_image_url,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-  } else if (model.startsWith("google/nano-banana-2")) {
-    input = {
-      prompt: promptText,
-      image: payload.input_image_url,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-  } else if (model.startsWith("lightweight-ai/test_sk2ig_f")) {
-    input = {
-      prompt: promptText,
-      image: payload.input_image_url,
-      output_format: "png",
-      num_outputs: payload.num_outputs ?? 1,
-    };
-  } else {
-    input = promptFirst
-      ? {
-          prompt: promptText,
-          output_format: "png",
-          aspect_ratio: PROMPT_FIRST_ASPECT_RATIO,
-        }
-      : {
-          prompt: promptText,
-          num_outputs: payload.num_outputs ?? 1,
-          output_format: "png",
-          guidance_scale: profile.guidance_scale,
-          num_inference_steps: profile.num_inference_steps,
-        };
-    if (!promptFirst) {
-      if (payload.input_image_url) input.image = payload.input_image_url;
-      if (payload.mask_url) input.mask = payload.mask_url;
-    }
   }
+
+  // Add mask if available
+  if (payload.mask_url) input.mask = payload.mask_url;
 
   const target = resolveReplicateTarget(model);
   const requestBody = { ...target.bodyBase, input };
