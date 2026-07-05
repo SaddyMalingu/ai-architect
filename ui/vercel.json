@@ -1,9 +1,12 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
-      "destination": "/landing.html"
-    },
+      "destination": "/landing.html",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
     {
       "source": "/studio",
       "destination": "/index.html"
