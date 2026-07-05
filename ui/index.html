@@ -7,7 +7,7 @@
   <link rel="icon" href="data:," />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #f5efe5;
@@ -192,12 +192,511 @@
     }
     .split {
       display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(300px, .92fr);
+      grid-template-columns: 240px minmax(0, 1.35fr) minmax(300px, .9fr);
       gap: 18px;
       align-items: start;
     }
     @media (max-width: 980px) {
       .split { grid-template-columns: 1fr; }
+    }
+    .project-bar {
+      margin-bottom: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, .9);
+      background: linear-gradient(130deg, rgba(10, 36, 64, .92), rgba(15, 118, 110, .86));
+      color: #f8fafc;
+      padding: 14px 16px;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(120px, 1fr));
+      align-items: center;
+      box-shadow: 0 16px 34px rgba(15, 23, 42, .18);
+    }
+    @media (max-width: 940px) {
+      .project-bar {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .project-bar h2 {
+      margin: 0;
+      font-size: 1.12rem;
+      font-family: "DM Serif Display", Georgia, serif;
+      font-weight: 400;
+    }
+    .project-kpi {
+      border-left: 1px solid rgba(255, 255, 255, .28);
+      padding-left: 12px;
+    }
+    .project-kpi strong {
+      display: block;
+      font-size: .72rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .85;
+      font-weight: 700;
+    }
+    .project-kpi span {
+      display: block;
+      margin-top: 3px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .studio-rail {
+      border-radius: 18px;
+      padding: 12px;
+      border: 1px solid rgba(216, 226, 237, .95);
+      background: rgba(255, 255, 255, .85);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 14px;
+      height: fit-content;
+    }
+    .proposal-title {
+      margin: 0;
+      font-size: 1.02rem;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      text-decoration: underline;
+    }
+    .material-list {
+      margin: 10px 0;
+      border: 1px solid rgba(100, 116, 139, .5);
+      border-radius: 4px;
+      background: #fff;
+      padding: 8px 8px 10px 24px;
+      font-family: Georgia, serif;
+      font-size: 1.02rem;
+      line-height: 1.35;
+    }
+    .material-list li {
+      cursor: pointer;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 1px 0;
+    }
+    .material-list li.active {
+      color: #0c4a6e;
+      text-decoration: underline;
+    }
+    .proposal-btn {
+      margin-top: 8px;
+      border: 1px solid rgba(100, 116, 139, .5);
+      border-radius: 2px;
+      background: #fff;
+      color: #0f172a;
+      box-shadow: none;
+      text-transform: none;
+      font-family: Georgia, serif;
+      font-weight: 700;
+      font-size: 1rem;
+      line-height: 1.15;
+      padding: 10px 8px;
+    }
+    .proposal-btn:hover {
+      transform: none;
+      background: #f8fafc;
+    }
+    .proposal-board {
+      margin-bottom: 12px;
+      border: 1px solid rgba(203, 213, 225, .95);
+      border-radius: 16px;
+      background: rgba(255,255,255,.9);
+      padding: 10px;
+    }
+    .proposal-board h3 {
+      margin: 0 0 10px;
+      font-family: Georgia, serif;
+      text-transform: uppercase;
+      text-decoration: underline;
+      text-align: center;
+    }
+    .proposal-faces {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .proposal-face {
+      border: 1px solid rgba(100, 116, 139, .7);
+      border-radius: 2px;
+      min-height: 122px;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      color: #0f172a;
+      font-family: Georgia, serif;
+      font-size: 1.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: none;
+    }
+    .proposal-face.active,
+    .proposal-face:hover {
+      border-color: #0c4a6e;
+      color: #0c4a6e;
+      transform: none;
+    }
+    .cad-tools {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-bottom: 10px;
+    }
+    .cad-tool {
+      border: 1px solid rgba(148, 163, 184, .35);
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: none;
+      color: #0f172a;
+      font-size: .8rem;
+      font-weight: 800;
+      padding: 9px 8px;
+      text-align: center;
+      line-height: 1;
+    }
+    .cad-tool span {
+      display: block;
+      font-size: .64rem;
+      color: #64748b;
+      font-weight: 700;
+      margin-top: 4px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .cad-tool:hover {
+      transform: none;
+      background: #f0f9ff;
+      border-color: rgba(14, 116, 144, .45);
+    }
+    .inspector-card {
+      border-radius: 16px;
+      border: 1px solid rgba(216, 226, 237, .95);
+      background: rgba(255, 255, 255, .92);
+      padding: 12px;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, .06);
+      margin-bottom: 12px;
+    }
+    .inspector-card h4 {
+      margin: 0;
+      font-size: .92rem;
+      font-family: "Space Grotesk", sans-serif;
+    }
+    .inspector-grid {
+      margin-top: 8px;
+      display: grid;
+      gap: 8px;
+    }
+    .library-tree {
+      margin: 8px 0 0;
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(203, 213, 225, .9);
+      background: #f8fafc;
+      max-height: 190px;
+      overflow: auto;
+    }
+    .lib-node {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #0f172a;
+      box-shadow: none;
+      font-size: .8rem;
+      font-weight: 700;
+      padding: 6px 8px;
+      margin: 1px 0;
+      cursor: pointer;
+    }
+    .lib-node[data-depth="1"] { padding-left: 14px; color: #334155; }
+    .lib-node[data-depth="2"] { padding-left: 20px; color: #475569; }
+    .lib-node.active,
+    .lib-node:hover {
+      background: rgba(14, 116, 144, .1);
+      color: #0c4a6e;
+      transform: none;
+    }
+    .inspector-thumbs {
+      margin-top: 8px;
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .inspector-thumbs button {
+      border: 1px solid rgba(148, 163, 184, .35);
+      border-radius: 10px;
+      background: #fff;
+      color: #0f172a;
+      box-shadow: none;
+      padding: 4px;
+      font-size: .68rem;
+      font-weight: 700;
+    }
+    .inspector-thumbs img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 7px;
+      border: 1px solid rgba(203, 213, 225, .95);
+      margin-bottom: 4px;
+      background: #f8fafc;
+    }
+    .studio-rail h3 {
+      margin: 0;
+      font-size: .96rem;
+      font-family: "Space Grotesk", sans-serif;
+    }
+    .rail-list {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .rail-btn {
+      border: 1px solid rgba(148, 163, 184, .3);
+      border-radius: 12px;
+      background: #fff;
+      color: #0f172a;
+      text-align: left;
+      padding: 10px 11px;
+      font-size: .82rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: none;
+    }
+    .rail-btn span {
+      display: block;
+      margin-top: 2px;
+      color: #64748b;
+      font-size: .74rem;
+      font-weight: 600;
+    }
+    .rail-btn:hover {
+      border-color: rgba(14, 116, 144, .35);
+      background: #f0f9ff;
+      transform: none;
+    }
+    .advanced-settings {
+      margin-bottom: 14px;
+    }
+    .advanced-settings > summary {
+      list-style: none;
+      cursor: pointer;
+      border-radius: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(148, 163, 184, .35);
+      background: rgba(255, 255, 255, .92);
+      font-weight: 700;
+      color: #0f172a;
+      user-select: none;
+    }
+    .advanced-settings[open] > summary {
+      border-color: rgba(14, 116, 144, .4);
+      background: #ecfeff;
+    }
+    .advanced-settings > summary::-webkit-details-marker {
+      display: none;
+    }
+    .advanced-settings .hint-inline {
+      margin-left: 6px;
+      color: #64748b;
+      font-size: .8rem;
+      font-weight: 600;
+    }
+    .thumb-grid {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    @media (max-width: 720px) {
+      .thumb-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .thumb-card {
+      border: 1px solid rgba(148, 163, 184, .34);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .92);
+      padding: 6px;
+      cursor: pointer;
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+    .thumb-card img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid rgba(203, 213, 225, .9);
+      background: #f8fafc;
+    }
+    .thumb-card p {
+      margin: 6px 0 0;
+      font-size: .72rem;
+      font-weight: 700;
+      color: #334155;
+      line-height: 1.25;
+      text-align: center;
+      min-height: 30px;
+    }
+    .thumb-card.active {
+      border-color: rgba(14, 116, 144, .45);
+      box-shadow: 0 0 0 3px rgba(14, 116, 144, .1);
+    }
+    .studio-only .masthead,
+    .studio-only .hero,
+    .studio-only .market-strip,
+    .studio-only .trust-strip,
+    .studio-only .proof-grid {
+      display: none;
+    }
+    .variant-strip {
+      margin-bottom: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, .34);
+      background: rgba(255,255,255,.88);
+      padding: 10px;
+    }
+    .variant-strip-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .variant-strip-head h3 {
+      margin: 0;
+      font-size: .9rem;
+      font-family: "Space Grotesk", sans-serif;
+    }
+    .variant-grid {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .variant-card {
+      border: 1px solid rgba(148, 163, 184, .32);
+      border-radius: 10px;
+      background: #fff;
+      padding: 7px;
+    }
+    .variant-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 7px;
+      border: 1px dashed rgba(148,163,184,.5);
+      background: #f8fafc;
+    }
+    .variant-card p {
+      margin: 5px 0 0;
+      font-size: .72rem;
+      color: #475569;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .library-toolbar {
+      margin-top: 8px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+    .library-recents {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .recent-chip {
+      border: 1px solid rgba(148,163,184,.3);
+      border-radius: 999px;
+      background: #fff;
+      color: #334155;
+      padding: 5px 9px;
+      font-size: .72rem;
+      cursor: pointer;
+    }
+    .thumb-fav {
+      border: 0;
+      background: transparent;
+      color: #64748b;
+      box-shadow: none;
+      width: auto;
+      padding: 0;
+      font-size: .95rem;
+      line-height: 1;
+    }
+    .thumb-fav.active {
+      color: #f59e0b;
+    }
+    .thumb-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .compare-shell {
+      margin-top: 10px;
+      border: 1px solid rgba(148, 163, 184, .34);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .9);
+      padding: 10px;
+    }
+    .compare-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .compare-head h4 {
+      margin: 0;
+      font-size: .85rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #0f172a;
+    }
+    .compare-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #334155;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+    .compare-canvas {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 1px solid rgba(203, 213, 225, .9);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #f8fafc;
+    }
+    .compare-canvas img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .compare-canvas .overlay {
+      clip-path: inset(0 50% 0 0);
+    }
+    .compare-slider {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: 56px 1fr 56px;
+      gap: 8px;
+      align-items: center;
+      color: #475569;
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
     }
     .side-stack {
       position: sticky;
@@ -419,6 +918,395 @@
       font-weight: 500;
       margin-top: 2px;
       font-size: .79rem;
+    }
+    .market-strip {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
+      margin: 10px 0 16px;
+    }
+    @media (max-width: 900px) {
+      .market-strip {
+        grid-template-columns: 1fr;
+      }
+    }
+    .market-panel {
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, .85);
+      padding: 18px;
+      background:
+        radial-gradient(circle at 2% 10%, rgba(16, 185, 129, .18), transparent 35%),
+        radial-gradient(circle at 100% 80%, rgba(14, 116, 144, .15), transparent 42%),
+        linear-gradient(140deg, rgba(255,255,255,.95), rgba(246,250,255,.9));
+      box-shadow: var(--shadow);
+    }
+    .market-panel h3 {
+      margin: 0;
+      font-size: 1.28rem;
+      letter-spacing: -.02em;
+      font-family: "Space Grotesk", sans-serif;
+    }
+    .market-panel p {
+      margin: 8px 0 0;
+      color: #334155;
+      font-size: .92rem;
+      line-height: 1.6;
+    }
+    .inspo-list {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .inspo-pill {
+      border-radius: 999px;
+      border: 1px solid rgba(15, 118, 110, .22);
+      background: rgba(15, 118, 110, .08);
+      color: #0f766e;
+      padding: 7px 11px;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .texture-grid {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (max-width: 580px) {
+      .texture-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .texture-card {
+      border: 1px solid rgba(148, 163, 184, .24);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, .86);
+      box-shadow: 0 10px 20px rgba(15, 23, 42, .05);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      cursor: pointer;
+    }
+    .texture-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px rgba(15, 23, 42, .1);
+      border-color: rgba(15, 118, 110, .32);
+    }
+    .texture-card.active {
+      border-color: rgba(15, 118, 110, .42);
+      background: linear-gradient(135deg, rgba(236,253,245,.95), rgba(255,255,255,.92));
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, .1), 0 14px 26px rgba(15, 23, 42, .09);
+    }
+    .texture-card h5 {
+      margin: 0;
+      font-size: .9rem;
+      letter-spacing: -.01em;
+    }
+    .texture-card p {
+      margin: 6px 0 0;
+      color: #475569;
+      font-size: .8rem;
+      line-height: 1.45;
+    }
+    .texture-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .trust-strip {
+      margin: 14px 0 16px;
+      border-radius: 18px;
+      padding: 12px;
+      border: 1px solid rgba(216, 226, 237, .95);
+      background: rgba(255, 255, 255, .84);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+    }
+    .trust-chip {
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: .76rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: #0f172a;
+      border: 1px solid rgba(148, 163, 184, .3);
+      background: linear-gradient(180deg, rgba(248,250,252,.94), rgba(255,255,255,.9));
+    }
+    .proof-grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-bottom: 16px;
+    }
+    @media (max-width: 940px) {
+      .proof-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .proof-card {
+      border-radius: 20px;
+      padding: 16px;
+      border: 1px solid rgba(216, 226, 237, .95);
+      background: linear-gradient(140deg, rgba(255,255,255,.95), rgba(245,250,255,.9));
+      box-shadow: 0 12px 24px rgba(15, 23, 42, .06);
+    }
+    .proof-card h4 {
+      margin: 0;
+      font-size: 1.04rem;
+      letter-spacing: -.02em;
+      font-family: "Space Grotesk", sans-serif;
+    }
+    .proof-card p {
+      margin: 7px 0 0;
+      color: #475569;
+      font-size: .86rem;
+      line-height: 1.5;
+    }
+    .before-after {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr 1fr;
+    }
+    .before-after .mini {
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, .3);
+      background: rgba(255, 255, 255, .9);
+      padding: 8px;
+    }
+    .before-after .mini strong {
+      display: block;
+      font-size: .74rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #475569;
+    }
+    .before-after .mini span {
+      display: block;
+      margin-top: 4px;
+      font-size: .81rem;
+      color: #0f172a;
+      line-height: 1.4;
+    }
+    .price-entry {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    @media (max-width: 620px) {
+      .price-entry {
+        grid-template-columns: 1fr;
+      }
+    }
+    .price-tile {
+      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid rgba(148, 163, 184, .28);
+      background: rgba(255,255,255,.92);
+    }
+    .price-tile strong {
+      display: block;
+      font-size: .82rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #0f766e;
+    }
+    .price-tile span {
+      display: block;
+      margin-top: 6px;
+      color: #0f172a;
+      font-size: .94rem;
+      font-weight: 800;
+    }
+    .stepper-shell {
+      margin-top: 10px;
+      border: 1px solid rgba(148, 163, 184, .25);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, .88);
+      padding: 12px;
+    }
+    .stepper-track {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    @media (max-width: 900px) {
+      .stepper-track {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .step-node {
+      border-radius: 12px;
+      border: 1px solid rgba(203, 213, 225, .8);
+      background: #f8fafc;
+      padding: 10px;
+      min-height: 76px;
+    }
+    .step-node strong {
+      display: block;
+      font-size: .77rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #334155;
+    }
+    .step-node span {
+      display: block;
+      margin-top: 4px;
+      font-size: .8rem;
+      color: #64748b;
+      line-height: 1.35;
+    }
+    .step-node.pending {
+      background: #f8fafc;
+      border-color: rgba(203, 213, 225, .8);
+    }
+    .step-node.active {
+      background: #ecfeff;
+      border-color: rgba(14, 116, 144, .42);
+      box-shadow: 0 0 0 3px rgba(14, 116, 144, .08);
+    }
+    .step-node.done {
+      background: #f0fdf4;
+      border-color: rgba(22, 101, 52, .34);
+    }
+    .step-node.fail {
+      background: #fef2f2;
+      border-color: rgba(153, 27, 27, .32);
+    }
+    .stepper-previews {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    @media (max-width: 760px) {
+      .stepper-previews {
+        grid-template-columns: 1fr;
+      }
+    }
+    .stepper-preview {
+      border: 1px solid rgba(203, 213, 225, .9);
+      border-radius: 12px;
+      padding: 8px;
+      background: rgba(255,255,255,.92);
+    }
+    .stepper-preview h6 {
+      margin: 0 0 6px;
+      font-size: .72rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #475569;
+    }
+    .stepper-preview img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px dashed rgba(148, 163, 184, .6);
+      background: #f8fafc;
+    }
+    .library-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 10px;
+    }
+    @media (max-width: 760px) {
+      .library-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .library-pane {
+      border: 1px solid rgba(148, 163, 184, .3);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .82);
+      padding: 10px;
+    }
+    .library-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .library-upload {
+      margin-top: 10px;
+      border: 1px dashed rgba(125, 211, 252, .6);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(239, 246, 255, .7);
+    }
+    .library-preview {
+      width: 100%;
+      border: 1px solid rgba(148, 163, 184, .35);
+      border-radius: 10px;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      background: #f8fafc;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* 2026 redesign override: stronger architectural visual language */
+    :root {
+      --bg: #f3f0ea;
+      --bg-deep: #e7e0d3;
+      --ink: #101928;
+      --muted: #4b5a6b;
+      --line: #d9d0c0;
+      --accent: #0e7490;
+      --accent-2: #0f766e;
+      --accent-3: #a16207;
+      --shadow: 0 22px 52px rgba(16, 25, 40, .12);
+    }
+    body {
+      font-family: "Sora", "Segoe UI", sans-serif;
+      background:
+        linear-gradient(120deg, rgba(15, 118, 110, .09), transparent 36%),
+        linear-gradient(300deg, rgba(14, 116, 144, .1), transparent 40%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.35) 0, rgba(255,255,255,.35) 1px, transparent 1px, transparent 54px),
+        var(--bg);
+      color: var(--ink);
+    }
+    h1, h2, h3, h4 {
+      font-family: "DM Serif Display", Georgia, serif;
+      letter-spacing: .01em;
+    }
+    .hero,
+    .market-panel,
+    .card,
+    .proof-card {
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.92);
+      background:
+        linear-gradient(160deg, rgba(255,255,255,.95), rgba(248,252,255,.86));
+      box-shadow: var(--shadow);
+    }
+    .tabs {
+      background: rgba(15, 23, 42, .04);
+      border-color: rgba(148, 163, 184, .35);
+    }
+    .tab.active {
+      background: linear-gradient(130deg, rgba(14, 116, 144, .14), rgba(15, 118, 110, .16));
+      border-color: rgba(14, 116, 144, .26);
+      color: #0c4a6e;
+    }
+    button {
+      border-radius: 12px;
+      background: linear-gradient(130deg, #0e7490, #0f766e);
+      box-shadow: 0 14px 30px rgba(14, 116, 144, .24);
+    }
+    .btn-soft {
+      background: linear-gradient(180deg, #fdfdfd, #eef2f7);
+      color: #0f172a;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, .06);
     }
     .section-title {
       margin: 16px 0 8px;
@@ -759,8 +1647,27 @@
     }
   </style>
 </head>
-<body>
+<body class="studio-only">
   <div class="wrap">
+    <div class="project-bar">
+      <div>
+        <h2>Project: Coastal Minimal Residence</h2>
+        <div style="margin-top:4px; font-size:.86rem; opacity:.9;">Workflow-first studio for sketch to material to render variants.</div>
+      </div>
+      <div class="project-kpi">
+        <strong>Current View</strong>
+        <span id="projectActiveView">Front</span>
+      </div>
+      <div class="project-kpi">
+        <strong>Last Action</strong>
+        <span id="projectLastAction">Idle</span>
+      </div>
+      <div class="project-kpi">
+        <strong>Credits</strong>
+        <span id="projectCreditValue">--</span>
+      </div>
+    </div>
+
     <div class="masthead">
       <div>
         <div class="eyebrow">Architectural Visualization Control Room</div>
@@ -812,7 +1719,76 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="market-strip">
+      <div class="market-panel">
+        <h3>Market-Ready Design Direction</h3>
+        <p>A cleaner premium layout inspired by architecture-first creation tools, tuned for faster decisions and fewer dead-end clicks. The flow now emphasizes sketch-to-texture editing so users can select a finish and apply it directly to targeted building regions.</p>
+        <div class="inspo-list">
+          <span class="inspo-pill">Reference: VSOID</span>
+          <span class="inspo-pill">Reference: PromeAI</span>
+          <span class="inspo-pill">Reference: Archicad UX</span>
+        </div>
+      </div>
+      <div class="market-panel">
+        <h3>Texture Edit Quick Flow</h3>
+        <p>Select a preset texture profile, map it to region target, then run regional edit. This is wired to existing controls so backend contracts stay unchanged.</p>
+        <div class="texture-actions">
+          <button id="jumpTextureFlowBtn" class="btn-soft" type="button" style="width:auto;">Open Texture Editor</button>
+          <button id="jumpRegionalRunBtn" class="btn-soft" type="button" style="width:auto;">Jump To Run Edit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="trust-strip" aria-label="Trust and product signals">
+      <span class="trust-chip">Concept To Render In Minutes</span>
+      <span class="trust-chip">Region-Level Texture Editing</span>
+      <span class="trust-chip">Four-View Consistency Workflow</span>
+      <span class="trust-chip">API Plus UI For Teams</span>
+    </div>
+
+    <div class="proof-grid">
+      <div class="proof-card">
+        <h4>Before/After Proof Block</h4>
+        <p>Show the value immediately: import a rough sketch, select a premium material system, then apply a localized edit that preserves geometry while upgrading finish quality.</p>
+        <div class="before-after">
+          <div class="mini">
+            <strong>Before</strong>
+            <span>Flat pencil sketch with minimal material definition and generic surfaces.</span>
+          </div>
+          <div class="mini">
+            <strong>After</strong>
+            <span>Material-rich facade with targeted texture replacement and sharper depth cues.</span>
+          </div>
+        </div>
+      </div>
+      <div class="proof-card">
+        <h4>Pricing Entry Points</h4>
+        <p>Route users by intent: self-serve credits, monthly usage, or bulk agency production. Keep these options visible at decision moments.</p>
+        <div class="price-entry">
+          <div class="price-tile">
+            <strong>Starter</strong>
+            <span>$9/mo</span>
+          </div>
+          <div class="price-tile">
+            <strong>Pro</strong>
+            <span>$29/mo</span>
+          </div>
+          <div class="price-tile">
+            <strong>Bulk</strong>
+            <span>$75+</span>
+          </div>
+        </div>
+        <div class="texture-actions">
+          <button id="gotoPricingBtn" type="button" style="width:auto;">View Pricing</button>
+          <button id="gotoServicesBtn" class="btn-soft" type="button" style="width:auto;">Agency Services</button>
+          <button id="gotoDashboardBtn" class="btn-soft" type="button" style="width:auto;">Open Dashboard</button>
+        </div>
+      </div>
+    </div>
+
+    <details class="advanced-settings">
+      <summary>Advanced Settings<span class="hint-inline">Connection, consistency, billing controls</span></summary>
+      <div class="card" style="margin-top:10px;">
       <div class="card-head">
         <div>
           <div class="card-kicker">Connection Deck</div>
@@ -870,10 +1846,54 @@
         <p id="controlRoomBalance" class="hint" style="margin-top:6px;">Current credits: unknown</p>
         <p id="controlRoomResult" class="hint" style="margin-top:6px;">No grant action yet.</p>
       </div>
-    </div>
+      </div>
+    </details>
 
     <div class="split">
+      <aside class="studio-rail">
+        <h3 class="proposal-title">Rendering Material</h3>
+        <ol class="material-list" id="proposalMaterialList">
+          <li data-material-folder="wall" data-material-region="facade">Moldings</li>
+          <li data-material-folder="wall" data-material-region="facade">Blocks</li>
+          <li data-material-folder="wall" data-material-region="facade">Bricks</li>
+          <li data-material-folder="wall" data-material-region="facade">Cladings</li>
+          <li data-material-folder="wall" data-material-region="facade">Paints</li>
+          <li data-material-folder="walkway" data-material-region="entry">Tiles</li>
+          <li data-material-folder="wall" data-material-region="entry">Door</li>
+          <li data-material-folder="wall" data-material-region="windows">Windows</li>
+          <li data-material-folder="roof" data-material-region="roof">Roofs</li>
+          <li data-material-folder="roof" data-material-region="facade">Lamps</li>
+          <li data-material-folder="ground" data-material-region="landscape">Pavements</li>
+        </ol>
+        <button id="proposalCustomizationBtn" class="proposal-btn" type="button">customization option</button>
+        <button id="proposalClusterBtn" class="proposal-btn" type="button">Material cluster option</button>
+        <button id="proposalPromptBtn" class="proposal-btn" type="button">Prompt space</button>
+        <button id="proposalRenderBtn" class="proposal-btn" type="button">Render button</button>
+      </aside>
+
       <div>
+        <div class="proposal-board">
+          <h3>Sketch Works</h3>
+          <div class="proposal-faces" id="proposalFaceGrid">
+            <button class="proposal-face" data-face-view="front" type="button">Front Face</button>
+            <button class="proposal-face" data-face-view="left" type="button">Left Face</button>
+            <button class="proposal-face" data-face-view="back" type="button">Back Face</button>
+            <button class="proposal-face" data-face-view="right" type="button">Right Face</button>
+          </div>
+        </div>
+
+        <div class="variant-strip">
+          <div class="variant-strip-head">
+            <h3>Design Variants</h3>
+            <button id="saveVariantBtn" class="btn-soft" type="button" style="width:auto;">Save Current As Variant</button>
+          </div>
+          <div class="variant-grid" id="variantGrid">
+            <div class="variant-card"><img id="variant1Image" alt="Variant 1" /><p>V1</p></div>
+            <div class="variant-card"><img id="variant2Image" alt="Variant 2" /><p>V2</p></div>
+            <div class="variant-card"><img id="variant3Image" alt="Variant 3" /><p>V3</p></div>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-head">
             <div>
@@ -1163,6 +2183,111 @@
                 <textarea id="editPrompt">Apply warm wood facade texture to selected area</textarea>
               </div>
             </div>
+            <div class="module animate-in" id="textureFlowModule">
+              <div class="module-head">
+                <div>
+                  <h4>Texture Palette</h4>
+                  <p>Choose a finish system, then auto-fill the regional edit prompt and region target for sketch texture transfer.</p>
+                </div>
+                <div class="badge">Sketch Material Pass</div>
+              </div>
+
+              <div class="library-grid">
+                <div class="library-pane">
+                  <label for="textureFolderSelect">Texture Folder</label>
+                  <select id="textureFolderSelect"></select>
+                  <div class="library-toolbar">
+                    <input id="textureSearchInput" placeholder="Search textures..." />
+                    <button id="toggleFavoritesBtn" class="btn-soft" type="button" style="width:auto;">Favorites</button>
+                  </div>
+                  <label for="textureAssetSelect" style="margin-top:8px;">Texture Asset</label>
+                  <select id="textureAssetSelect"></select>
+                  <div id="textureThumbnailGrid" class="thumb-grid"></div>
+                  <div class="library-recents" id="textureRecents"></div>
+                  <div class="library-actions">
+                    <button id="applyLibraryTextureBtn" type="button" style="width:auto;">Apply Library Texture</button>
+                    <button id="clearLibraryTextureBtn" class="btn-soft" type="button" style="width:auto;">Clear</button>
+                  </div>
+                  <p class="hint" id="textureLibraryStatus">Pick a folder, then choose a texture asset.</p>
+                </div>
+                <div class="library-pane">
+                  <label>Texture Preview</label>
+                  <img id="textureLibraryPreview" class="library-preview" alt="Texture library preview" />
+                  <div class="library-upload">
+                    <label for="customTextureUpload">Upload Your Own Texture</label>
+                    <input id="customTextureUpload" type="file" accept="image/*" />
+                    <p class="hint" id="customTextureName">No custom texture uploaded.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="texture-grid" id="texturePresetGrid">
+                <div class="texture-card" data-region="facade" data-prompt="Apply warm walnut timber slats with subtle matte finish and realistic vertical grain to the selected facade surfaces.">
+                  <h5>Walnut Timber Slats</h5>
+                  <p>Premium natural cladding for exterior feature walls and entry volumes.</p>
+                </div>
+                <div class="texture-card" data-region="facade" data-prompt="Apply smooth off-white stucco with fine mineral noise and clean contemporary joints to the selected facade region.">
+                  <h5>Mineral Stucco</h5>
+                  <p>High-end modern finish with soft highlights and minimal visual noise.</p>
+                </div>
+                <div class="texture-card" data-region="roof" data-prompt="Apply charcoal standing seam metal roofing texture with subtle seam depth and realistic edge reflectance on selected roof surfaces.">
+                  <h5>Standing Seam Metal</h5>
+                  <p>Sharp, architectural roof system for premium residential identity.</p>
+                </div>
+                <div class="texture-card" data-region="windows" data-prompt="Apply dark bronze anodized aluminum framing and high-clarity glazing texture to selected window elements.">
+                  <h5>Bronze Window System</h5>
+                  <p>Commercial-grade frame style with refined contrast and glass realism.</p>
+                </div>
+              </div>
+              <div class="texture-actions">
+                <button id="applyTexturePresetBtn" type="button" style="width:auto;">Apply Selected Texture</button>
+                <button id="clearTexturePresetBtn" class="btn-soft" type="button" style="width:auto;">Clear Selection</button>
+              </div>
+              <p class="hint" id="texturePresetHint">No texture preset selected. Pick one to auto-fill prompt and region.</p>
+
+              <div class="stepper-shell" id="textureStepperShell">
+                <div class="module-head" style="margin-bottom:8px;">
+                  <div>
+                    <h4>Apply Texture On Sketch</h4>
+                    <p>Live stepper for client demos: source image, selected material, mask or region, and final rendered output.</p>
+                  </div>
+                  <div class="badge">Live Preview</div>
+                </div>
+                <div class="stepper-track">
+                  <div class="step-node pending" data-step="source">
+                    <strong>1. Source</strong>
+                    <span>Set sketch or target image</span>
+                  </div>
+                  <div class="step-node pending" data-step="texture">
+                    <strong>2. Texture</strong>
+                    <span>Select and apply preset</span>
+                  </div>
+                  <div class="step-node pending" data-step="mask">
+                    <strong>3. Region</strong>
+                    <span>Manual mask or auto hint</span>
+                  </div>
+                  <div class="step-node pending" data-step="render">
+                    <strong>4. Render</strong>
+                    <span>Run regional edit</span>
+                  </div>
+                </div>
+                <div class="stepper-previews">
+                  <div class="stepper-preview">
+                    <h6>Source Sketch</h6>
+                    <img id="stepperSourcePreview" alt="Stepper source preview" />
+                  </div>
+                  <div class="stepper-preview">
+                    <h6>Mask Or Region</h6>
+                    <img id="stepperMaskPreview" alt="Stepper mask preview" />
+                  </div>
+                  <div class="stepper-preview">
+                    <h6>Rendered Result</h6>
+                    <img id="stepperResultPreview" alt="Stepper result preview" />
+                  </div>
+                </div>
+                <p class="hint" id="stepperStatusText">Waiting for source sketch.</p>
+              </div>
+            </div>
             <div class="module animate-in">
               <div class="module-head">
                 <div>
@@ -1277,6 +2402,21 @@
             <div id="guardrailBanner" class="guardrail hidden"></div>
             <pre id="responseBox" class="mono">No API calls yet.</pre>
             <img id="resultImage" class="image" alt="Result image" />
+            <div class="compare-shell">
+              <div class="compare-head">
+                <h4>Source / Result Compare</h4>
+                <label class="compare-toggle"><input id="compareModeToggle" type="checkbox" checked /> Enable compare</label>
+              </div>
+              <div id="compareCanvas" class="compare-canvas" style="display:none;">
+                <img id="compareBaseImage" alt="Source image" />
+                <img id="compareOverlayImage" class="overlay" alt="Result overlay image" />
+              </div>
+              <div id="compareSliderWrap" class="compare-slider" style="display:none;">
+                <span>Source</span>
+                <input id="compareSlider" type="range" min="0" max="100" value="50" />
+                <span>Result</span>
+              </div>
+            </div>
             <div class="results-head">
               <div>
                 <h4>Main Image Views</h4>
@@ -1311,6 +2451,56 @@
       </div>
 
       <div class="side-stack">
+        <div class="inspector-card">
+          <div class="card-kicker">Element Inspector</div>
+          <h4>Door / Facade Settings</h4>
+          <div class="inspector-grid">
+            <div>
+              <label for="inspectorViewSelect">Preview and Position</label>
+              <select id="inspectorViewSelect">
+                <option value="front">Front</option>
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+                <option value="back">Back</option>
+              </select>
+            </div>
+            <div>
+              <label for="inspectorRegionSelect">Element Region</label>
+              <select id="inspectorRegionSelect">
+                <option value="facade">Facade</option>
+                <option value="roof">Roof</option>
+                <option value="entry">Entry</option>
+                <option value="windows">Windows</option>
+                <option value="ground-floor">Ground Floor</option>
+              </select>
+            </div>
+            <div>
+              <label for="inspectorStrengthRange">Reveal / Strength</label>
+              <input id="inspectorStrengthRange" type="range" min="0" max="1" step="0.05" value="0.65" />
+            </div>
+          </div>
+        </div>
+
+        <div class="inspector-card">
+          <div class="card-kicker">Loaded Libraries</div>
+          <h4>Object Library</h4>
+          <div class="library-tree" id="libraryTreeNav">
+            <button class="lib-node" data-lib-folder="wall" data-depth="0" type="button">1. BASIC LIBRARY</button>
+            <button class="lib-node" data-lib-folder="wall" data-depth="1" type="button">1.2 Doors</button>
+            <button class="lib-node" data-lib-folder="wall" data-depth="2" type="button">Hinged Doors</button>
+            <button class="lib-node" data-lib-folder="roof" data-depth="2" type="button">Rotating Doors</button>
+            <button class="lib-node" data-lib-folder="driveway" data-depth="2" type="button">Sliding Doors</button>
+            <button class="lib-node" data-lib-folder="walkway" data-depth="2" type="button">Storefronts</button>
+            <button class="lib-node" data-lib-folder="ground" data-depth="0" type="button">Built-in Libraries</button>
+          </div>
+          <div class="inspector-thumbs">
+            <button type="button" data-lib-folder="wall"><img src="/assets/textures/wall/albedo.jpg" alt="Wall texture" />Wall</button>
+            <button type="button" data-lib-folder="roof"><img src="/assets/textures/roof/albedo.jpg" alt="Roof texture" />Roof</button>
+            <button type="button" data-lib-folder="ground"><img src="/assets/textures/ground/albedo.jpg" alt="Ground texture" />Ground</button>
+            <button type="button" data-lib-folder="driveway"><img src="/assets/textures/driveway/albedo.jpg" alt="Driveway texture" />Driveway</button>
+          </div>
+        </div>
+
         <div class="card" id="historySection">
           <div class="history-list-head">
             <div>
@@ -1380,97 +2570,129 @@
           document.getElementById("inputSummaryText").innerHTML = msg;
         }
 
-        // --- Hook up summary banner updates ---
-        [ui.renderModel, ui.renderInputImageUrl, ui.renderReferenceImageUrl, ui.blenderConditionedMode, ui.activeView, ui.blenderFrontPassUrl, ui.blenderLeftPassUrl, ui.blenderRightPassUrl, ui.blenderBackPassUrl].forEach((el) => {
-          if (el) el.addEventListener("input", updateInputSummaryBanner);
-          if (el) el.addEventListener("change", updateInputSummaryBanner);
+        // --- UI element references ---
+        const $ = (id) => document.getElementById(id);
+        const ui = {
+          supabaseUrl: $("supabaseUrl"),
+          anonKey: $("anonKey"),
+          userId: $("userId"),
+          backendApiBase: $("backendApiBase"),
+          consistencyMode: $("consistencyMode"),
+          controlGrantAmount: $("controlGrantAmount"),
+          setAdminKeyBtn: $("setAdminKeyBtn"),
+          grantCreditsBtn: $("grantCreditsBtn"),
+          checkCreditsBtn: $("checkCreditsBtn"),
+          controlRoomHint: $("controlRoomHint"),
+          controlRoomBalance: $("controlRoomBalance"),
+          controlRoomResult: $("controlRoomResult"),
+          renderStyle: $("renderStyle"),
+          renderModel: $("renderModel"),
+          renderPrompt: $("renderPrompt"),
+          activeView: $("activeView"),
+          renderInputImageUrl: $("renderInputImageUrl"),
+          renderReferenceImageUrl: $("renderReferenceImageUrl"),
+          renderSourceUpload: $("renderSourceUpload"),
+          renderSourcePreview: $("renderSourcePreview"),
+          renderInputPreview: $("renderInputPreview"),
+          renderReferencePreview: $("renderReferencePreview"),
+          renderBackgroundPreview: $("renderBackgroundPreview"),
+          blenderConditionedMode: $("blenderConditionedMode"),
+          blenderConsistencyKey: $("blenderConsistencyKey"),
+          blenderFrontPassUrl: $("blenderFrontPassUrl"),
+          blenderLeftPassUrl: $("blenderLeftPassUrl"),
+          blenderRightPassUrl: $("blenderRightPassUrl"),
+          blenderBackPassUrl: $("blenderBackPassUrl"),
+          validateBlenderBtn: $("validateBlenderBtn"),
+          blenderModeHint: $("blenderModeHint"),
+          renderBackgroundPreset: $("renderBackgroundPreset"),
+          renderBackgroundImageUrl: $("renderBackgroundImageUrl"),
+          backgroundPresetChips: $("backgroundPresetChips"),
+          summaryPrompt: $("summaryPrompt"),
+          summaryView: $("summaryView"),
+          summaryProfile: $("summaryProfile"),
+          summaryBackground: $("summaryBackground"),
+          runRenderBtn: $("runRenderBtn"),
+          runAllViewsBtn: $("runAllViewsBtn"),
+          pollLatestBtn: $("pollLatestBtn"),
+          editCategory: $("editCategory"),
+          editRegionHint: $("editRegionHint"),
+          selectionModeDisplay: $("selectionModeDisplay"),
+          editProfile: $("editProfile"),
+          editPrompt: $("editPrompt"),
+          textureFolderSelect: $("textureFolderSelect"),
+          textureAssetSelect: $("textureAssetSelect"),
+          textureSearchInput: $("textureSearchInput"),
+          toggleFavoritesBtn: $("toggleFavoritesBtn"),
+          applyLibraryTextureBtn: $("applyLibraryTextureBtn"),
+          clearLibraryTextureBtn: $("clearLibraryTextureBtn"),
+          textureRecents: $("textureRecents"),
+          textureLibraryPreview: $("textureLibraryPreview"),
+          textureLibraryStatus: $("textureLibraryStatus"),
+          customTextureUpload: $("customTextureUpload"),
+          customTextureName: $("customTextureName"),
+          textureThumbnailGrid: $("textureThumbnailGrid"),
+          saveVariantBtn: $("saveVariantBtn"),
+          variant1Image: $("variant1Image"),
+          variant2Image: $("variant2Image"),
+          variant3Image: $("variant3Image"),
+          targetImageUrl: $("targetImageUrl"),
+          referenceImageUrl: $("referenceImageUrl"),
+          targetMaskUrl: $("targetMaskUrl"),
+          strength: $("strength"),
+          manualSelectionBox: $("manualSelectionBox"),
+          manualTargetImageUrl: $("manualTargetImageUrl"),
+          manualTargetUpload: $("manualTargetUpload"),
+          loadManualImageBtn: $("loadManualImageBtn"),
+          useCurrentTargetBtn: $("useCurrentTargetBtn"),
+          maskBrushSize: $("maskBrushSize"),
+          maskToolMode: $("maskToolMode"),
+          maskOverlayOpacity: $("maskOverlayOpacity"),
+          clearMaskBtn: $("clearMaskBtn"),
+          downloadMaskBtn: $("downloadMaskBtn"),
+          maskBackground: $("maskBackground"),
+          maskCanvas: $("maskCanvas"),
+          maskCursor: $("maskCursor"),
+          maskStatusText: $("maskStatusText"),
+          runRegionalBtn: $("runRegionalBtn"),
+          requestId: $("requestId"),
+          checkStatusBtn: $("checkStatusBtn"),
+          historyLimit: $("historyLimit"),
+          loadHistoryBtn: $("loadHistoryBtn"),
+          historyList: $("historyList"),
+          statusText: $("statusText"),
+          guardrailBanner: $("guardrailBanner"),
+          responseBox: $("responseBox"),
+          resultImage: $("resultImage"),
+          compareModeToggle: $("compareModeToggle"),
+          compareCanvas: $("compareCanvas"),
+          compareBaseImage: $("compareBaseImage"),
+          compareOverlayImage: $("compareOverlayImage"),
+          compareSlider: $("compareSlider"),
+          compareSliderWrap: $("compareSliderWrap"),
+          viewFrontImage: $("viewFrontImage"),
+          viewLeftImage: $("viewLeftImage"),
+          viewRightImage: $("viewRightImage"),
+          viewBackImage: $("viewBackImage"),
+          viewFrontState: $("viewFrontState"),
+          viewLeftState: $("viewLeftState"),
+          viewRightState: $("viewRightState"),
+          viewBackState: $("viewBackState"),
+          projectActiveView: $("projectActiveView"),
+          projectLastAction: $("projectLastAction"),
+          projectCreditValue: $("projectCreditValue"),
+          inspectorViewSelect: $("inspectorViewSelect"),
+          inspectorRegionSelect: $("inspectorRegionSelect"),
+          inspectorStrengthRange: $("inspectorStrengthRange")
+        };
+
+        // --- Hook up summary banner updates (after ui is fully defined) ---
+        document.addEventListener("DOMContentLoaded", () => {
+          [ui.renderModel, ui.renderInputImageUrl, ui.renderReferenceImageUrl, ui.blenderConditionedMode, ui.activeView, ui.blenderFrontPassUrl, ui.blenderLeftPassUrl, ui.blenderRightPassUrl, ui.blenderBackPassUrl].forEach((el) => {
+            if (el) el.addEventListener("input", updateInputSummaryBanner);
+            if (el) el.addEventListener("change", updateInputSummaryBanner);
+          });
+          updateInputSummaryBanner();
         });
-        document.addEventListener("DOMContentLoaded", updateInputSummaryBanner);
-    const $ = (id) => document.getElementById(id);
-    const ui = {
-      supabaseUrl: $("supabaseUrl"),
-      anonKey: $("anonKey"),
-      userId: $("userId"),
-      backendApiBase: $("backendApiBase"),
-      consistencyMode: $("consistencyMode"),
-      controlGrantAmount: $("controlGrantAmount"),
-      setAdminKeyBtn: $("setAdminKeyBtn"),
-      grantCreditsBtn: $("grantCreditsBtn"),
-      checkCreditsBtn: $("checkCreditsBtn"),
-      controlRoomHint: $("controlRoomHint"),
-      controlRoomBalance: $("controlRoomBalance"),
-      controlRoomResult: $("controlRoomResult"),
-      renderStyle: $("renderStyle"),
-      renderModel: $("renderModel"),
-      renderPrompt: $("renderPrompt"),
-      activeView: $("activeView"),
-      renderInputImageUrl: $("renderInputImageUrl"),
-      renderReferenceImageUrl: $("renderReferenceImageUrl"),
-      renderSourceUpload: $("renderSourceUpload"),
-      renderSourcePreview: $("renderSourcePreview"),
-      renderInputPreview: $("renderInputPreview"),
-      renderReferencePreview: $("renderReferencePreview"),
-      renderBackgroundPreview: $("renderBackgroundPreview"),
-      blenderConditionedMode: $("blenderConditionedMode"),
-      blenderConsistencyKey: $("blenderConsistencyKey"),
-      blenderFrontPassUrl: $("blenderFrontPassUrl"),
-      blenderLeftPassUrl: $("blenderLeftPassUrl"),
-      blenderRightPassUrl: $("blenderRightPassUrl"),
-      blenderBackPassUrl: $("blenderBackPassUrl"),
-      validateBlenderBtn: $("validateBlenderBtn"),
-      blenderModeHint: $("blenderModeHint"),
-      renderBackgroundPreset: $("renderBackgroundPreset"),
-      renderBackgroundImageUrl: $("renderBackgroundImageUrl"),
-      backgroundPresetChips: $("backgroundPresetChips"),
-      summaryPrompt: $("summaryPrompt"),
-      summaryView: $("summaryView"),
-      summaryProfile: $("summaryProfile"),
-      summaryBackground: $("summaryBackground"),
-      runRenderBtn: $("runRenderBtn"),
-      runAllViewsBtn: $("runAllViewsBtn"),
-      pollLatestBtn: $("pollLatestBtn"),
-      editCategory: $("editCategory"),
-      editRegionHint: $("editRegionHint"),
-      selectionModeDisplay: $("selectionModeDisplay"),
-      editProfile: $("editProfile"),
-      editPrompt: $("editPrompt"),
-      targetImageUrl: $("targetImageUrl"),
-      referenceImageUrl: $("referenceImageUrl"),
-      targetMaskUrl: $("targetMaskUrl"),
-      strength: $("strength"),
-      manualSelectionBox: $("manualSelectionBox"),
-      manualTargetImageUrl: $("manualTargetImageUrl"),
-      manualTargetUpload: $("manualTargetUpload"),
-      loadManualImageBtn: $("loadManualImageBtn"),
-      useCurrentTargetBtn: $("useCurrentTargetBtn"),
-      maskBrushSize: $("maskBrushSize"),
-      maskToolMode: $("maskToolMode"),
-      maskOverlayOpacity: $("maskOverlayOpacity"),
-      clearMaskBtn: $("clearMaskBtn"),
-      downloadMaskBtn: $("downloadMaskBtn"),
-      maskBackground: $("maskBackground"),
-      maskCanvas: $("maskCanvas"),
-      maskCursor: $("maskCursor"),
-      maskStatusText: $("maskStatusText"),
-      runRegionalBtn: $("runRegionalBtn"),
-      requestId: $("requestId"),
-      checkStatusBtn: $("checkStatusBtn"),
-      historyLimit: $("historyLimit"),
-      loadHistoryBtn: $("loadHistoryBtn"),
-      historyList: $("historyList"),
-      statusText: $("statusText"),
-      guardrailBanner: $("guardrailBanner"),
-      responseBox: $("responseBox"),
-      resultImage: $("resultImage"),
-      viewFrontImage: $("viewFrontImage"),
-      viewLeftImage: $("viewLeftImage"),
-      viewRightImage: $("viewRightImage"),
-      viewBackImage: $("viewBackImage"),
-      viewFrontState: $("viewFrontState"),
-      viewLeftState: $("viewLeftState"),
-      viewRightState: $("viewRightState"),
-      viewBackState: $("viewBackState")
-    };
 
     const viewImageByKey = {
       front: ui.viewFrontImage,
@@ -1507,6 +2729,219 @@
     };
 
     let billingAdminKey = "";
+    let customTextureUploadDataUrl = "";
+    let customTextureUploadName = "";
+    let textureSearchTerm = "";
+    let showFavoriteTexturesOnly = false;
+    const textureFavorites = new Set();
+    const textureRecents = [];
+    const variantSlots = ["", "", ""];
+    let nextVariantSlot = 0;
+
+    const TEXTURE_LIBRARY = {
+      wall: [
+        {
+          name: "Painted Plaster Wall",
+          url: "/assets/textures/wall/albedo.jpg",
+          prompt: "Apply painted plaster wall texture with natural roughness and subtle tonal variation on selected facade regions.",
+          region: "facade"
+        }
+      ],
+      roof: [
+        {
+          name: "Roof Albedo",
+          url: "/assets/textures/roof/albedo.jpg",
+          prompt: "Apply premium roof tile texture with realistic weathering and consistent shingle rhythm on selected roof surfaces.",
+          region: "roof"
+        }
+      ],
+      ground: [
+        {
+          name: "Ground Stone Mix",
+          url: "/assets/textures/ground/albedo.jpg",
+          prompt: "Apply natural ground texture with subtle stone and sand variation on selected landscape surfaces.",
+          region: "landscape"
+        }
+      ],
+      driveway: [
+        {
+          name: "Driveway Asphalt",
+          url: "/assets/textures/driveway/albedo.jpg",
+          prompt: "Apply clean driveway asphalt texture with visible aggregate detail on selected driveway region.",
+          region: "ground-floor"
+        }
+      ],
+      walkway: [
+        {
+          name: "Walkway Pavers",
+          url: "/assets/textures/walkway/albedo.jpg",
+          prompt: "Apply refined walkway paver texture with crisp joints on selected path and entry approach.",
+          region: "entry"
+        }
+      ]
+    };
+
+    function selectedTextureFolder() {
+      return ui.textureFolderSelect ? ui.textureFolderSelect.value : "";
+    }
+
+    function selectedTextureAsset() {
+      const folder = selectedTextureFolder();
+      const idx = ui.textureAssetSelect ? Number(ui.textureAssetSelect.value || -1) : -1;
+      if (!folder || !Number.isFinite(idx) || idx < 0) return null;
+      const assets = getVisibleTextureAssets(folder);
+      return assets[idx] || null;
+    }
+
+    function textureAssetKey(folder, asset) {
+      if (!folder || !asset) return "";
+      return folder + "::" + (asset.name || "") + "::" + (asset.url || "");
+    }
+
+    function textureAssetByKey(key) {
+      if (!key) return null;
+      const [folder, name, url] = key.split("::");
+      const assets = TEXTURE_LIBRARY[folder] || [];
+      const asset = assets.find((a) => a.name === name && a.url === url);
+      if (!asset) return null;
+      return { folder, asset };
+    }
+
+    function getVisibleTextureAssets(folder) {
+      const baseAssets = TEXTURE_LIBRARY[folder] || [];
+      const query = textureSearchTerm.trim().toLowerCase();
+      return baseAssets.filter((asset) => {
+        const key = textureAssetKey(folder, asset);
+        if (showFavoriteTexturesOnly && !textureFavorites.has(key)) return false;
+        if (!query) return true;
+        const haystack = (asset.name + " " + (asset.prompt || "") + " " + (asset.region || "")).toLowerCase();
+        return haystack.includes(query);
+      });
+    }
+
+    function rememberRecentTexture(folder, asset) {
+      const key = textureAssetKey(folder, asset);
+      if (!key) return;
+      const existingIdx = textureRecents.indexOf(key);
+      if (existingIdx >= 0) textureRecents.splice(existingIdx, 1);
+      textureRecents.unshift(key);
+      if (textureRecents.length > 8) textureRecents.length = 8;
+      renderTextureRecents();
+    }
+
+    function renderTextureRecents() {
+      if (!ui.textureRecents) return;
+      if (!textureRecents.length) {
+        ui.textureRecents.innerHTML = '<span class="helper">Recent textures will appear here.</span>';
+        return;
+      }
+
+      ui.textureRecents.innerHTML = textureRecents
+        .map((key) => {
+          const resolved = textureAssetByKey(key);
+          if (!resolved) return "";
+          return '<button class="recent-chip" type="button" data-recent-key="' + key + '">' + resolved.asset.name + '</button>';
+        })
+        .join("");
+
+      Array.from(ui.textureRecents.querySelectorAll("[data-recent-key]")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const key = btn.getAttribute("data-recent-key") || "";
+          const resolved = textureAssetByKey(key);
+          if (!resolved || !ui.textureFolderSelect) return;
+          ui.textureFolderSelect.value = resolved.folder;
+          populateTextureAssets(key);
+          applySelectedLibraryTexture();
+        });
+      });
+    }
+
+    function setTexturePreview(url) {
+      if (!ui.textureLibraryPreview) return;
+      if (!url) {
+        ui.textureLibraryPreview.removeAttribute("src");
+        ui.textureLibraryPreview.style.display = "none";
+        return;
+      }
+      ui.textureLibraryPreview.src = url;
+      ui.textureLibraryPreview.style.display = "block";
+    }
+
+    function populateTextureAssets(preferredKey) {
+      if (!ui.textureAssetSelect) return;
+      const folder = selectedTextureFolder();
+      const assets = getVisibleTextureAssets(folder);
+      ui.textureAssetSelect.innerHTML = assets
+        .map((asset, idx) => '<option value="' + idx + '">' + asset.name + '</option>')
+        .join("");
+      if (!assets.length) {
+        setTexturePreview("");
+        if (ui.textureLibraryStatus) ui.textureLibraryStatus.textContent = "No textures match current filters.";
+        renderTextureThumbnails();
+        return;
+      }
+      const preferredIdx = preferredKey
+        ? assets.findIndex((asset) => textureAssetKey(folder, asset) === preferredKey)
+        : -1;
+      ui.textureAssetSelect.value = String(preferredIdx >= 0 ? preferredIdx : 0);
+      const chosen = selectedTextureAsset() || assets[0];
+      setTexturePreview(chosen.url);
+      renderTextureThumbnails();
+      if (ui.textureLibraryStatus) ui.textureLibraryStatus.textContent = "Selected folder: " + folder + ". Choose texture and click Apply.";
+    }
+
+    function initializeTextureLibraryBrowser() {
+      if (!ui.textureFolderSelect) return;
+      const folders = Object.keys(TEXTURE_LIBRARY);
+      ui.textureFolderSelect.innerHTML = folders
+        .map((folder) => '<option value="' + folder + '">' + folder.replace(/_/g, " ") + '</option>')
+        .join("");
+      ui.textureFolderSelect.value = folders[0] || "";
+      populateTextureAssets();
+      renderTextureRecents();
+    }
+
+    function applySelectedLibraryTexture() {
+      const asset = selectedTextureAsset();
+      if (!asset) {
+        if (ui.textureLibraryStatus) ui.textureLibraryStatus.textContent = "Choose a valid texture asset first.";
+        return;
+      }
+      customTextureUploadDataUrl = "";
+      customTextureUploadName = "";
+      if (ui.customTextureName) ui.customTextureName.textContent = "No custom texture uploaded.";
+      if (ui.referenceImageUrl) ui.referenceImageUrl.value = asset.url;
+      if (ui.editRegionHint) ui.editRegionHint.value = asset.region || "facade";
+      if (ui.editPrompt) ui.editPrompt.value = asset.prompt;
+      if (ui.editCategory && ui.editCategory.value === "prompt_only") {
+        ui.editCategory.value = "element_texture";
+      }
+      setTexturePreview(asset.url);
+      if (ui.textureLibraryStatus) {
+        ui.textureLibraryStatus.textContent = "Applied " + asset.name + " from " + selectedTextureFolder() + " folder.";
+      }
+      rememberRecentTexture(selectedTextureFolder(), asset);
+      setTextureStepperStep("texture", "done", "Library texture applied");
+      setTextureStepperStatus("Texture loaded from folder. Review region and run edit.");
+    }
+
+    function clearLibraryTextureSelection() {
+      if (ui.referenceImageUrl) ui.referenceImageUrl.value = "";
+      customTextureUploadDataUrl = "";
+      customTextureUploadName = "";
+      if (ui.customTextureUpload) ui.customTextureUpload.value = "";
+      if (ui.customTextureName) ui.customTextureName.textContent = "No custom texture uploaded.";
+      const asset = selectedTextureAsset();
+      setTexturePreview(asset ? asset.url : "");
+      if (ui.textureLibraryStatus) {
+        ui.textureLibraryStatus.textContent = "Texture selection cleared. Pick folder texture or upload your own.";
+      }
+      setTextureStepperStep("texture", "pending", "Select and apply preset");
+    }
+
+    function resolveRegionalReferenceImage() {
+      return ui.referenceImageUrl.value.trim() || customTextureUploadDataUrl || undefined;
+    }
 
     let batchInProgress = false;
     let dynamicBatchDelayMs = 2000;
@@ -1542,21 +2977,26 @@
       };
     }
 
-    function showGuardrail(message, mode, actionUrl) {
+
+    function showGuardrail(message, mode, actionUrl, focus = false) {
       ui.guardrailBanner.className = "guardrail";
       if (mode === "bad") ui.guardrailBanner.classList.add("bad");
       if (mode === "ok") ui.guardrailBanner.classList.add("ok");
-
       if (actionUrl) {
         ui.guardrailBanner.innerHTML = message + ' <a href="' + actionUrl + '" target="_blank" rel="noreferrer">Open billing</a>';
       } else {
         ui.guardrailBanner.textContent = message;
+      }
+      ui.guardrailBanner.style.display = "block";
+      if (focus) {
+        ui.guardrailBanner.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
 
     function hideGuardrail() {
       ui.guardrailBanner.className = "guardrail hidden";
       ui.guardrailBanner.textContent = "";
+      ui.guardrailBanner.style.display = "none";
     }
 
     function loadDefaults() {
@@ -1864,6 +3304,9 @@
         if (ui.controlRoomBalance) {
           ui.controlRoomBalance.textContent = "Current credits: " + balance.toFixed(2);
         }
+        if (ui.projectCreditValue) {
+          ui.projectCreditValue.textContent = balance.toFixed(2);
+        }
         setControlRoomResult("Credit check successful.", true);
       } catch (err) {
         setControlRoomResult("Credit check failed: " + (err && err.message ? err.message : String(err)), false);
@@ -1931,6 +3374,9 @@
         if (ui.controlRoomBalance) {
           ui.controlRoomBalance.textContent = "Current credits: " + Number(data.balance_credits || 0).toFixed(2);
         }
+        if (ui.projectCreditValue) {
+          ui.projectCreditValue.textContent = Number(data.balance_credits || 0).toFixed(2);
+        }
         setControlRoomResult("Grant successful. New balance: " + Number(data.balance_credits || 0).toFixed(2), true);
         showJson(data);
       } catch (err) {
@@ -1939,7 +3385,7 @@
       }
     }
 
-    function setStatus(text, ok) {
+    function setStatus(text, ok, focus = false) {
       ui.statusText.textContent = text;
       if (ok === true) {
         ui.statusText.className = "status-ok";
@@ -1947,6 +3393,12 @@
         ui.statusText.className = "status-bad";
       } else {
         ui.statusText.className = "hint";
+      }
+      if (focus) {
+        ui.statusText.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      if (ui.projectLastAction) {
+        ui.projectLastAction.textContent = text.length > 34 ? text.slice(0, 34) + "..." : text;
       }
     }
 
@@ -1989,11 +3441,120 @@
 
     function syncActiveViewCard() {
       const active = ui.activeView.value;
+      if (ui.projectActiveView) {
+        ui.projectActiveView.textContent = (active || "front").charAt(0).toUpperCase() + (active || "front").slice(1);
+      }
+      if (ui.inspectorViewSelect && ui.inspectorViewSelect.value !== active) {
+        ui.inspectorViewSelect.value = active;
+      }
       Array.from(document.querySelectorAll(".view-card")).forEach((card) => {
         const title = card.querySelector("h5");
         const key = title ? title.textContent.trim().toLowerCase() : "";
         card.classList.toggle("active", key === active);
       });
+      Array.from(document.querySelectorAll(".proposal-face")).forEach((faceBtn) => {
+        faceBtn.classList.toggle("active", faceBtn.getAttribute("data-face-view") === active);
+      });
+    }
+
+    function renderTextureThumbnails() {
+      if (!ui.textureThumbnailGrid) return;
+      const folder = selectedTextureFolder();
+      const assets = getVisibleTextureAssets(folder);
+      const selectedIdx = Number(ui.textureAssetSelect && ui.textureAssetSelect.value ? ui.textureAssetSelect.value : 0);
+      ui.textureThumbnailGrid.innerHTML = assets
+        .map((asset, idx) => (
+          '<div class="thumb-card' + (idx === selectedIdx ? ' active' : '') + '" data-thumb-idx="' + idx + '">' +
+          '<div class="thumb-card-head"><span class="helper">' + (asset.region || folder) + '</span>' +
+          '<button class="thumb-fav' + (textureFavorites.has(textureAssetKey(folder, asset)) ? ' active' : '') + '" type="button" data-fav-idx="' + idx + '">&#9733;</button></div>' +
+          '<img src="' + asset.url + '" alt="' + asset.name + '" />' +
+          '<p>' + asset.name + '</p>' +
+          '</div>'
+        ))
+        .join("");
+
+      Array.from(ui.textureThumbnailGrid.querySelectorAll(".thumb-card")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idx = Number(btn.getAttribute("data-thumb-idx") || 0);
+          if (ui.textureAssetSelect) ui.textureAssetSelect.value = String(idx);
+          const picked = selectedTextureAsset();
+          setTexturePreview(picked ? picked.url : "");
+          renderTextureThumbnails();
+        });
+      });
+
+      Array.from(ui.textureThumbnailGrid.querySelectorAll(".thumb-fav")).forEach((favBtn) => {
+        favBtn.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          const idx = Number(favBtn.getAttribute("data-fav-idx") || -1);
+          const asset = assets[idx];
+          if (!asset) return;
+          const key = textureAssetKey(folder, asset);
+          if (textureFavorites.has(key)) {
+            textureFavorites.delete(key);
+          } else {
+            textureFavorites.add(key);
+          }
+          renderTextureThumbnails();
+        });
+      });
+    }
+
+    function syncVariantStrip() {
+      const nodes = [ui.variant1Image, ui.variant2Image, ui.variant3Image];
+      nodes.forEach((node, idx) => {
+        if (!node) return;
+        if (!variantSlots[idx]) {
+          node.removeAttribute("src");
+          return;
+        }
+        node.src = variantSlots[idx];
+      });
+    }
+
+    function pushVariant(url) {
+      if (!url) return;
+      variantSlots[nextVariantSlot] = url;
+      nextVariantSlot = (nextVariantSlot + 1) % variantSlots.length;
+      syncVariantStrip();
+      syncComparePanel();
+    }
+
+    function resolveCompareSourceImage() {
+      return (
+        ui.renderInputImageUrl.value.trim() ||
+        (ui.renderSourcePreview && ui.renderSourcePreview.src ? ui.renderSourcePreview.src : "") ||
+        (ui.renderInputPreview && ui.renderInputPreview.src ? ui.renderInputPreview.src : "") ||
+        ui.targetImageUrl.value.trim() ||
+        ui.manualTargetImageUrl.value.trim() ||
+        ($("stepperSourcePreview") && $("stepperSourcePreview").src ? $("stepperSourcePreview").src : "")
+      );
+    }
+
+    function syncCompareClip() {
+      if (!ui.compareOverlayImage || !ui.compareSlider) return;
+      const value = Number(ui.compareSlider.value || 50);
+      ui.compareOverlayImage.style.clipPath = "inset(0 " + (100 - value) + "% 0 0)";
+    }
+
+    function syncComparePanel() {
+      if (!ui.compareModeToggle || !ui.compareCanvas || !ui.compareSliderWrap) return;
+      const enabled = !!ui.compareModeToggle.checked;
+      const source = resolveCompareSourceImage();
+      const result = ui.resultImage && ui.resultImage.src ? ui.resultImage.src : "";
+
+      if (!enabled || !source || !result) {
+        ui.compareCanvas.style.display = "none";
+        ui.compareSliderWrap.style.display = "none";
+        return;
+      }
+
+      if (ui.compareBaseImage) ui.compareBaseImage.src = source;
+      if (ui.compareOverlayImage) ui.compareOverlayImage.src = result;
+      ui.compareCanvas.style.display = "block";
+      ui.compareSliderWrap.style.display = "grid";
+      syncCompareClip();
     }
 
     function syncBackgroundPresetChips() {
@@ -2078,6 +3639,88 @@
       } else if (ui.editCategory.value === "prompt_only") {
         ui.editCategory.value = "element_texture";
       }
+
+      if (method === "manual_selection") {
+        setTextureStepperStep("mask", "active", "Draw or upload a selection mask");
+      } else {
+        setTextureStepperStep("mask", "done", "Automatic region targeting enabled");
+      }
+    }
+
+    function setTextureStepperStep(step, state, text) {
+      const node = document.querySelector('.step-node[data-step="' + step + '"]');
+      if (!node) return;
+      node.classList.remove("pending", "active", "done", "fail");
+      node.classList.add(state || "pending");
+      const sub = node.querySelector("span");
+      if (sub && text) sub.textContent = text;
+    }
+
+    function setTextureStepperStatus(text) {
+      const status = $("stepperStatusText");
+      if (status) status.textContent = text;
+    }
+
+    function syncTextureStepperSource() {
+      const source =
+        ui.targetImageUrl.value.trim() ||
+        ui.manualTargetImageUrl.value.trim() ||
+        (ui.resultImage && ui.resultImage.src ? ui.resultImage.src : "") ||
+        (viewImageByKey[activeViewKey()] && viewImageByKey[activeViewKey()].src ? viewImageByKey[activeViewKey()].src : "");
+      const preview = $("stepperSourcePreview");
+      if (preview) setImagePreview(preview, source);
+      if (source) {
+        setTextureStepperStep("source", "done", "Source image ready");
+      } else {
+        setTextureStepperStep("source", "pending", "Set sketch or target image");
+      }
+      syncComparePanel();
+    }
+
+    function syncTextureStepperMaskPreview() {
+      const maskPreview = $("stepperMaskPreview");
+      if (!maskPreview) return;
+      const manualMaskData = buildMaskDataUrl();
+      const maskUrl = ui.targetMaskUrl.value.trim();
+      const method = activeEditMethod();
+      if (method === "manual_selection" && manualMaskData) {
+        setImagePreview(maskPreview, manualMaskData);
+        setTextureStepperStep("mask", "done", "Manual selection captured");
+      } else if (maskUrl) {
+        setImagePreview(maskPreview, maskUrl);
+        setTextureStepperStep("mask", "done", "Mask URL attached");
+      } else if (method !== "manual_selection") {
+        setImagePreview(maskPreview, "");
+        setTextureStepperStep("mask", "done", "Automatic region targeting enabled");
+      } else {
+        setImagePreview(maskPreview, "");
+        setTextureStepperStep("mask", "active", "Draw or upload a selection mask");
+      }
+    }
+
+    function applyTexturePresetFromCard(card) {
+      if (!card) return;
+      const region = card.getAttribute("data-region") || "facade";
+      const prompt = card.getAttribute("data-prompt") || "";
+      if (ui.editRegionHint) ui.editRegionHint.value = region;
+      if (ui.editPrompt) ui.editPrompt.value = prompt;
+      if (ui.editCategory && ui.editCategory.value === "prompt_only") {
+        ui.editCategory.value = "element_texture";
+      }
+      const hint = $("texturePresetHint");
+      if (hint) {
+        hint.textContent = "Texture preset applied: " + card.querySelector("h5").textContent + " -> region " + region + ".";
+      }
+      setTextureStepperStep("texture", "done", "Preset applied: " + card.querySelector("h5").textContent);
+      setTextureStepperStatus("Texture selected. Adjust region or mask, then run edit.");
+    }
+
+    function clearTexturePresetSelection() {
+      Array.from(document.querySelectorAll(".texture-card")).forEach((card) => card.classList.remove("active"));
+      const hint = $("texturePresetHint");
+      if (hint) hint.textContent = "No texture preset selected. Pick one to auto-fill prompt and region.";
+      setTextureStepperStep("texture", "pending", "Select and apply preset");
+      setTextureStepperStatus("Waiting for texture selection.");
     }
 
     function buildPromptWithContext(basePrompt, view) {
@@ -2178,6 +3821,7 @@
               if (viewImageByKey[view]) {
                 viewImageByKey[view].src = data.image_url;
               }
+              pushVariant(data.image_url);
               setViewState(view, "completed");
             }
             return true;
@@ -2238,9 +3882,18 @@
     }
 
     async function runRender() {
+      debugLog('Run Render button clicked');
       ui.runRenderBtn.disabled = true;
       ui.runAllViewsBtn.disabled = true;
       const view = ui.activeView.value;
+      // Robust config checks
+      if (!ui.supabaseUrl.value.trim() || !ui.anonKey.value.trim() || !ui.userId.value.trim()) {
+        setStatus("Missing required config: Supabase URL, Anon Key, or User UUID.", false, true);
+        showGuardrail("Missing required config. Please fill all fields in the Connection Deck.", "bad", null, true);
+        ui.runRenderBtn.disabled = false;
+        ui.runAllViewsBtn.disabled = false;
+        return;
+      }
       // Automatic backend preflight before running
       if (ui.blenderConditionedMode.checked) {
         setStatus("Running backend preflight ...", null);
@@ -2249,16 +3902,16 @@
           backend = await runBackendPreflight("render", view);
         } catch (err) {
           const msg = err && err.message ? err.message : String(err);
-          setStatus("Backend preflight unavailable: " + msg, false);
-          showGuardrail("Backend preflight could not be completed. Verify backend connectivity before costly runs.", "bad");
+          setStatus("Backend preflight unavailable: " + msg, false, true);
+          showGuardrail("Backend preflight could not be completed. Verify backend connectivity before costly runs.", "bad", null, true);
           ui.runRenderBtn.disabled = false;
           ui.runAllViewsBtn.disabled = false;
           return;
         }
         const backendIssues = Array.isArray(backend.issues) ? backend.issues : [];
         if (backendIssues.length) {
-          setStatus("Blender-conditioned preflight failed: " + backendIssues.join(" | "), false);
-          showGuardrail("Blender preflight failed. Fix issues before running to avoid wasted credits.", "bad");
+          setStatus("Blender-conditioned preflight failed: " + backendIssues.join(" | "), false, true);
+          showGuardrail("Blender preflight failed. Fix issues before running to avoid wasted credits.", "bad", null, true);
           ui.runRenderBtn.disabled = false;
           ui.runAllViewsBtn.disabled = false;
           return;
@@ -2273,11 +3926,22 @@
     }
 
     async function runRenderAllViews() {
+      debugLog('Render All Views button clicked');
       ui.runRenderBtn.disabled = true;
       ui.runAllViewsBtn.disabled = true;
       batchInProgress = true;
       const views = ["front", "left", "right", "back"];
       let completed = 0;
+
+      // Robust config checks
+      if (!ui.supabaseUrl.value.trim() || !ui.anonKey.value.trim() || !ui.userId.value.trim()) {
+        setStatus("Missing required config: Supabase URL, Anon Key, or User UUID.", false, true);
+        showGuardrail("Missing required config. Please fill all fields in the Connection Deck.", "bad", null, true);
+        ui.runRenderBtn.disabled = false;
+        ui.runAllViewsBtn.disabled = false;
+        batchInProgress = false;
+        return;
+      }
 
       try {
         hideGuardrail();
@@ -2303,6 +3967,8 @@
     async function runRegional() {
       saveConfig();
       applyConsistencyMode();
+      syncTextureStepperSource();
+      syncTextureStepperMaskPreview();
 
       const b = baseUrl();
       const method = activeEditMethod();
@@ -2314,7 +3980,7 @@
       const payload = {
         user_id: ui.userId.value.trim(),
         target_image_url: resolvedTargetImage,
-        reference_image_url: ui.referenceImageUrl.value.trim() || undefined,
+        reference_image_url: resolveRegionalReferenceImage(),
         prompt: ui.editPrompt.value.trim(),
         edit_category: resolvedEditCategory,
         region_hint: ui.editRegionHint.value === "auto" ? undefined : ui.editRegionHint.value,
@@ -2366,6 +4032,8 @@
 
       ui.runRegionalBtn.disabled = true;
       setStatus("Calling /edit-regional ...", null);
+      setTextureStepperStep("render", "active", "Regional render in progress");
+      setTextureStepperStatus("Rendering textured sketch output...");
       ui.resultImage.style.display = "none";
 
       try {
@@ -2394,6 +4062,8 @@
             showGuardrail("Regional edit provider model looks misconfigured (404).", "bad");
           }
           setStatus("Regional edit failed (" + res.status + ")", false);
+          setTextureStepperStep("render", "fail", "Regional render failed");
+          setTextureStepperStatus("Render failed. Adjust prompt, model profile, or credits and retry.");
           return;
         }
 
@@ -2403,9 +4073,16 @@
         if (data.image_url) {
           ui.resultImage.src = data.image_url;
           ui.resultImage.style.display = "block";
+          const stepperResult = $("stepperResultPreview");
+          if (stepperResult) setImagePreview(stepperResult, data.image_url);
+          pushVariant(data.image_url);
         }
+        setTextureStepperStep("render", "done", "Regional render complete");
+        setTextureStepperStatus("Done. Compare source, mask, and result in one glance.");
       } catch (err) {
         setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
+        setTextureStepperStep("render", "fail", "Request failed");
+        setTextureStepperStatus("Request failed. Check status panel and retry.");
       } finally {
         ui.runRegionalBtn.disabled = false;
       }
@@ -2444,6 +4121,7 @@
         if (data.image_url) {
           ui.resultImage.src = data.image_url;
           ui.resultImage.style.display = "block";
+          pushVariant(data.image_url);
         }
       } catch (err) {
         setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
@@ -2499,11 +4177,18 @@
     }
 
     async function loadHistory() {
+      debugLog('Load History button clicked');
       saveConfig();
       const b = baseUrl();
       const u = ui.userId.value.trim();
       const limit = Number(ui.historyLimit.value || 10);
       setStatus("Loading /render-history ...", null);
+
+      if (!b || !u || !ui.anonKey.value.trim()) {
+        setStatus("Missing required config: Supabase URL, Anon Key, or User UUID.", false, true);
+        showGuardrail("Missing required config. Please fill all fields in the Connection Deck.", "bad", null, true);
+        return;
+      }
 
       try {
         const url = b + "/functions/v1/render-history?user_id=" + encodeURIComponent(u) + "&limit=" + encodeURIComponent(String(limit)) + "&offset=0";
@@ -2518,7 +4203,8 @@
         showJson(data);
 
         if (!res.ok) {
-          setStatus("History failed (" + res.status + ")", false);
+          setStatus("History failed (" + res.status + ")", false, true);
+          showGuardrail("Failed to load history. Backend unreachable or misconfigured.", "bad", null, true);
           return;
         }
 
@@ -2553,7 +4239,14 @@
         }
         setStatus("History loaded.", true);
       } catch (err) {
-        setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false);
+        setStatus("Request failed: " + (err && err.message ? err.message : String(err)), false, true);
+        showGuardrail("Failed to load history. Backend unreachable or misconfigured.", "bad", null, true);
+      }
+    }
+    // --- Debug logging for all button actions ---
+    function debugLog(...args) {
+      if (window.DEBUG_UI_FLOW) {
+        console.log('[DEBUG]', ...args);
       }
     }
 
@@ -2594,6 +4287,7 @@
       if (ui.maskStatusText) {
         ui.maskStatusText.textContent = "Manual masks are now sent directly with the edit request. Target mask URL is optional unless you prefer an external mask.";
       }
+      syncTextureStepperMaskPreview();
     }
 
     function canvasPointFromEvent(ev) {
@@ -2631,6 +4325,7 @@
       if (ui.maskStatusText) {
         ui.maskStatusText.textContent = "Mask ready. Run Regional Edit directly or download the PNG if you want an external copy.";
       }
+      syncTextureStepperMaskPreview();
       ev.preventDefault();
     }
 
@@ -2703,6 +4398,7 @@
       if (ui.maskStatusText) {
         ui.maskStatusText.textContent = "Current target image loaded into the selection canvas.";
       }
+      syncTextureStepperSource();
     }
 
     function updateRenderSourcePreview() {
@@ -2713,18 +4409,21 @@
         if (!ui.renderInputImageUrl.value.trim()) {
           setImagePreview(ui.renderInputPreview, "");
         }
+        syncComparePanel();
         return;
       }
       const url = URL.createObjectURL(file);
       ui.renderSourcePreview.src = url;
       ui.renderSourcePreview.style.display = "block";
       setImagePreview(ui.renderInputPreview, url);
+      syncComparePanel();
     }
 
     function syncRenderReferencePreviews() {
       setImagePreview(ui.renderInputPreview, ui.renderInputImageUrl.value.trim() || ui.renderInputPreview.src || "");
       setImagePreview(ui.renderReferencePreview, ui.renderReferenceImageUrl.value.trim());
       setImagePreview(ui.renderBackgroundPreview, ui.renderBackgroundImageUrl.value.trim());
+      syncComparePanel();
     }
 
     function loadManualSelectionImage() {
@@ -2738,19 +4437,24 @@
 
       if (inputUrl) {
         setMaskBackground(inputUrl);
+        syncTextureStepperSource();
         return;
       }
 
       if (file) {
         manualUploadObjectUrl = URL.createObjectURL(file);
         setMaskBackground(manualUploadObjectUrl);
+        syncTextureStepperSource();
         return;
       }
 
       setMaskBackground("");
+      syncTextureStepperSource();
     }
 
     function bindEvents() {
+      // Enable debug logging globally
+      window.DEBUG_UI_FLOW = true;
       if (ui.setAdminKeyBtn) {
         ui.setAdminKeyBtn.addEventListener("click", setAdminKeyPrompt);
       }
@@ -2760,13 +4464,142 @@
       if (ui.checkCreditsBtn) {
         ui.checkCreditsBtn.addEventListener("click", checkMyCreditsFromControlRoom);
       }
-      ui.runRenderBtn.addEventListener("click", runRender);
-      ui.runAllViewsBtn.addEventListener("click", runRenderAllViews);
-      ui.runRegionalBtn.addEventListener("click", runRegional);
-      ui.checkStatusBtn.addEventListener("click", checkStatus);
-      ui.pollLatestBtn.addEventListener("click", pollLatest);
-      ui.loadHistoryBtn.addEventListener("click", loadHistory);
+      ui.runRenderBtn.addEventListener("click", (e) => { debugLog('Run Render button event', e); runRender(); });
+      ui.runAllViewsBtn.addEventListener("click", (e) => { debugLog('Render All Views button event', e); runRenderAllViews(); });
+      ui.runRegionalBtn.addEventListener("click", (e) => { debugLog('Run Regional Edit button event', e); runRegional(); });
+      ui.checkStatusBtn.addEventListener("click", (e) => { debugLog('Check Status button event', e); checkStatus(); });
+      ui.pollLatestBtn.addEventListener("click", (e) => { debugLog('Poll Latest button event', e); pollLatest(); });
+      ui.loadHistoryBtn.addEventListener("click", (e) => { debugLog('Load History button event', e); loadHistory(); });
       ui.consistencyMode.addEventListener("change", applyConsistencyMode);
+      ui.targetImageUrl.addEventListener("input", syncTextureStepperSource);
+      ui.targetMaskUrl.addEventListener("input", syncTextureStepperMaskPreview);
+      ui.manualTargetImageUrl.addEventListener("input", syncTextureStepperSource);
+      if (ui.textureFolderSelect) {
+        ui.textureFolderSelect.addEventListener("change", populateTextureAssets);
+      }
+
+      Array.from(document.querySelectorAll("#proposalMaterialList li")).forEach((item, idx) => {
+        if (idx === 0) item.classList.add("active");
+        item.addEventListener("click", () => {
+          Array.from(document.querySelectorAll("#proposalMaterialList li")).forEach((n) => n.classList.remove("active"));
+          item.classList.add("active");
+          const folder = item.getAttribute("data-material-folder") || "wall";
+          const region = item.getAttribute("data-material-region") || "facade";
+          if (ui.textureFolderSelect) {
+            ui.textureFolderSelect.value = folder;
+            populateTextureAssets();
+          }
+          if (ui.editRegionHint) ui.editRegionHint.value = region;
+          if (ui.inspectorRegionSelect) ui.inspectorRegionSelect.value = region;
+          setStatus("Material focus set to " + item.textContent + ".", true);
+          openTab("regionalTab");
+        });
+      });
+
+      const proposalCustomizationBtn = $("proposalCustomizationBtn");
+      if (proposalCustomizationBtn) {
+        proposalCustomizationBtn.addEventListener("click", () => {
+          openTab("regionalTab");
+          const section = document.getElementById("textureFlowModule");
+          if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+      const proposalClusterBtn = $("proposalClusterBtn");
+      if (proposalClusterBtn) {
+        proposalClusterBtn.addEventListener("click", () => {
+          openTab("regionalTab");
+          if (ui.textureFolderSelect) ui.textureFolderSelect.focus();
+        });
+      }
+      const proposalPromptBtn = $("proposalPromptBtn");
+      if (proposalPromptBtn) {
+        proposalPromptBtn.addEventListener("click", () => {
+          openTab("renderTab");
+          if (ui.renderPrompt) ui.renderPrompt.focus();
+        });
+      }
+      const proposalRenderBtn = $("proposalRenderBtn");
+      if (proposalRenderBtn) {
+        proposalRenderBtn.addEventListener("click", () => {
+          openTab("renderTab");
+          if (ui.runRenderBtn) ui.runRenderBtn.click();
+        });
+      }
+
+      Array.from(document.querySelectorAll(".proposal-face")).forEach((faceBtn) => {
+        faceBtn.addEventListener("click", () => {
+          const targetView = faceBtn.getAttribute("data-face-view") || "front";
+          ui.activeView.value = targetView;
+          syncActiveViewCard();
+          syncRenderSummary();
+          updateRunActionAvailability();
+          openTab("renderTab");
+        });
+      });
+      if (ui.inspectorViewSelect) {
+        ui.inspectorViewSelect.addEventListener("change", () => {
+          ui.activeView.value = ui.inspectorViewSelect.value;
+          syncActiveViewCard();
+          syncRenderSummary();
+          updateRunActionAvailability();
+        });
+      }
+      if (ui.inspectorRegionSelect) {
+        ui.inspectorRegionSelect.value = ui.editRegionHint.value || "facade";
+        ui.inspectorRegionSelect.addEventListener("change", () => {
+          ui.editRegionHint.value = ui.inspectorRegionSelect.value;
+        });
+        ui.editRegionHint.addEventListener("change", () => {
+          if (ui.inspectorRegionSelect.value !== ui.editRegionHint.value) {
+            ui.inspectorRegionSelect.value = ui.editRegionHint.value;
+          }
+        });
+      }
+      if (ui.inspectorStrengthRange) {
+        ui.inspectorStrengthRange.value = ui.strength.value || "0.65";
+        ui.inspectorStrengthRange.addEventListener("input", () => {
+          ui.strength.value = ui.inspectorStrengthRange.value;
+        });
+        ui.strength.addEventListener("input", () => {
+          ui.inspectorStrengthRange.value = ui.strength.value;
+        });
+      }
+      if (ui.textureAssetSelect) {
+        ui.textureAssetSelect.addEventListener("change", () => {
+          const asset = selectedTextureAsset();
+          setTexturePreview(asset ? asset.url : "");
+          renderTextureThumbnails();
+        });
+      }
+      if (ui.applyLibraryTextureBtn) {
+        ui.applyLibraryTextureBtn.addEventListener("click", () => {
+          applySelectedLibraryTexture();
+          syncTextureStepperMaskPreview();
+        });
+      }
+      if (ui.clearLibraryTextureBtn) {
+        ui.clearLibraryTextureBtn.addEventListener("click", clearLibraryTextureSelection);
+      }
+      if (ui.customTextureUpload) {
+        ui.customTextureUpload.addEventListener("change", () => {
+          const file = ui.customTextureUpload.files && ui.customTextureUpload.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            customTextureUploadDataUrl = String(reader.result || "");
+            customTextureUploadName = file.name;
+            if (ui.customTextureName) ui.customTextureName.textContent = "Uploaded: " + file.name;
+            setTexturePreview(customTextureUploadDataUrl);
+            if (ui.referenceImageUrl) ui.referenceImageUrl.value = "";
+            if (ui.textureLibraryStatus) {
+              ui.textureLibraryStatus.textContent = "Custom texture uploaded. It will be used as reference for regional edit.";
+            }
+            setTextureStepperStep("texture", "done", "Custom texture uploaded");
+            setTextureStepperStatus("Custom texture ready. Run regional edit.");
+          };
+          reader.readAsDataURL(file);
+        });
+      }
       ui.renderSourceUpload.addEventListener("change", updateRenderSourcePreview);
       ui.renderInputImageUrl.addEventListener("input", syncRenderReferencePreviews);
       ui.renderReferenceImageUrl.addEventListener("input", syncRenderReferencePreviews);
@@ -2794,6 +4627,46 @@
       ui.activeView.addEventListener("change", updateRunActionAvailability);
       ui.renderPrompt.addEventListener("input", syncRenderSummary);
       ui.renderModel.addEventListener("change", syncRenderSummary);
+      if (ui.textureSearchInput) {
+        ui.textureSearchInput.addEventListener("input", () => {
+          textureSearchTerm = ui.textureSearchInput.value || "";
+          populateTextureAssets();
+        });
+      }
+      if (ui.toggleFavoritesBtn) {
+        ui.toggleFavoritesBtn.addEventListener("click", () => {
+          showFavoriteTexturesOnly = !showFavoriteTexturesOnly;
+          ui.toggleFavoritesBtn.textContent = showFavoriteTexturesOnly ? "All" : "Favorites";
+          populateTextureAssets();
+        });
+      }
+      if (ui.saveVariantBtn) {
+        ui.saveVariantBtn.addEventListener("click", () => {
+          const src = ui.resultImage && ui.resultImage.src ? ui.resultImage.src : "";
+          if (!src) {
+            setStatus("Generate one render first, then save variant.", false);
+            return;
+          }
+          pushVariant(src);
+          setStatus("Saved current result into variant strip.", true);
+        });
+      }
+      [ui.variant1Image, ui.variant2Image, ui.variant3Image].forEach((img) => {
+        if (!img) return;
+        img.addEventListener("click", () => {
+          if (!img.src) return;
+          ui.resultImage.src = img.src;
+          ui.resultImage.style.display = "block";
+          syncComparePanel();
+          setStatus("Loaded variant into main preview.", true);
+        });
+      });
+      if (ui.compareModeToggle) {
+        ui.compareModeToggle.addEventListener("change", syncComparePanel);
+      }
+      if (ui.compareSlider) {
+        ui.compareSlider.addEventListener("input", syncCompareClip);
+      }
       ui.validateBlenderBtn.addEventListener("click", validateBlenderReadiness);
       ui.loadManualImageBtn.addEventListener("click", loadManualSelectionImage);
       ui.useCurrentTargetBtn.addEventListener("click", useCurrentTargetImage);
@@ -2818,6 +4691,74 @@
         el.addEventListener("change", syncRegionalModeUi);
       });
 
+      Array.from(document.querySelectorAll(".texture-card")).forEach((card) => {
+        card.addEventListener("click", () => {
+          Array.from(document.querySelectorAll(".texture-card")).forEach((x) => x.classList.remove("active"));
+          card.classList.add("active");
+          const hint = $("texturePresetHint");
+          if (hint) hint.textContent = "Selected: " + card.querySelector("h5").textContent + ". Click Apply Selected Texture.";
+        });
+      });
+
+      const applyTexturePresetBtn = $("applyTexturePresetBtn");
+      if (applyTexturePresetBtn) {
+        applyTexturePresetBtn.addEventListener("click", () => {
+          const selected = document.querySelector(".texture-card.active");
+          if (!selected) {
+            const hint = $("texturePresetHint");
+            if (hint) hint.textContent = "Select a texture preset first.";
+            return;
+          }
+          openTab("regionalTab");
+          applyTexturePresetFromCard(selected);
+          setStatus("Texture preset applied. Review prompt/region then run regional edit.", true);
+        });
+      }
+
+      const clearTexturePresetBtn = $("clearTexturePresetBtn");
+      if (clearTexturePresetBtn) {
+        clearTexturePresetBtn.addEventListener("click", clearTexturePresetSelection);
+      }
+
+      const jumpTextureFlowBtn = $("jumpTextureFlowBtn");
+      if (jumpTextureFlowBtn) {
+        jumpTextureFlowBtn.addEventListener("click", () => {
+          openTab("regionalTab");
+          const textureFlowModule = $("textureFlowModule");
+          if (textureFlowModule) textureFlowModule.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+
+      const jumpRegionalRunBtn = $("jumpRegionalRunBtn");
+      if (jumpRegionalRunBtn) {
+        jumpRegionalRunBtn.addEventListener("click", () => {
+          openTab("regionalTab");
+          const runBtn = $("runRegionalBtn");
+          if (runBtn) runBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      }
+
+      const gotoPricingBtn = $("gotoPricingBtn");
+      if (gotoPricingBtn) {
+        gotoPricingBtn.addEventListener("click", () => {
+          window.location.href = "/pricing.html";
+        });
+      }
+
+      const gotoServicesBtn = $("gotoServicesBtn");
+      if (gotoServicesBtn) {
+        gotoServicesBtn.addEventListener("click", () => {
+          window.location.href = "/services.html";
+        });
+      }
+
+      const gotoDashboardBtn = $("gotoDashboardBtn");
+      if (gotoDashboardBtn) {
+        gotoDashboardBtn.addEventListener("click", () => {
+          window.location.href = "/dashboard.html";
+        });
+      }
+
       Array.from(document.querySelectorAll(".flow-btn")).forEach((btn) => {
         btn.addEventListener("click", () => {
           if (batchInProgress) {
@@ -2838,6 +4779,50 @@
         });
       });
 
+      Array.from(document.querySelectorAll(".rail-btn")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const jump = btn.getAttribute("data-jump");
+          if (jump === "history") {
+            const section = document.getElementById("historySection");
+            if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+            return;
+          }
+          if (jump) {
+            openTab(jump);
+            const anchor = document.querySelector(".card");
+            if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+
+      Array.from(document.querySelectorAll(".cad-tool")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const jump = btn.getAttribute("data-jump");
+          if (jump === "history") {
+            const section = document.getElementById("historySection");
+            if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+            return;
+          }
+          if (jump) {
+            openTab(jump);
+            const anchor = document.querySelector(".card");
+            if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+
+      Array.from(document.querySelectorAll("[data-lib-folder]")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const folder = btn.getAttribute("data-lib-folder") || "";
+          if (!folder || !ui.textureFolderSelect) return;
+          ui.textureFolderSelect.value = folder;
+          populateTextureAssets();
+          Array.from(document.querySelectorAll(".lib-node")).forEach((n) => n.classList.remove("active"));
+          if (btn.classList.contains("lib-node")) btn.classList.add("active");
+          openTab("regionalTab");
+        });
+      });
+
       ui.maskCanvas.addEventListener("pointerdown", beginMaskStroke);
       ui.maskCanvas.addEventListener("pointermove", moveMaskStroke);
       ui.maskCanvas.addEventListener("pointerup", endMaskStroke);
@@ -2855,13 +4840,22 @@
     }
 
     loadDefaults();
+    initializeTextureLibraryBrowser();
+    renderTextureThumbnails();
     applyConsistencyMode();
     syncRegionalModeUi();
     clearMaskCanvas();
+    clearTexturePresetSelection();
+    syncTextureStepperSource();
+    syncTextureStepperMaskPreview();
+    setTextureStepperStep("render", "pending", "Run regional edit");
+    setTextureStepperStatus("Waiting for source sketch.");
     syncRenderReferencePreviews();
     syncBackgroundPresetChips();
     syncActiveViewCard();
     syncRenderSummary();
+    syncVariantStrip();
+    syncComparePanel();
     setupTabs();
     bindEvents();
     updateRunActionAvailability();
