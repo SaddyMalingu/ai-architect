@@ -3,327 +3,1340 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Architect | Design Platform</title>
-  <meta name="description" content="AI Architect offers studio rendering, pricing plans, dashboard billing, and agency services in one platform." />
+  <title>AI Architect | Transform Your Vision Into Reality</title>
+  <meta name="description" content="A seamless AI Architect experience: premium marketing landing inspired by ai-architect.vercel.app and direct studio workflow access at /studio." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Syne:wght@600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #0f1f2b;
-      --muted: #526475;
-      --line: #ced7e1;
-      --bg: #eef2f6;
+      --bg: #f4f6fb;
+      --ink: #0f1d33;
+      --muted: #5b6982;
       --card: #ffffff;
-      --brand: #1363df;
-      --brand2: #0f9d82;
-      --shadow: 0 18px 40px rgba(12, 24, 38, .12);
+      --line: #d6deee;
+      --brand: #1d63ff;
+      --brand-2: #11a488;
+      --accent: #ef9f3c;
+      --deep: #0e1a2f;
+      --radius-xl: 26px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow: 0 22px 48px rgba(15, 29, 51, .12);
     }
+
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
-      font-family: "Sora", sans-serif;
+      font-family: "Outfit", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(950px 360px at 90% -12%, rgba(19, 99, 223, .22), transparent 55%),
-        radial-gradient(760px 340px at 8% 4%, rgba(15, 157, 130, .18), transparent 58%),
-        var(--bg);
+        radial-gradient(860px 440px at -12% 6%, rgba(17, 164, 136, .22), transparent 62%),
+        radial-gradient(980px 520px at 108% -10%, rgba(29, 99, 255, .22), transparent 58%),
+        linear-gradient(180deg, #f9fbff 0%, #f4f6fb 100%);
     }
-    .wrap {
-      width: min(1180px, 92vw);
+
+    .page {
+      width: min(1220px, 92vw);
       margin: 0 auto;
-      padding: 24px 0 50px;
+      padding: 18px 0 62px;
     }
+
     .nav {
-      border: 1px solid rgba(255,255,255,.88);
+      position: sticky;
+      top: 10px;
+      z-index: 40;
+      border: 1px solid rgba(255, 255, 255, .85);
       border-radius: 16px;
-      background: rgba(255,255,255,.8);
+      background: rgba(255, 255, 255, .78);
       backdrop-filter: blur(10px);
+      box-shadow: 0 10px 22px rgba(12, 26, 49, .08);
       padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 10px 24px rgba(10, 26, 40, .08);
-      position: sticky;
-      top: 10px;
-      z-index: 30;
+      gap: 12px;
     }
+
     .brand {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-weight: 800;
-      letter-spacing: .02em;
+      font-family: "Syne", sans-serif;
+      font-weight: 700;
+      letter-spacing: .01em;
     }
-    .logo {
-      width: 28px;
-      height: 28px;
-      border-radius: 9px;
-      background: linear-gradient(140deg, var(--brand), var(--brand2));
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: linear-gradient(140deg, var(--brand), var(--brand-2));
+      box-shadow: 0 10px 18px rgba(29, 99, 255, .28);
     }
-    .links {
+
+    .menu {
       display: flex;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
     }
-    .links a {
+
+    .menu a {
       text-decoration: none;
-      color: #213445;
-      font-weight: 650;
+      color: #2a3b57;
+      font-size: .9rem;
+      font-weight: 600;
       padding: 8px 10px;
-      border-radius: 9px;
+      border-radius: 10px;
+      transition: .2s ease;
     }
-    .links a:hover { background: #eef4fb; }
+
+    .menu a:hover { background: #e9f0ff; color: #1b4db0; }
+
     .hero {
-      margin-top: 18px;
-      border: 1px solid rgba(255,255,255,.92);
-      border-radius: 24px;
-      background: linear-gradient(125deg, rgba(255,255,255,.94), rgba(244,248,253,.88));
-      padding: 30px;
+      margin-top: 14px;
+      border: 1px solid rgba(255, 255, 255, .9);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: var(--card);
       box-shadow: var(--shadow);
       display: grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 20px;
+      grid-template-columns: 1.15fr .85fr;
     }
-    h1 {
-      margin: 8px 0 0;
-      font-family: "Fraunces", serif;
-      font-size: clamp(2rem, 4.8vw, 3.7rem);
-      line-height: .96;
-      letter-spacing: -.02em;
+
+    .hero-copy {
+      padding: 34px;
+      background:
+        linear-gradient(155deg, #ffffff 0%, #f5f9ff 40%, #f6fffc 100%);
     }
-    .eyebrow {
-      color: #1659aa;
+
+    .hero-badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid #cfe0ff;
+      border-radius: 999px;
+      padding: 7px 11px;
+      color: #1d4ea8;
+      background: #f7fbff;
       text-transform: uppercase;
-      font-size: .78rem;
-      letter-spacing: .11em;
-      font-weight: 800;
+      letter-spacing: .08em;
+      font-size: .72rem;
+      font-weight: 700;
     }
+
+    .spark {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(120deg, var(--brand), var(--brand-2));
+    }
+
+    h1 {
+      margin: 14px 0 0;
+      font-family: "Syne", sans-serif;
+      font-size: clamp(2.1rem, 5vw, 4.2rem);
+      line-height: .95;
+      letter-spacing: -.02em;
+      max-width: 14ch;
+    }
+
     .lead {
-      margin-top: 12px;
+      margin: 15px 0 0;
       color: var(--muted);
-      max-width: 60ch;
+      max-width: 58ch;
       line-height: 1.62;
+      font-size: 1.02rem;
     }
-    .actions {
-      margin-top: 16px;
+
+    .hero-actions {
+      margin-top: 18px;
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
     }
+
     .btn {
+      border-radius: 11px;
+      border: 1px solid transparent;
+      text-decoration: none;
+      font-size: .93rem;
+      font-weight: 700;
+      padding: 11px 16px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 11px;
-      text-decoration: none;
-      font-weight: 760;
-      padding: 11px 15px;
-      border: 1px solid transparent;
-      transition: transform .14s ease;
+      transition: transform .16s ease;
     }
-    .btn:hover { transform: translateY(-1px); }
+
+    .btn:hover { transform: translateY(-2px); }
+
     .btn-primary {
       color: #fff;
-      background: linear-gradient(130deg, var(--brand), #1054bf);
-      box-shadow: 0 14px 28px rgba(19,99,223,.28);
+      background: linear-gradient(130deg, var(--brand), #3a79ff);
+      box-shadow: 0 14px 28px rgba(29, 99, 255, .28);
     }
+
     .btn-soft {
-      color: #1e3142;
+      color: #23406d;
       background: #fff;
-      border-color: var(--line);
+      border-color: #cdd9ef;
     }
-    .hero-panel {
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      background: #fff;
-      padding: 14px;
-    }
-    .hero-panel h3 {
-      margin: 0;
-      font-size: .9rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: #1b5aa8;
-    }
-    .hero-grid {
-      margin-top: 10px;
+
+    .quick-stats {
+      margin-top: 18px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
     }
-    .hero-chip {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: #f6f9fd;
-      padding: 9px;
-      font-size: .78rem;
-      color: #2b465c;
-      font-weight: 700;
+
+    .stat {
+      border: 1px solid #d5e0f2;
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px;
     }
+
+    .stat strong {
+      display: block;
+      font-family: "Syne", sans-serif;
+      color: #203b67;
+      font-size: 1.2rem;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 2px;
+      color: #607089;
+      font-size: .77rem;
+      line-height: 1.28;
+    }
+
+    .hero-showcase {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 10px;
+    }
+
+    .showcase-main,
+    .showcase-stack article {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #d7e1f2;
+      border-radius: 16px;
+      background: #eef4ff;
+      box-shadow: 0 12px 24px rgba(20, 36, 68, .08);
+    }
+
+    .showcase-main {
+      min-height: 250px;
+    }
+
+    .showcase-main img,
+    .showcase-stack img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .showcase-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .showcase-stack article {
+      min-height: 120px;
+    }
+
+    .showcase-caption {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(11, 21, 40, .08), rgba(11, 21, 40, .72));
+      backdrop-filter: blur(6px);
+      color: #fff;
+    }
+
+    .showcase-caption strong {
+      display: block;
+      font-family: "Syne", sans-serif;
+      font-size: .95rem;
+      margin-bottom: 3px;
+    }
+
+    .showcase-caption span {
+      display: block;
+      font-size: .78rem;
+      line-height: 1.4;
+      color: #d7e4f9;
+    }
+
+    .hero-panel {
+      padding: 20px;
+      background: linear-gradient(180deg, #101d33 0%, #1c3153 100%);
+      color: #edf4ff;
+      border-left: 1px solid rgba(255, 255, 255, .08);
+      display: grid;
+      gap: 10px;
+      align-content: center;
+    }
+
+    .panel-card {
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .05);
+      padding: 13px;
+      animation: lift .55s ease both;
+    }
+
+    .panel-card:nth-child(2) { animation-delay: .08s; }
+    .panel-card:nth-child(3) { animation-delay: .16s; }
+
+    .panel-card .tag {
+      display: inline-block;
+      color: #95d5ff;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .66rem;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .panel-card h3 {
+      margin: 0;
+      color: #f6f9ff;
+      font-size: .98rem;
+    }
+
+    .panel-card p {
+      margin: 6px 0 0;
+      color: #c7d7ee;
+      font-size: .83rem;
+      line-height: 1.5;
+    }
+
+    .panel-visual {
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      padding: 14px;
+      min-height: 180px;
+      display: grid;
+      align-content: space-between;
+      gap: 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .panel-visual strong {
+      display: block;
+      color: #ffffff;
+      font-family: "Syne", sans-serif;
+      font-size: 1rem;
+      line-height: 1.15;
+    }
+
+    .panel-visual span {
+      display: block;
+      margin-top: 4px;
+      color: #bfd0ea;
+      font-size: .8rem;
+      line-height: 1.45;
+    }
+
+    .panel-visual svg,
+    .blueprint svg,
+    .flow-graphic svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
     .section {
       margin-top: 16px;
-      border: 1px solid rgba(255,255,255,.9);
-      border-radius: 20px;
-      background: rgba(255,255,255,.84);
-      box-shadow: 0 12px 28px rgba(10, 28, 46, .08);
-      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, .86);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, .84);
+      box-shadow: 0 14px 32px rgba(13, 28, 52, .09);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
     }
+
+    .section::before {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -120px;
+      top: -140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(29, 99, 255, .1), rgba(29, 99, 255, 0));
+      pointer-events: none;
+    }
+
+    .section > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
     .section h2 {
       margin: 0;
-      font-family: "Fraunces", serif;
-      font-size: clamp(1.55rem, 3vw, 2.2rem);
+      font-family: "Syne", sans-serif;
+      font-size: clamp(1.45rem, 3vw, 2.1rem);
+      line-height: 1;
+      color: #152a4a;
     }
-    .cards {
-      margin-top: 12px;
+
+    .section-head p {
+      margin: 0;
+      max-width: 58ch;
+      color: #5f6f87;
+      line-height: 1.56;
+      font-size: .94rem;
+    }
+
+    .value-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
     }
-    .card {
-      border: 1px solid var(--line);
-      border-radius: 12px;
+
+    .value-layout {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .value-card {
+      border: 1px solid #d7e0f2;
+      border-radius: 13px;
       background: #fff;
+      padding: 14px;
+    }
+
+    .value-card strong {
+      display: block;
+      font-family: "Syne", sans-serif;
+      color: #1f3a66;
+      font-size: 1.35rem;
+      margin-bottom: 6px;
+    }
+
+    .value-card h3 {
+      margin: 0;
+      font-size: .95rem;
+      color: #1b2f54;
+    }
+
+    .value-card p {
+      margin: 6px 0 0;
+      color: #607088;
+      font-size: .84rem;
+      line-height: 1.5;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .story-canvas {
+      border: 1px solid #d7e1f2;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(150deg, #0f1e34 0%, #1b3e70 55%, #1ea694 100%);
+      padding: 18px;
+      color: #f3f7ff;
+      display: grid;
+      gap: 12px;
+      align-content: space-between;
+      min-height: 100%;
+      box-shadow: 0 18px 34px rgba(15, 27, 49, .2);
+    }
+
+    .blueprint {
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 16px;
+      background: rgba(255,255,255,.06);
+      padding: 10px;
+    }
+
+    .story-canvas h3 {
+      margin: 0;
+      font-family: "Syne", sans-serif;
+      font-size: 1.4rem;
+      line-height: 1;
+      max-width: 12ch;
+    }
+
+    .story-canvas p {
+      margin: 0;
+      color: #d6e3f8;
+      font-size: .88rem;
+      line-height: 1.55;
+    }
+
+    .canvas-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .canvas-card {
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .08);
+      padding: 12px;
+      min-height: 110px;
+    }
+
+    .canvas-card strong {
+      display: block;
+      font-size: .78rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #9fd5ff;
+      margin-bottom: 8px;
+    }
+
+    .canvas-card span {
+      display: block;
+      font-family: "Syne", sans-serif;
+      font-size: 1.05rem;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .gallery-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 13px;
+      min-height: 150px;
+      border: 1px solid #d7dfef;
+      background: #eaf0fb;
+    }
+
+    .gallery img {
+      width: 100%;
+      height: 150px;
+      border-radius: 13px;
+      object-fit: cover;
+      background: #eaf0fb;
+      transition: transform .35s ease;
+    }
+
+    .gallery-card:hover img {
+      transform: scale(1.04);
+    }
+
+    .gallery-note {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      padding: 10px;
+      border-radius: 11px;
+      background: linear-gradient(180deg, rgba(12, 23, 41, .04), rgba(12, 23, 41, .72));
+      color: #fff;
+      font-size: .78rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .workflow-visuals {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .workflow-shot {
+      position: relative;
+      overflow: hidden;
+      min-height: 180px;
+      border: 1px solid #d8e1f2;
+      border-radius: 15px;
+      background: #eef4ff;
+      box-shadow: 0 12px 24px rgba(20, 36, 68, .08);
+    }
+
+    .workflow-shot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .workflow-shot span {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(10, 21, 40, .7);
+      color: #fff;
+      font-size: .76rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .flow-graphic {
+      margin-top: 12px;
+      border: 1px solid #d8e1f2;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ffffff, #f6faff);
+      padding: 14px;
+      box-shadow: 0 12px 24px rgba(20, 36, 68, .06);
+    }
+
+    .flow-step {
+      border: 1px solid #d8e1f2;
+      border-radius: 13px;
+      background: #fff;
+      padding: 14px;
+    }
+
+    .flow-step .idx {
+      width: 29px;
+      height: 29px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: .78rem;
+      font-weight: 800;
+      background: linear-gradient(130deg, var(--brand), var(--brand-2));
+      box-shadow: 0 8px 14px rgba(29, 99, 255, .23);
+    }
+
+    .flow-step h3 {
+      margin: 10px 0 6px;
+      font-size: .96rem;
+      color: #1d3158;
+    }
+
+    .flow-step p {
+      margin: 0;
+      color: #61718a;
+      font-size: .84rem;
+      line-height: 1.5;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 12px;
+    }
+
+    .roi,
+    .faq,
+    .contact {
+      border: 1px solid #d8e1f2;
+      border-radius: 14px;
+      background: #fff;
+      padding: 16px;
+    }
+
+    .control {
+      margin-bottom: 10px;
+    }
+
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #5f6f87;
+      font-size: .83rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .control input[type="range"] {
+      width: 100%;
+      accent-color: var(--brand);
+    }
+
+    .result {
+      margin-top: 8px;
+      border: 1px dashed #c7d6ef;
+      border-radius: 12px;
+      background: #f7fbff;
       padding: 12px;
     }
-    .card strong {
+
+    .result strong {
       display: block;
-      margin-bottom: 6px;
-      font-size: .92rem;
-      color: #18354c;
+      font-family: "Syne", sans-serif;
+      color: #1f3b69;
+      font-size: 1.3rem;
     }
-    .card p {
-      margin: 0;
-      color: var(--muted);
+
+    .result span {
+      font-size: .82rem;
+      color: #5f7088;
+    }
+
+    details {
+      border: 1px solid #d9e2f1;
+      border-radius: 11px;
+      padding: 10px 11px;
+      background: #fff;
+      margin-bottom: 8px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #213b65;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    details p {
+      margin: 7px 0 0;
+      color: #61708a;
       font-size: .83rem;
       line-height: 1.5;
     }
+
     .routes {
-      margin-top: 12px;
       display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 10px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .route {
-      border: 1px solid var(--line);
-      border-radius: 12px;
+
+    .route-card {
+      border: 1px solid #d8e1f2;
+      border-radius: 13px;
       background: #fff;
       padding: 12px;
       display: grid;
       gap: 8px;
+      overflow: hidden;
     }
-    .route h3 {
+
+    .route-thumb {
+      position: relative;
+      height: 104px;
+      margin: -12px -12px 4px;
+      background-size: cover;
+      background-position: center;
+      border-bottom: 1px solid #d8e1f2;
+    }
+
+    .route-thumb::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(11, 22, 40, .08), rgba(11, 22, 40, .58));
+    }
+
+    .route-badge {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      z-index: 1;
+      padding: 7px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .16);
+      border: 1px solid rgba(255, 255, 255, .18);
+      backdrop-filter: blur(5px);
+      color: #fff;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .route-card h3 {
       margin: 0;
-      font-size: .95rem;
-      color: #163f5d;
+      font-size: .92rem;
+      color: #1d3258;
     }
-    .route p {
+
+    .route-card p {
       margin: 0;
-      color: var(--muted);
-      font-size: .84rem;
-      line-height: 1.5;
+      color: #61718a;
+      font-size: .82rem;
+      line-height: 1.45;
     }
-    .route a { width: fit-content; }
+
+    .route-card a {
+      width: fit-content;
+      padding: 8px 11px;
+      font-size: .81rem;
+    }
+
+    .route-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .route-meta span {
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: #35537f;
+      font-size: .69rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .cta-band {
+      margin-top: 16px;
+      border: 1px solid rgba(255, 255, 255, .62);
+      border-radius: 22px;
+      background: linear-gradient(132deg, #0f1c33, #16345f 45%, #1c4b80);
+      box-shadow: 0 22px 42px rgba(10, 24, 44, .34);
+      color: #f4f8ff;
+      padding: 26px;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-band::before,
+    .cta-band::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .cta-band::before {
+      width: 280px;
+      height: 280px;
+      right: -120px;
+      top: -110px;
+      background: radial-gradient(circle, rgba(255,255,255,.16), rgba(255,255,255,0));
+    }
+
+    .cta-band::after {
+      width: 220px;
+      height: 220px;
+      left: -90px;
+      bottom: -120px;
+      background: radial-gradient(circle, rgba(17,164,136,.25), rgba(17,164,136,0));
+    }
+
+    .cta-band > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-band h2 {
+      margin: 0;
+      font-family: "Syne", sans-serif;
+      font-size: clamp(1.45rem, 3vw, 2.1rem);
+      line-height: 1;
+      color: #fff;
+    }
+
+    .cta-band p {
+      margin: 10px 0 0;
+      color: #c9d9f3;
+      line-height: 1.58;
+      max-width: 58ch;
+    }
+
+    .cta-col {
+      display: grid;
+      align-content: center;
+      gap: 9px;
+    }
+
+    .btn-light {
+      color: #1f3c69;
+      background: #f5f8ff;
+      border-color: rgba(255, 255, 255, .55);
+    }
+
     .footer {
-      margin-top: 14px;
+      margin-top: 12px;
       text-align: center;
-      color: #52687b;
-      font-size: .84rem;
+      color: #687a95;
+      font-size: .8rem;
     }
-    @media (max-width: 980px) {
-      .hero { grid-template-columns: 1fr; }
-      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .routes { grid-template-columns: 1fr; }
+
+    @keyframes lift {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    @media (max-width: 560px) {
-      .cards { grid-template-columns: 1fr; }
+
+    @media (max-width: 1100px) {
+      .hero,
+      .value-layout,
+      .split,
+      .cta-band { grid-template-columns: 1fr; }
+      .gallery,
+      .value-grid,
+      .flow,
+      .routes,
+      .quick-stats,
+      .workflow-visuals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-showcase { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .nav { flex-direction: column; align-items: flex-start; }
+      .hero-copy,
+      .hero-panel,
+      .section,
+      .cta-band { padding: 18px; }
+      .gallery,
+      .value-grid,
+      .flow,
+      .routes,
+      .quick-stats,
+      .workflow-visuals,
+      .canvas-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <main class="page">
     <header class="nav">
-      <div class="brand"><span class="logo" aria-hidden="true"></span>AI Architect</div>
-      <nav class="links">
-        <a href="#platform">Platform</a>
-        <a href="#modules">Modules</a>
-        <a href="#pages">Pages</a>
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span>AI Architect</div>
+      <nav class="menu">
+        <a href="#home">Home</a>
+        <a href="#about">About Us</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+        <a href="#routes">Pages</a>
       </nav>
     </header>
 
-    <section class="hero" id="platform">
-      <div>
-        <div class="eyebrow">Architecture AI Platform</div>
-        <h1>Working landing ecosystem with studio-grade rendering workflow</h1>
-        <p class="lead">This restored landing experience keeps multiple pages and entry points in place while routing power users into the upgraded studio portal modeled after Archicad and Visoid workflows.</p>
-        <div class="actions">
-          <a class="btn btn-primary" href="/studio">Open Studio Portal</a>
+    <section class="hero" id="home">
+      <div class="hero-copy">
+        <div class="hero-badge"><span class="spark" aria-hidden="true"></span>Intelligent Home Designs</div>
+        <h1>Transform your vision into reality</h1>
+        <p class="lead">This landing experience merges the storytelling style of ai-architect.vercel.app with direct production access to the Studio at /studio, so users move from inspiration to execution without friction.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/studio">Open Studio</a>
           <a class="btn btn-soft" href="/pricing.html">Pricing</a>
-          <a class="btn btn-soft" href="/services.html">Agency Services</a>
+          <a class="btn btn-soft" href="/services.html">Services</a>
           <a class="btn btn-soft" href="/dashboard.html">Dashboard</a>
+          <a class="btn btn-soft" href="/cloud_demo.html">Cloud Demo</a>
+        </div>
+        <div class="quick-stats">
+          <article class="stat">
+            <strong>255+</strong>
+            <span>2D floor plans</span>
+          </article>
+          <article class="stat">
+            <strong>255+</strong>
+            <span>House design concepts</span>
+          </article>
+          <article class="stat">
+            <strong>255+</strong>
+            <span>Interior decor directions</span>
+          </article>
+        </div>
+        <div class="hero-showcase">
+          <article class="showcase-main">
+            <img src="https://ai-architect.vercel.app/_next/image?url=%2Fai11.jpg&w=828&q=75" alt="AI Architect premium hero concept" loading="eager" />
+            <div class="showcase-caption">
+              <strong>Concept to studio in one surface</strong>
+              <span>Use the landing page to sell the vision, then move directly into the workflow engine.</span>
+            </div>
+          </article>
+          <div class="showcase-stack">
+            <article>
+              <img src="https://ai-architect.vercel.app/im1.jpg" alt="Architectural visual direction" loading="lazy" />
+              <div class="showcase-caption">
+                <strong>Exterior concepts</strong>
+                <span>Investor and client-ready presentation quality.</span>
+              </div>
+            </article>
+            <article>
+              <img src="https://ai-architect.vercel.app/sofa.jpg" alt="Interior design showcase" loading="lazy" />
+              <div class="showcase-caption">
+                <strong>Interior storytelling</strong>
+                <span>Material mood, atmosphere, and premium brand perception.</span>
+              </div>
+            </article>
+          </div>
         </div>
       </div>
       <aside class="hero-panel">
-        <h3>Live Capability Stack</h3>
-        <div class="hero-grid">
-          <div class="hero-chip">4-Face Render Board</div>
-          <div class="hero-chip">Texture Folder Library</div>
-          <div class="hero-chip">Regional Edit Modes</div>
-          <div class="hero-chip">Request + History Tracking</div>
-        </div>
+        <article class="panel-visual">
+          <div>
+            <strong>Designed to look like a premium product surface</strong>
+            <span>Custom graphics give the landing page more identity before the user even reads the copy.</span>
+          </div>
+          <svg viewBox="0 0 360 150" aria-hidden="true">
+            <defs>
+              <linearGradient id="heroGrid" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#4d90ff" stop-opacity="0.9" />
+                <stop offset="100%" stop-color="#20d4b2" stop-opacity="0.8" />
+              </linearGradient>
+            </defs>
+            <rect x="8" y="8" width="344" height="134" rx="18" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" />
+            <path d="M36 108 L112 56 L178 86 L260 34 L324 62" fill="none" stroke="url(#heroGrid)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="112" cy="56" r="7" fill="#ffffff" />
+            <circle cx="178" cy="86" r="7" fill="#9fe5ff" />
+            <circle cx="260" cy="34" r="7" fill="#ffd182" />
+            <rect x="40" y="36" width="76" height="20" rx="10" fill="rgba(255,255,255,0.08)" />
+            <rect x="206" y="96" width="108" height="18" rx="9" fill="rgba(255,255,255,0.08)" />
+          </svg>
+        </article>
+        <article class="panel-card">
+          <span class="tag">Seamless UX</span>
+          <h3>One click from landing to studio</h3>
+          <p>Every primary call-to-action routes users directly into the production workspace.</p>
+        </article>
+        <article class="panel-card">
+          <span class="tag">Marketing Ready</span>
+          <h3>Clear narrative for campaigns</h3>
+          <p>Positioning, proof, workflow, and conversion pages are aligned in one web journey.</p>
+        </article>
+        <article class="panel-card">
+          <span class="tag">Brand and PR</span>
+          <h3>Premium visual system</h3>
+          <p>Confident typography, polished layout, and trust sections improve market perception.</p>
+        </article>
       </aside>
     </section>
 
-    <section class="section" id="modules">
-      <h2>Core Experience Modules</h2>
-      <div class="cards">
-        <article class="card">
-          <strong>Landing Experience</strong>
-          <p>Primary product story, capability framing, and guided entry into studio or commercial pages.</p>
-        </article>
-        <article class="card">
-          <strong>Studio Interface</strong>
-          <p>PDF-aligned rendering workspace with rendering materials, sketch faces, variants, and edit controls.</p>
-        </article>
-        <article class="card">
-          <strong>Pricing + Services</strong>
-          <p>Commercial pages for plans and agency offerings, preserved as separate routes.</p>
-        </article>
-        <article class="card">
-          <strong>Billing Dashboard</strong>
-          <p>Credit tracking, transactions, and subscription lifecycle from a dedicated dashboard page.</p>
-        </article>
+    <section class="section" id="about">
+      <div class="section-head">
+        <h2>About AI Architect</h2>
+        <p>AI Architect empowers teams to create stunning home, landscape, and office concepts while preserving operational clarity from design generation to billing visibility.</p>
+      </div>
+      <div class="value-layout">
+        <div class="value-grid">
+          <article class="value-card">
+            <strong>01</strong>
+            <h3>Vision to visual</h3>
+            <p>Convert rough ideas into polished outputs in minutes, not days.</p>
+          </article>
+          <article class="value-card">
+            <strong>02</strong>
+            <h3>Material precision</h3>
+            <p>Select from folders or upload custom textures for project-level control.</p>
+          </article>
+          <article class="value-card">
+            <strong>03</strong>
+            <h3>Consistent faces</h3>
+            <p>Coordinate front, left, back, and right views for presentation consistency.</p>
+          </article>
+          <article class="value-card">
+            <strong>04</strong>
+            <h3>Business confidence</h3>
+            <p>Track request flow, credits, and billing in one integrated ecosystem.</p>
+          </article>
+        </div>
+        <aside class="story-canvas">
+          <div>
+            <h3>Mindshare graphics for a stronger first impression</h3>
+            <p>The content remains intact, but the visual layer now behaves more like a polished product narrative than a simple information page.</p>
+          </div>
+          <div class="blueprint">
+            <svg viewBox="0 0 320 160" aria-hidden="true">
+              <rect x="8" y="8" width="304" height="144" rx="18" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.18)" />
+              <rect x="26" y="28" width="98" height="76" rx="10" fill="none" stroke="#9fd5ff" stroke-width="2" />
+              <rect x="140" y="28" width="64" height="44" rx="8" fill="none" stroke="#9fd5ff" stroke-width="2" />
+              <rect x="216" y="28" width="78" height="98" rx="10" fill="none" stroke="#7ff0d0" stroke-width="2" />
+              <path d="M26 120 H294" stroke="rgba(255,255,255,.18)" stroke-width="2" stroke-dasharray="6 6" />
+              <circle cx="174" cy="98" r="16" fill="rgba(255,255,255,.08)" stroke="#ffd28e" stroke-width="2" />
+              <path d="M166 98 L172 104 L184 90" fill="none" stroke="#ffd28e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div class="canvas-grid">
+            <article class="canvas-card">
+              <strong>Rendering</strong>
+              <span>Client-facing architectural image generation</span>
+            </article>
+            <article class="canvas-card">
+              <strong>Workflow</strong>
+              <span>Landing page to studio without friction</span>
+            </article>
+            <article class="canvas-card">
+              <strong>Materials</strong>
+              <span>Texture folders plus custom uploads</span>
+            </article>
+            <article class="canvas-card">
+              <strong>Operations</strong>
+              <span>Pricing, services, dashboard, and demo routes</span>
+            </article>
+          </div>
+        </aside>
       </div>
     </section>
 
-    <section class="section" id="pages">
-      <h2>Published Pages</h2>
+    <section class="section">
+      <div class="section-head">
+        <h2>Design Inspiration Gallery</h2>
+        <p>Visual references inspired by your original ai-architect.vercel.app style, curated to keep the brand premium and approachable.</p>
+      </div>
+      <div class="gallery">
+        <figure class="gallery-card">
+          <img src="https://ai-architect.vercel.app/sofa.jpg" alt="Interior concept inspiration" loading="lazy" />
+          <figcaption class="gallery-note">Interior concept direction with premium staging cues</figcaption>
+        </figure>
+        <figure class="gallery-card">
+          <img src="https://ai-architect.vercel.app/pink.jpeg" alt="Color and decor inspiration" loading="lazy" />
+          <figcaption class="gallery-note">Color narrative and finish inspiration for mood-led spaces</figcaption>
+        </figure>
+        <figure class="gallery-card">
+          <img src="https://ai-architect.vercel.app/im1.jpg" alt="Architectural exterior concept" loading="lazy" />
+          <figcaption class="gallery-note">Exterior elevation concept for presentation and approvals</figcaption>
+        </figure>
+        <figure class="gallery-card">
+          <img src="https://ai-architect.vercel.app/im2.jpg" alt="Design rendering variation" loading="lazy" />
+          <figcaption class="gallery-note">Rendered variation boards for faster client comparison</figcaption>
+        </figure>
+        <figure class="gallery-card">
+          <img src="https://ai-architect.vercel.app/im3.jpg" alt="Modern structure inspiration" loading="lazy" />
+          <figcaption class="gallery-note">Modern structure inspiration aligned to studio workflow</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>How it works</h2>
+        <p>Your questions answered quickly and clearly through a consistent four-step user journey.</p>
+      </div>
+      <div class="flow">
+        <article class="flow-step">
+          <span class="idx">01</span>
+          <h3>Start from landing</h3>
+          <p>Discover value, review examples, and understand platform outcomes quickly.</p>
+        </article>
+        <article class="flow-step">
+          <span class="idx">02</span>
+          <h3>Enter Studio</h3>
+          <p>Move into /studio and begin rendering, variant creation, and regional editing.</p>
+        </article>
+        <article class="flow-step">
+          <span class="idx">03</span>
+          <h3>Refine and compare</h3>
+          <p>Adjust materials, save versions, and compare outputs for faster approvals.</p>
+        </article>
+        <article class="flow-step">
+          <span class="idx">04</span>
+          <h3>Scale operations</h3>
+          <p>Use pricing, services, and dashboard routes for growth and billing confidence.</p>
+        </article>
+      </div>
+      <div class="workflow-visuals">
+        <article class="workflow-shot">
+          <img src="https://ai-architect.vercel.app/im1.jpg" alt="Concept stage visual" loading="lazy" />
+          <span>Concept stage</span>
+        </article>
+        <article class="workflow-shot">
+          <img src="https://ai-architect.vercel.app/im2.jpg" alt="Iteration stage visual" loading="lazy" />
+          <span>Iteration stage</span>
+        </article>
+        <article class="workflow-shot">
+          <img src="https://ai-architect.vercel.app/im3.jpg" alt="Presentation stage visual" loading="lazy" />
+          <span>Presentation stage</span>
+        </article>
+      </div>
+      <div class="flow-graphic">
+        <svg viewBox="0 0 900 180" aria-hidden="true">
+          <defs>
+            <linearGradient id="flowLine" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#1d63ff" />
+              <stop offset="100%" stop-color="#11a488" />
+            </linearGradient>
+          </defs>
+          <path d="M80 92 C180 92, 220 38, 320 38 S460 144, 560 144 S690 52, 820 52" fill="none" stroke="url(#flowLine)" stroke-width="8" stroke-linecap="round" />
+          <circle cx="80" cy="92" r="16" fill="#1d63ff" />
+          <circle cx="320" cy="38" r="16" fill="#4f85ff" />
+          <circle cx="560" cy="144" r="16" fill="#2cb9d3" />
+          <circle cx="820" cy="52" r="16" fill="#11a488" />
+          <g fill="#20365f" font-family="Outfit, sans-serif" font-size="16" font-weight="700">
+            <text x="42" y="132">Landing</text>
+            <text x="282" y="22">Studio</text>
+            <text x="510" y="174">Variants</text>
+            <text x="770" y="36">Delivery</text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Business value estimator</h2>
+        <p>Help teams quantify the impact of adopting a seamless landing-to-studio workflow.</p>
+      </div>
+      <div class="split">
+        <article class="roi">
+          <div class="control">
+            <label for="projects">Projects per month <strong id="projectsVal">9</strong></label>
+            <input id="projects" type="range" min="2" max="40" value="9" />
+          </div>
+          <div class="control">
+            <label for="hours">Hours saved per project <strong id="hoursVal">6</strong></label>
+            <input id="hours" type="range" min="1" max="30" value="6" />
+          </div>
+          <div class="control">
+            <label for="rate">Blended hourly rate (USD) <strong id="rateVal">90</strong></label>
+            <input id="rate" type="range" min="30" max="250" value="90" />
+          </div>
+          <div class="result">
+            <strong id="annual">$58,320 / year</strong>
+            <span>Estimated direct time-value gain from streamlined workflow execution.</span>
+          </div>
+        </article>
+
+        <div>
+          <article class="faq" id="faq">
+            <details open>
+              <summary>Could you help me design a project?</summary>
+              <p>Yes. Start from this page, open Studio, and use guided material, prompt, and variant controls to shape your project quickly.</p>
+            </details>
+            <details>
+              <summary>I cannot log in to my account. What should I do?</summary>
+              <p>Use your account recovery flow and then continue through the dashboard and studio paths once access is restored.</p>
+            </details>
+            <details>
+              <summary>Where can I find language settings?</summary>
+              <p>Language and profile options are maintained in account-facing routes and settings panels during authenticated sessions.</p>
+            </details>
+          </article>
+          <article class="contact" id="contact" style="margin-top: 10px;">
+            <strong style="display:block;color:#1f3963;font-family:'Syne',sans-serif;">Contact Us</strong>
+            <p style="margin:8px 0 0;color:#62728b;font-size:.84rem;line-height:1.5;">G-5 River view cooperative housing society, Lahore, Punjab</p>
+            <p style="margin:6px 0 0;color:#62728b;font-size:.84rem;line-height:1.5;">Email: AiArchitect@gmail.com</p>
+            <p style="margin:6px 0 0;color:#62728b;font-size:.84rem;line-height:1.5;">Phone: +92 320 2672675</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="routes">
+      <div class="section-head">
+        <h2>Website routes for seamless performance</h2>
+        <p>A connected navigation system that supports marketing, conversion, production, and operations.</p>
+      </div>
       <div class="routes">
-        <article class="route">
-          <h3>Studio Portal</h3>
-          <p>PDF/screenshot-aligned production workspace for rendering and regional material editing.</p>
-          <a class="btn btn-primary" href="/studio">Open /studio</a>
+        <article class="route-card">
+          <div class="route-thumb" style="background-image:url('https://ai-architect.vercel.app/im1.jpg');">
+            <span class="route-badge">Studio</span>
+          </div>
+          <h3>Studio</h3>
+          <p>Primary production workspace.</p>
+          <div class="route-meta"><span>Portal</span><span>Rendering</span></div>
+          <a class="btn btn-primary" href="/studio">Open</a>
         </article>
-        <article class="route">
-          <h3>Pricing Page</h3>
-          <p>Plans and package tiers with conversion-ready pricing table and FAQ block.</p>
-          <a class="btn btn-soft" href="/pricing.html">Open /pricing.html</a>
+        <article class="route-card">
+          <div class="route-thumb" style="background-image:url('https://ai-architect.vercel.app/pink.jpeg');">
+            <span class="route-badge">Pricing</span>
+          </div>
+          <h3>Pricing</h3>
+          <p>Plan and package options.</p>
+          <div class="route-meta"><span>Plans</span><span>Commercial</span></div>
+          <a class="btn btn-soft" href="/pricing.html">Open</a>
         </article>
-        <article class="route">
-          <h3>Agency Services</h3>
-          <p>Service cards, deliverable bundles, and engagement options for enterprise or agency clients.</p>
-          <a class="btn btn-soft" href="/services.html">Open /services.html</a>
+        <article class="route-card">
+          <div class="route-thumb" style="background-image:url('https://ai-architect.vercel.app/sofa.jpg');">
+            <span class="route-badge">Services</span>
+          </div>
+          <h3>Services</h3>
+          <p>Enterprise and agency support.</p>
+          <div class="route-meta"><span>Enterprise</span><span>Advisory</span></div>
+          <a class="btn btn-soft" href="/services.html">Open</a>
         </article>
-        <article class="route">
-          <h3>User Dashboard</h3>
-          <p>Subscription and credit operations with transaction history and management actions.</p>
-          <a class="btn btn-soft" href="/dashboard.html">Open /dashboard.html</a>
+        <article class="route-card">
+          <div class="route-thumb" style="background-image:url('https://ai-architect.vercel.app/im2.jpg');">
+            <span class="route-badge">Dashboard</span>
+          </div>
+          <h3>Dashboard</h3>
+          <p>Billing and credit visibility.</p>
+          <div class="route-meta"><span>Credits</span><span>Ops</span></div>
+          <a class="btn btn-soft" href="/dashboard.html">Open</a>
+        </article>
+        <article class="route-card">
+          <div class="route-thumb" style="background-image:url('https://ai-architect.vercel.app/im3.jpg');">
+            <span class="route-badge">Cloud Demo</span>
+          </div>
+          <h3>Cloud Demo</h3>
+          <p>Demo and PR walkthrough page.</p>
+          <div class="route-meta"><span>PR</span><span>Demo</span></div>
+          <a class="btn btn-soft" href="/cloud_demo.html">Open</a>
         </article>
       </div>
     </section>
 
-    <div class="footer">AI Architect Cloud Studio</div>
-  </div>
+    <section class="cta-band">
+      <div>
+        <h2>Beautiful front-end. Seamless studio handoff.</h2>
+        <p>Users arrive with confidence on this polished landing page, then flow straight into Studio to execute real work without context switching.</p>
+      </div>
+      <div class="cta-col">
+        <a class="btn btn-light" href="/studio">Launch Studio</a>
+        <a class="btn btn-light" href="/pricing.html">View Pricing</a>
+        <a class="btn btn-light" href="/services.html">Explore Services</a>
+      </div>
+    </section>
+
+    <footer class="footer">AI Architect Cloud Platform</footer>
+  </main>
+
+  <script>
+    const projects = document.getElementById("projects");
+    const hours = document.getElementById("hours");
+    const rate = document.getElementById("rate");
+    const projectsVal = document.getElementById("projectsVal");
+    const hoursVal = document.getElementById("hoursVal");
+    const rateVal = document.getElementById("rateVal");
+    const annual = document.getElementById("annual");
+
+    function currency(value) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function recalc() {
+      const p = Number(projects.value);
+      const h = Number(hours.value);
+      const r = Number(rate.value);
+      projectsVal.textContent = p;
+      hoursVal.textContent = h;
+      rateVal.textContent = r;
+      annual.textContent = currency(p * h * r * 12) + " / year";
+    }
+
+    [projects, hours, rate].forEach((item) => item.addEventListener("input", recalc));
+    recalc();
+  </script>
 </body>
 </html>
 
