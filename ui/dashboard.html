@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Architect - Dashboard</title>
     <script src="https://js.stripe.com/v3/"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Syne:wght@600;700&display=swap" rel="stylesheet" />
     <style>
         * {
             margin: 0;
@@ -13,16 +16,24 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f7fafc;
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+            background:
+                radial-gradient(860px 440px at -12% 6%, rgba(17, 164, 136, 0.16), transparent 62%),
+                radial-gradient(940px 520px at 108% -10%, rgba(29, 99, 255, 0.16), transparent 58%),
+                linear-gradient(180deg, #f9fbff 0%, #f1f5fc 100%);
             min-height: 100vh;
+            color: #10233f;
         }
         
         .navbar {
-            background: white;
+            background: rgba(255, 255, 255, 0.88);
             border-bottom: 1px solid #e2e8f0;
-            padding: 20px 0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 16px 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 40;
         }
         
         .navbar-content {
@@ -35,8 +46,9 @@
         }
         
         .navbar h2 {
-            color: #667eea;
-            font-size: 1.8em;
+            color: #1d63ff;
+            font-size: 1.5em;
+            font-family: 'Syne', 'Segoe UI', sans-serif;
         }
         
         .nav-links {
@@ -64,12 +76,12 @@
         }
         
         .credit-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(138deg, #0f1d33 0%, #173962 52%, #205486 100%);
             color: white;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 40px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 16px 36px rgba(15, 31, 56, 0.32);
         }
         
         .credit-info {
@@ -111,7 +123,7 @@
         
         .btn-primary {
             background: white;
-            color: #667eea;
+            color: #1d63ff;
         }
         
         .btn-primary:hover {
@@ -138,9 +150,10 @@
         
         .card {
             background: white;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 22px rgba(14, 33, 58, 0.08);
+            border: 1px solid #dbe4f3;
         }
         
         .card h3 {
@@ -163,7 +176,7 @@
         }
         
         .tier-badge {
-            background: #667eea;
+            background: #1d63ff;
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
@@ -212,14 +225,14 @@
         }
         
         .credit-option:hover, .credit-option.selected {
-            border-color: #667eea;
+            border-color: #1d63ff;
             background: #f0f4ff;
         }
         
         .credit-option-amount {
             font-weight: 700;
             font-size: 1.3em;
-            color: #667eea;
+            color: #1d63ff;
         }
         
         .credit-option-price {
@@ -266,7 +279,7 @@
             background: #f0f4ff;
             padding: 20px;
             border-radius: 8px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #1d63ff;
         }
         
         .referral-link {
@@ -286,7 +299,7 @@
         
         .btn-copy {
             padding: 10px 20px;
-            background: #667eea;
+            background: #1d63ff;
             color: white;
             border: none;
             border-radius: 6px;
@@ -295,7 +308,7 @@
         }
         
         .btn-copy:hover {
-            background: #5a67d8;
+            background: #1857e3;
         }
         
         @media (max-width: 768px) {
@@ -372,10 +385,11 @@
 <body>
     <div class="navbar">
         <div class="navbar-content">
-            <h2>🏗️ AI Architect</h2>
+            <h2>AI Architect</h2>
             <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/pricing">Pricing</a>
+                <a href="/landing.html">Home</a>
+                <a href="/pricing.html">Pricing</a>
+                <a href="/studio">Studio</a>
                 <a href="#" onclick="logout()">Logout</a>
             </div>
         </div>
@@ -391,7 +405,7 @@
                 </div>
                 <div class="credit-buttons">
                     <button class="btn btn-primary" onclick="scrollToSection('buyCredits')">Buy Credits</button>
-                    <button class="btn btn-secondary" onclick="window.location.href='/pricing'">View Plans</button>
+                    <button class="btn btn-secondary" onclick="window.location.href='/pricing.html'">View Plans</button>
                 </div>
             </div>
         </div>
@@ -443,7 +457,7 @@
                 
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
                     <h4 style="margin-bottom: 15px; color: #2d3748;">Want to upgrade?</h4>
-                    <button class="btn btn-primary" style="width: 100%;" onclick="window.location.href='/pricing'">View All Plans</button>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="window.location.href='/pricing.html'">View All Plans</button>
                     <button class="btn btn-secondary" style="width: 100%; margin-top: 10px; background: #fed7d7; color: #c53030; border: none;" id="cancelBtn" onclick="cancelSubscription()" style="display: none;">Cancel Subscription</button>
                 </div>
             </div>
@@ -817,7 +831,7 @@
         
         function logout() {
             localStorage.removeItem('userId');
-            window.location.href = '/';
+            window.location.href = '/landing.html';
         }
     </script>
 </body>

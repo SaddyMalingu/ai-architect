@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Architect | Transform Your Vision Into Reality</title>
-  <meta name="description" content="A seamless AI Architect experience: premium marketing landing inspired by ai-architect.vercel.app and direct studio workflow access at /studio." />
+  <meta name="description" content="AI Architect helps architecture and interior teams move from concept to render-ready delivery with premium workflow control in one platform." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Syne:wght@600;700&display=swap" rel="stylesheet" />
@@ -413,6 +413,20 @@
       font-size: .94rem;
     }
 
+    .section-kicker {
+      display: inline-block;
+      margin: 0 0 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #d6e2f7;
+      background: #f6faff;
+      color: #2b4f86;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
     .value-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -654,6 +668,54 @@
       gap: 12px;
     }
 
+    .roi-proof {
+      border: 1px solid #d8e1f2;
+      border-radius: 14px;
+      background: #fff;
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .roi-proof h3 {
+      margin: 0;
+      color: #1f3963;
+      font-size: 1.05rem;
+    }
+
+    .roi-proof p {
+      margin: 0;
+      color: #62758f;
+      font-size: .85rem;
+      line-height: 1.55;
+    }
+
+    .proof-list {
+      list-style: none;
+      margin: 4px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .proof-list li {
+      border: 1px solid #d9e3f3;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 9px 10px;
+      font-size: .82rem;
+      color: #3e587f;
+      font-weight: 600;
+    }
+
+    .support-grid {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
     .roi,
     .faq,
     .contact {
@@ -794,6 +856,12 @@
       font-size: .81rem;
     }
 
+    .route-card .btn-soft,
+    .route-card .btn-primary {
+      min-width: 130px;
+      justify-content: center;
+    }
+
     .route-meta {
       display: flex;
       gap: 6px;
@@ -889,6 +957,18 @@
       font-size: .8rem;
     }
 
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(16px) scale(.985);
+      transition: opacity .65s ease, transform .65s ease;
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    [data-reveal].is-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
     @keyframes lift {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -899,6 +979,7 @@
       .value-layout,
       .split,
       .cta-band { grid-template-columns: 1fr; }
+      .support-grid { grid-template-columns: 1fr; }
       .gallery,
       .value-grid,
       .flow,
@@ -937,11 +1018,11 @@
       </nav>
     </header>
 
-    <section class="hero" id="home">
+    <section class="hero" id="home" data-reveal>
       <div class="hero-copy">
         <div class="hero-badge"><span class="spark" aria-hidden="true"></span>Intelligent Home Designs</div>
         <h1>Transform your vision into reality</h1>
-        <p class="lead">This landing experience merges the storytelling style of ai-architect.vercel.app with direct production access to the Studio at /studio, so users move from inspiration to execution without friction.</p>
+        <p class="lead">From concept decks to client-ready renders, AI Architect gives architecture and interior teams one premium workflow to design, iterate, and deliver without platform switching.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="/studio">Open Studio</a>
           <a class="btn btn-soft" href="/pricing.html">Pricing</a>
@@ -951,16 +1032,16 @@
         </div>
         <div class="quick-stats">
           <article class="stat">
-            <strong>255+</strong>
-            <span>2D floor plans</span>
+            <strong>4x</strong>
+            <span>Faster concept iteration cycles</span>
           </article>
           <article class="stat">
-            <strong>255+</strong>
-            <span>House design concepts</span>
+            <strong>48h</strong>
+            <span>Typical presentation turnaround</span>
           </article>
           <article class="stat">
-            <strong>255+</strong>
-            <span>Interior decor directions</span>
+            <strong>1 Hub</strong>
+            <span>Render, billing, and delivery visibility</span>
           </article>
         </div>
         <div class="hero-showcase">
@@ -992,8 +1073,8 @@
       <aside class="hero-panel">
         <article class="panel-visual">
           <div>
-            <strong>Designed to look like a premium product surface</strong>
-            <span>Custom graphics give the landing page more identity before the user even reads the copy.</span>
+            <strong>Built for high-stakes client presentations</strong>
+            <span>Showcase design intent with polished visuals while maintaining a direct path into execution.</span>
           </div>
           <svg viewBox="0 0 360 150" aria-hidden="true">
             <defs>
@@ -1014,23 +1095,24 @@
         <article class="panel-card">
           <span class="tag">Seamless UX</span>
           <h3>One click from landing to studio</h3>
-          <p>Every primary call-to-action routes users directly into the production workspace.</p>
+          <p>Campaign traffic moves straight into your production workspace without losing narrative context.</p>
         </article>
         <article class="panel-card">
           <span class="tag">Marketing Ready</span>
           <h3>Clear narrative for campaigns</h3>
-          <p>Positioning, proof, workflow, and conversion pages are aligned in one web journey.</p>
+          <p>Positioning, social proof, and conversion pathways are aligned for launch, PR, and paid media.</p>
         </article>
         <article class="panel-card">
           <span class="tag">Brand and PR</span>
           <h3>Premium visual system</h3>
-          <p>Confident typography, polished layout, and trust sections improve market perception.</p>
+          <p>A confident visual system elevates trust with prospects, investors, and enterprise buyers.</p>
         </article>
       </aside>
     </section>
 
-    <section class="section" id="about">
+    <section class="section" id="about" data-reveal style="--reveal-delay: 70ms;">
       <div class="section-head">
+        <span class="section-kicker">Platform Value</span>
         <h2>About AI Architect</h2>
         <p>AI Architect empowers teams to create stunning home, landscape, and office concepts while preserving operational clarity from design generation to billing visibility.</p>
       </div>
@@ -1059,8 +1141,8 @@
         </div>
         <aside class="story-canvas">
           <div>
-            <h3>Mindshare graphics for a stronger first impression</h3>
-            <p>The content remains intact, but the visual layer now behaves more like a polished product narrative than a simple information page.</p>
+            <h3>From pitch moment to production handoff</h3>
+            <p>Every stage is designed to reduce back-and-forth, speed decision cycles, and keep teams aligned on visual quality.</p>
           </div>
           <div class="blueprint">
             <svg viewBox="0 0 320 160" aria-hidden="true">
@@ -1076,56 +1158,58 @@
           <div class="canvas-grid">
             <article class="canvas-card">
               <strong>Rendering</strong>
-              <span>Client-facing architectural image generation</span>
+              <span>Client-grade visual outputs with fast turnaround</span>
             </article>
             <article class="canvas-card">
               <strong>Workflow</strong>
-              <span>Landing page to studio without friction</span>
+              <span>Discovery to execution in a single guided flow</span>
             </article>
             <article class="canvas-card">
               <strong>Materials</strong>
-              <span>Texture folders plus custom uploads</span>
+              <span>Material direction with library and custom control</span>
             </article>
             <article class="canvas-card">
               <strong>Operations</strong>
-              <span>Pricing, services, dashboard, and demo routes</span>
+              <span>Commercial visibility from plans to usage analytics</span>
             </article>
           </div>
         </aside>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" data-reveal style="--reveal-delay: 100ms;">
       <div class="section-head">
+        <span class="section-kicker">Curated References</span>
         <h2>Design Inspiration Gallery</h2>
-        <p>Visual references inspired by your original ai-architect.vercel.app style, curated to keep the brand premium and approachable.</p>
+        <p>Curated boards across exterior, interior, and presentation contexts so teams can align style decisions quickly before rendering.</p>
       </div>
       <div class="gallery">
         <figure class="gallery-card">
           <img src="https://ai-architect.vercel.app/sofa.jpg" alt="Interior concept inspiration" loading="lazy" />
-          <figcaption class="gallery-note">Interior concept direction with premium staging cues</figcaption>
+          <figcaption class="gallery-note">Interior mood boards for premium staging and finish direction</figcaption>
         </figure>
         <figure class="gallery-card">
           <img src="https://ai-architect.vercel.app/pink.jpeg" alt="Color and decor inspiration" loading="lazy" />
-          <figcaption class="gallery-note">Color narrative and finish inspiration for mood-led spaces</figcaption>
+          <figcaption class="gallery-note">Color systems and decor narratives for hospitality-level ambience</figcaption>
         </figure>
         <figure class="gallery-card">
           <img src="https://ai-architect.vercel.app/im1.jpg" alt="Architectural exterior concept" loading="lazy" />
-          <figcaption class="gallery-note">Exterior elevation concept for presentation and approvals</figcaption>
+          <figcaption class="gallery-note">Exterior elevation boards for client review and approvals</figcaption>
         </figure>
         <figure class="gallery-card">
           <img src="https://ai-architect.vercel.app/im2.jpg" alt="Design rendering variation" loading="lazy" />
-          <figcaption class="gallery-note">Rendered variation boards for faster client comparison</figcaption>
+          <figcaption class="gallery-note">Variant comparison sets for faster stakeholder decisions</figcaption>
         </figure>
         <figure class="gallery-card">
           <img src="https://ai-architect.vercel.app/im3.jpg" alt="Modern structure inspiration" loading="lazy" />
-          <figcaption class="gallery-note">Modern structure inspiration aligned to studio workflow</figcaption>
+          <figcaption class="gallery-note">Modern form language tuned for production-ready prompt workflows</figcaption>
         </figure>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" data-reveal style="--reveal-delay: 120ms;">
       <div class="section-head">
+        <span class="section-kicker">Execution Model</span>
         <h2>How it works</h2>
         <p>Your questions answered quickly and clearly through a consistent four-step user journey.</p>
       </div>
@@ -1188,8 +1272,9 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" data-reveal style="--reveal-delay: 140ms;">
       <div class="section-head">
+        <span class="section-kicker">Commercial Impact</span>
         <h2>Business value estimator</h2>
         <p>Help teams quantify the impact of adopting a seamless landing-to-studio workflow.</p>
       </div>
@@ -1213,8 +1298,20 @@
           </div>
         </article>
 
-        <div>
-          <article class="faq" id="faq">
+        <article class="roi-proof">
+          <h3>What teams usually improve first</h3>
+          <p>Use this estimator as a planning lens for sales messaging, delivery forecasting, and internal productivity benchmarks.</p>
+          <ul class="proof-list">
+            <li>Shorter design-feedback cycles with clearer variant comparison.</li>
+            <li>Less context switching between marketing, production, and billing surfaces.</li>
+            <li>Higher conversion confidence through polished visual communication.</li>
+            <li>Cleaner operational visibility for credit and plan governance.</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="support-grid">
+        <article class="faq" id="faq">
             <details open>
               <summary>Could you help me design a project?</summary>
               <p>Yes. Start from this page, open Studio, and use guided material, prompt, and variant controls to shape your project quickly.</p>
@@ -1227,21 +1324,21 @@
               <summary>Where can I find language settings?</summary>
               <p>Language and profile options are maintained in account-facing routes and settings panels during authenticated sessions.</p>
             </details>
-          </article>
-          <article class="contact" id="contact" style="margin-top: 10px;">
+        </article>
+        <article class="contact" id="contact">
             <strong style="display:block;color:#1f3963;font-family:'Syne',sans-serif;">Contact Us</strong>
             <p style="margin:8px 0 0;color:#62728b;font-size:.84rem;line-height:1.5;">G-5 River view cooperative housing society, Lahore, Punjab</p>
             <p style="margin:6px 0 0;color:#62728b;font-size:.84rem;line-height:1.5;">Email: AiArchitect@gmail.com</p>
             <p style="margin:6px 0 0;color:#62728b;font-size:.84rem;line-height:1.5;">Phone: +92 320 2672675</p>
-          </article>
-        </div>
+        </article>
       </div>
     </section>
 
-    <section class="section" id="routes">
+    <section class="section" id="routes" data-reveal style="--reveal-delay: 160ms;">
       <div class="section-head">
-        <h2>Website routes for seamless performance</h2>
-        <p>A connected navigation system that supports marketing, conversion, production, and operations.</p>
+        <span class="section-kicker">Next Best Action</span>
+        <h2>Choose your next destination</h2>
+        <p>Each route is tuned for a specific objective so teams can move from discovery to execution without dead ends.</p>
       </div>
       <div class="routes">
         <article class="route-card">
@@ -1249,53 +1346,53 @@
             <span class="route-badge">Studio</span>
           </div>
           <h3>Studio</h3>
-          <p>Primary production workspace.</p>
+          <p>Launch rendering, regional edits, and multi-view consistency workflows.</p>
           <div class="route-meta"><span>Portal</span><span>Rendering</span></div>
-          <a class="btn btn-primary" href="/studio">Open</a>
+          <a class="btn btn-primary" href="/studio">Launch Studio</a>
         </article>
         <article class="route-card">
           <div class="route-thumb" style="background-image:url('https://ai-architect.vercel.app/pink.jpeg');">
             <span class="route-badge">Pricing</span>
           </div>
           <h3>Pricing</h3>
-          <p>Plan and package options.</p>
+          <p>Compare growth plans, credit economics, and enterprise buying paths.</p>
           <div class="route-meta"><span>Plans</span><span>Commercial</span></div>
-          <a class="btn btn-soft" href="/pricing.html">Open</a>
+          <a class="btn btn-soft" href="/pricing.html">See Plans</a>
         </article>
         <article class="route-card">
           <div class="route-thumb" style="background-image:url('https://ai-architect.vercel.app/sofa.jpg');">
             <span class="route-badge">Services</span>
           </div>
           <h3>Services</h3>
-          <p>Enterprise and agency support.</p>
+          <p>Review managed delivery services for agencies and enterprise teams.</p>
           <div class="route-meta"><span>Enterprise</span><span>Advisory</span></div>
-          <a class="btn btn-soft" href="/services.html">Open</a>
+          <a class="btn btn-soft" href="/services.html">Explore Services</a>
         </article>
         <article class="route-card">
           <div class="route-thumb" style="background-image:url('https://ai-architect.vercel.app/im2.jpg');">
             <span class="route-badge">Dashboard</span>
           </div>
           <h3>Dashboard</h3>
-          <p>Billing and credit visibility.</p>
+          <p>Track credits, subscriptions, and transactions in one operational console.</p>
           <div class="route-meta"><span>Credits</span><span>Ops</span></div>
-          <a class="btn btn-soft" href="/dashboard.html">Open</a>
+          <a class="btn btn-soft" href="/dashboard.html">View Dashboard</a>
         </article>
         <article class="route-card">
           <div class="route-thumb" style="background-image:url('https://ai-architect.vercel.app/im3.jpg');">
             <span class="route-badge">Cloud Demo</span>
           </div>
           <h3>Cloud Demo</h3>
-          <p>Demo and PR walkthrough page.</p>
+          <p>Share an interactive product walkthrough for demos, PR, and partner conversations.</p>
           <div class="route-meta"><span>PR</span><span>Demo</span></div>
-          <a class="btn btn-soft" href="/cloud_demo.html">Open</a>
+          <a class="btn btn-soft" href="/cloud_demo.html">Watch Demo</a>
         </article>
       </div>
     </section>
 
-    <section class="cta-band">
+    <section class="cta-band" data-reveal style="--reveal-delay: 180ms;">
       <div>
-        <h2>Beautiful front-end. Seamless studio handoff.</h2>
-        <p>Users arrive with confidence on this polished landing page, then flow straight into Studio to execute real work without context switching.</p>
+        <h2>Ready to convert vision into delivered design?</h2>
+        <p>Use the same product surface to inspire stakeholders, execute production work, and keep your commercial operations in view.</p>
       </div>
       <div class="cta-col">
         <a class="btn btn-light" href="/studio">Launch Studio</a>
@@ -1336,6 +1433,19 @@
 
     [projects, hours, rate].forEach((item) => item.addEventListener("input", recalc));
     recalc();
+
+    const revealNodes = document.querySelectorAll("[data-reveal]");
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.16, rootMargin: "0px 0px -30px 0px" });
+
+    revealNodes.forEach((node) => revealObserver.observe(node));
   </script>
 </body>
 </html>
