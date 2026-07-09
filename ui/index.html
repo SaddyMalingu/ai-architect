@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Architect Cloud Studio</title>
+  <title>Building Plans 3.0 | Cloud Studio</title>
   <link rel="icon" href="data:," />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -211,6 +211,130 @@
       grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(120px, 1fr));
       align-items: center;
       box-shadow: 0 16px 34px rgba(15, 23, 42, .18);
+    }
+    .project-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .menu-toggle {
+      width: auto;
+      border-radius: 10px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, .4);
+      background: rgba(15, 23, 42, .32);
+      color: #f8fafc;
+      font-size: .82rem;
+      font-weight: 700;
+      box-shadow: none;
+    }
+    .menu-toggle:hover {
+      transform: none;
+      background: rgba(15, 23, 42, .5);
+    }
+    .side-panel-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, .42);
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+      z-index: 70;
+    }
+    .side-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: min(360px, 92vw);
+      background: linear-gradient(180deg, #0f172a 0%, #102a43 46%, #0f766e 100%);
+      color: #e2e8f0;
+      transform: translateX(-105%);
+      transition: transform .22s ease;
+      z-index: 71;
+      box-shadow: 0 24px 48px rgba(2, 6, 23, .45);
+      padding: 18px 16px;
+      overflow: auto;
+    }
+    .side-panel.open {
+      transform: translateX(0);
+    }
+    .side-panel-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .side-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .side-panel-head h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #f8fafc;
+    }
+    .side-panel-close {
+      width: auto;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, .45);
+      background: rgba(2, 6, 23, .35);
+      color: #f8fafc;
+      box-shadow: none;
+      padding: 8px 10px;
+      font-size: .82rem;
+    }
+    .side-panel-close:hover {
+      transform: none;
+      background: rgba(2, 6, 23, .55);
+    }
+    .side-panel-note {
+      margin: 0 0 12px;
+      color: #cbd5e1;
+      font-size: .84rem;
+      line-height: 1.5;
+    }
+    .side-panel-links {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .side-panel-link,
+    .side-panel-anchor {
+      display: block;
+      border-radius: 12px;
+      padding: 10px 11px;
+      text-decoration: none;
+      border: 1px solid rgba(148, 163, 184, .35);
+      color: #e2e8f0;
+      background: rgba(15, 23, 42, .26);
+      font-size: .85rem;
+      font-weight: 700;
+      line-height: 1.3;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      box-shadow: none;
+    }
+    .side-panel-link:hover,
+    .side-panel-anchor:hover {
+      background: rgba(14, 165, 233, .17);
+      transform: none;
+    }
+    .side-panel-social {
+      margin-top: 12px;
+      border-top: 1px solid rgba(148, 163, 184, .3);
+      padding-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .side-panel-social a {
+      color: #bae6fd;
+      text-decoration: none;
+      font-size: .82rem;
+      font-weight: 700;
     }
     @media (max-width: 940px) {
       .project-bar {
@@ -1649,10 +1773,34 @@
 </head>
 <body class="studio-only">
   <div class="wrap">
+    <div id="sidePanelOverlay" class="side-panel-overlay" aria-hidden="true"></div>
+    <aside id="sidePanel" class="side-panel" aria-label="Studio menu" aria-hidden="true">
+      <div class="side-panel-head">
+        <h3>Building Plans 3.0</h3>
+        <button id="sidePanelCloseBtn" class="side-panel-close" type="button">Close</button>
+      </div>
+      <p class="side-panel-note">Kenyan architecture workflow: sketch, material selection, regional editing, and four-side consistency checks.</p>
+      <div class="side-panel-links">
+        <button class="side-panel-link" type="button" data-jump="renderTab">Render Studio</button>
+        <button class="side-panel-link" type="button" data-jump="regionalTab">Texture + Regional Edit</button>
+        <button class="side-panel-link" type="button" data-jump="statusTab">Request Tracking</button>
+        <button class="side-panel-link" type="button" data-jump="history">History + Compare</button>
+        <a class="side-panel-anchor" href="/pricing.html">Pricing Plans</a>
+        <a class="side-panel-anchor" href="/services.html">Services</a>
+      </div>
+      <div class="side-panel-social">
+        <a href="https://www.facebook.com/search/top?q=Building%20Plans%203.0%20Kenya" target="_blank" rel="noreferrer">Facebook presence: Building Plans 3.0 Kenya</a>
+        <a href="https://www.instagram.com/explore/tags/kenyanarchitecture/" target="_blank" rel="noreferrer">Instagram inspiration: Kenyan architecture</a>
+      </div>
+    </aside>
+
     <div class="project-bar">
       <div>
-        <h2>Project: Coastal Minimal Residence</h2>
-        <div style="margin-top:4px; font-size:.86rem; opacity:.9;">Workflow-first studio for sketch to material to render variants.</div>
+        <div class="project-brand">
+          <button id="menuToggleBtn" class="menu-toggle" type="button">Menu</button>
+          <h2>Building Plans 3.0 | Coastal Minimal Residence</h2>
+        </div>
+        <div style="margin-top:4px; font-size:.86rem; opacity:.9;">Workflow-first Kenyan architecture studio for sketch to material to render variants.</div>
       </div>
       <div class="project-kpi">
         <strong>Current View</strong>
@@ -1671,8 +1819,8 @@
     <div class="masthead">
       <div>
         <div class="eyebrow">Architectural Visualization Control Room</div>
-        <h1>AI Architect Cloud Studio</h1>
-        <p class="sub">A richer production-safe studio for architectural rendering, regional editing, request tracking, and history-aware batching across desktop, tablet, and mobile screens.</p>
+        <h1>Building Plans 3.0 Cloud Studio</h1>
+        <p class="sub">A richer production-safe studio for Kenyan architectural rendering, regional editing, request tracking, and history-aware batching across desktop, tablet, and mobile screens.</p>
       </div>
       <div class="masthead-signals">
         <div class="signal-card">
@@ -1722,9 +1870,9 @@
     <div class="market-strip">
       <div class="market-panel">
         <h3>Market-Ready Design Direction</h3>
-        <p>A cleaner premium layout inspired by architecture-first creation tools, tuned for faster decisions and fewer dead-end clicks. The flow now emphasizes sketch-to-texture editing so users can select a finish and apply it directly to targeted building regions.</p>
+        <p>A cleaner premium layout inspired by architecture-first creation tools, tuned for faster decisions and fewer dead-end clicks. The flow emphasizes sketch-to-texture editing so users can select a finish and apply it directly to targeted building regions.</p>
         <div class="inspo-list">
-          <span class="inspo-pill">Reference: VSOID</span>
+          <span class="inspo-pill">Reference: Nairobi Modern</span>
           <span class="inspo-pill">Reference: PromeAI</span>
           <span class="inspo-pill">Reference: Archicad UX</span>
         </div>
@@ -2737,6 +2885,7 @@
     const textureRecents = [];
     const variantSlots = ["", "", ""];
     let nextVariantSlot = 0;
+    let activeBatchContext = null;
 
     const TEXTURE_LIBRARY = {
       wall: [
@@ -2744,6 +2893,18 @@
           name: "Painted Plaster Wall",
           url: "/assets/textures/wall/albedo.jpg",
           prompt: "Apply painted plaster wall texture with natural roughness and subtle tonal variation on selected facade regions.",
+          region: "facade"
+        },
+        {
+          name: "Travertine Slab Facade (CC0)",
+          url: "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/travertine_ashlar_01/travertine_ashlar_01_diff_1k.jpg",
+          prompt: "Apply polished travertine slab texture with light warm tone and fine natural veins on selected facade planes.",
+          region: "facade"
+        },
+        {
+          name: "Kenyan Brickwork Red (CC0)",
+          url: "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_wall_04/brick_wall_04_diff_1k.jpg",
+          prompt: "Apply red masonry brick texture with clean mortar joints and realistic weathering on selected facade surfaces.",
           region: "facade"
         }
       ],
@@ -2753,6 +2914,12 @@
           url: "/assets/textures/roof/albedo.jpg",
           prompt: "Apply premium roof tile texture with realistic weathering and consistent shingle rhythm on selected roof surfaces.",
           region: "roof"
+        },
+        {
+          name: "Metal Roof Charcoal (CC0)",
+          url: "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_roof_04/metal_roof_04_diff_1k.jpg",
+          prompt: "Apply charcoal corrugated metal roofing with subtle matte reflections and realistic seam spacing on selected roof surfaces.",
+          region: "roof"
         }
       ],
       ground: [
@@ -2760,6 +2927,12 @@
           name: "Ground Stone Mix",
           url: "/assets/textures/ground/albedo.jpg",
           prompt: "Apply natural ground texture with subtle stone and sand variation on selected landscape surfaces.",
+          region: "landscape"
+        },
+        {
+          name: "Outdoor Paving Stone (CC0)",
+          url: "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cobblestone_floor_08/cobblestone_floor_08_diff_1k.jpg",
+          prompt: "Apply premium paving stone texture with clean joint rhythm and subtle wear on selected ground and landscape zones.",
           region: "landscape"
         }
       ],
@@ -2916,6 +3089,12 @@
       if (ui.editCategory && ui.editCategory.value === "prompt_only") {
         ui.editCategory.value = "element_texture";
       }
+      if (ui.targetImageUrl && !ui.targetImageUrl.value.trim()) {
+        const candidate = resolveRegionalTargetImageCandidate(activeViewKey());
+        if (isHttpImageUrl(candidate)) {
+          ui.targetImageUrl.value = candidate;
+        }
+      }
       setTexturePreview(asset.url);
       if (ui.textureLibraryStatus) {
         ui.textureLibraryStatus.textContent = "Applied " + asset.name + " from " + selectedTextureFolder() + " folder.";
@@ -2941,6 +3120,45 @@
 
     function resolveRegionalReferenceImage() {
       return ui.referenceImageUrl.value.trim() || customTextureUploadDataUrl || undefined;
+    }
+
+    function isHttpImageUrl(value) {
+      return /^https?:\/\//i.test(String(value || "").trim());
+    }
+
+    function generateHouseIdentityToken() {
+      const fingerprint = [
+        ui.userId.value.trim(),
+        ui.renderStyle.value.trim(),
+        ui.renderPrompt.value.trim(),
+        ui.renderBackgroundPreset.value.trim(),
+        ui.renderBackgroundImageUrl.value.trim()
+      ].join("|");
+
+      let hash = 2166136261;
+      for (let idx = 0; idx < fingerprint.length; idx += 1) {
+        hash ^= fingerprint.charCodeAt(idx);
+        hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+      }
+      const stableHash = (hash >>> 0).toString(16).padStart(8, "0");
+      return "bp3-house-" + stableHash;
+    }
+
+    function ensureBatchContext(forceNew) {
+      if (!forceNew && activeBatchContext) {
+        return activeBatchContext;
+      }
+      const identityToken = generateHouseIdentityToken();
+      const consistencyKey = buildConsistencyKey(identityToken);
+      activeBatchContext = {
+        identityToken,
+        consistencyKey
+      };
+      return activeBatchContext;
+    }
+
+    function clearBatchContext() {
+      activeBatchContext = null;
     }
 
     let batchInProgress = false;
@@ -3100,8 +3318,11 @@
     function resolveRegionalTargetImageCandidate(view) {
       const active = ui.resultImage && ui.resultImage.src ? ui.resultImage.src : "";
       const boardViewImage = viewImageByKey[view] && viewImageByKey[view].src ? viewImageByKey[view].src : "";
+      const directInput = ui.renderInputImageUrl.value.trim();
+      const uploadPreview = ui.renderSourcePreview && ui.renderSourcePreview.src ? ui.renderSourcePreview.src : "";
+      const inputPreview = ui.renderInputPreview && ui.renderInputPreview.src ? ui.renderInputPreview.src : "";
       const blenderPassForView = resolveRenderInputImage(view);
-      return ui.targetImageUrl.value.trim() || active || boardViewImage || blenderPassForView;
+      return ui.targetImageUrl.value.trim() || active || boardViewImage || directInput || uploadPreview || inputPreview || blenderPassForView;
     }
 
     async function runBackendPreflight(mode, view) {
@@ -3723,12 +3944,15 @@
       setTextureStepperStatus("Waiting for texture selection.");
     }
 
-    function buildPromptWithContext(basePrompt, view) {
+    function buildPromptWithContext(basePrompt, view, identityToken) {
       const chunks = [basePrompt.trim()];
       if (ui.consistencyMode.checked) {
         chunks.push(
           "maintain identical building identity across all camera views: same massing, window layout, facade proportions, and core material palette"
         );
+      }
+      if (identityToken) {
+        chunks.push("house identity token: " + identityToken + " (keep this exact house DNA in every output)");
       }
       if (view) chunks.push("camera view: " + view);
       const bgPreset = ui.renderBackgroundPreset.value;
@@ -3739,13 +3963,14 @@
       return chunks.filter(Boolean).join(". ");
     }
 
-    function buildConsistencyKey() {
-      if (!ui.consistencyMode.checked) return undefined;
+    function buildConsistencyKey(identityToken) {
+      if (!ui.consistencyMode.checked && !ui.blenderConditionedMode.checked) return undefined;
       if (ui.blenderConditionedMode.checked && ui.blenderConsistencyKey.value.trim()) {
         return ui.blenderConsistencyKey.value.trim();
       }
       const keyParts = [
         ui.userId.value.trim(),
+        identityToken || "",
         ui.renderPrompt.value.trim(),
         ui.renderStyle.value.trim(),
         ui.renderBackgroundPreset.value.trim(),
@@ -3756,6 +3981,7 @@
 
     async function runRenderForView(view, options) {
       const cfg = options || { allowRetry429: false, retryLimit: 0 };
+      const ctx = cfg.context || ensureBatchContext(false);
       saveConfig();
       applyConsistencyMode();
 
@@ -3777,12 +4003,12 @@
       const b = baseUrl();
       const body = {
         user_id: ui.userId.value.trim(),
-        prompt: buildPromptWithContext(ui.renderPrompt.value, view),
+        prompt: buildPromptWithContext(ui.renderPrompt.value, view, ctx.identityToken),
         style: ui.renderStyle.value.trim(),
         input_image_url: resolvedInputImage,
         reference_image_url: ui.renderReferenceImageUrl.value.trim() || ui.renderBackgroundImageUrl.value.trim() || undefined,
         model: ui.renderModel.value,
-        consistency_key: buildConsistencyKey(),
+        consistency_key: ctx.consistencyKey || buildConsistencyKey(ctx.identityToken),
         strict_consistency: ui.consistencyMode.checked || ui.blenderConditionedMode.checked,
         blender_conditioned: ui.blenderConditionedMode.checked,
         blender_pass_type: ui.blenderConditionedMode.checked ? view : undefined,
@@ -3883,6 +4109,7 @@
 
     async function runRender() {
       debugLog('Run Render button clicked');
+      const renderCtx = ensureBatchContext(false);
       ui.runRenderBtn.disabled = true;
       ui.runAllViewsBtn.disabled = true;
       const view = ui.activeView.value;
@@ -3918,7 +4145,7 @@
         }
       }
       try {
-        await runRenderForView(view, { allowRetry429: true, retryLimit: 1 });
+        await runRenderForView(view, { allowRetry429: true, retryLimit: 1, context: renderCtx });
       } finally {
         ui.runRenderBtn.disabled = false;
         ui.runAllViewsBtn.disabled = false;
@@ -3927,6 +4154,7 @@
 
     async function runRenderAllViews() {
       debugLog('Render All Views button clicked');
+      const batchContext = ensureBatchContext(true);
       ui.runRenderBtn.disabled = true;
       ui.runAllViewsBtn.disabled = true;
       batchInProgress = true;
@@ -3946,7 +4174,7 @@
       try {
         hideGuardrail();
         for (const view of views) {
-          const ok = await runRenderForView(view, { allowRetry429: true, retryLimit: 2 });
+          const ok = await runRenderForView(view, { allowRetry429: true, retryLimit: 2, context: batchContext });
           if (ok) {
             completed += 1;
           }
@@ -3958,6 +4186,7 @@
         }
         setStatus("Completed " + completed + " of 4 view renders.", completed > 0);
       } finally {
+        clearBatchContext();
         batchInProgress = false;
         ui.runRenderBtn.disabled = false;
         ui.runAllViewsBtn.disabled = false;
@@ -3977,6 +4206,7 @@
       const activeView = activeViewKey();
       const blenderPassForView = resolveRenderInputImage(activeView);
       const resolvedTargetImage = resolveRegionalTargetImageCandidate(activeView);
+      const regionalContext = ensureBatchContext(false);
       const payload = {
         user_id: ui.userId.value.trim(),
         target_image_url: resolvedTargetImage,
@@ -3988,12 +4218,16 @@
         target_mask_url: ui.targetMaskUrl.value.trim() || undefined,
         target_mask_data_url: resolvedSelectionMode === "manual" ? buildMaskDataUrl() : undefined,
         strict_consistency: ui.consistencyMode.checked || ui.blenderConditionedMode.checked,
-        consistency_key: buildConsistencyKey(),
+        consistency_key: regionalContext.consistencyKey || buildConsistencyKey(regionalContext.identityToken),
         blender_conditioned: ui.blenderConditionedMode.checked,
         blender_pass_type: ui.blenderConditionedMode.checked ? activeView : undefined,
         model_profile: ui.editProfile.value,
         strength: ui.strength.value ? Number(ui.strength.value) : undefined
       };
+
+      if (regionalContext.identityToken && payload.prompt) {
+        payload.prompt = payload.prompt + ". keep house identity token " + regionalContext.identityToken + " consistent with other views";
+      }
 
       // Automatic backend preflight before running
       if (ui.blenderConditionedMode.checked) {
@@ -4023,6 +4257,10 @@
 
       if (!payload.user_id || !payload.target_image_url || !payload.prompt) {
         setStatus("user_id, target_image_url, and prompt are required for regional edit.", false);
+        return;
+      }
+      if (!isHttpImageUrl(payload.target_image_url)) {
+        setStatus("Texture apply target must be an http(s) image URL. Use a generated model view or provide a hosted sketch URL.", false);
         return;
       }
       if (payload.selection_mode === "manual" && !payload.target_mask_url && !payload.target_mask_data_url) {
@@ -4455,6 +4693,50 @@
     function bindEvents() {
       // Enable debug logging globally
       window.DEBUG_UI_FLOW = true;
+      const menuToggleBtn = $("menuToggleBtn");
+      const sidePanel = $("sidePanel");
+      const sidePanelOverlay = $("sidePanelOverlay");
+      const sidePanelCloseBtn = $("sidePanelCloseBtn");
+
+      function toggleSidePanel(forceState) {
+        if (!sidePanel || !sidePanelOverlay) return;
+        const nextOpen = typeof forceState === "boolean" ? forceState : !sidePanel.classList.contains("open");
+        sidePanel.classList.toggle("open", nextOpen);
+        sidePanelOverlay.classList.toggle("open", nextOpen);
+        sidePanel.setAttribute("aria-hidden", nextOpen ? "false" : "true");
+        sidePanelOverlay.setAttribute("aria-hidden", nextOpen ? "false" : "true");
+      }
+
+      if (menuToggleBtn) {
+        menuToggleBtn.addEventListener("click", () => toggleSidePanel());
+      }
+      if (sidePanelCloseBtn) {
+        sidePanelCloseBtn.addEventListener("click", () => toggleSidePanel(false));
+      }
+      if (sidePanelOverlay) {
+        sidePanelOverlay.addEventListener("click", () => toggleSidePanel(false));
+      }
+      document.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") {
+          toggleSidePanel(false);
+        }
+      });
+
+      Array.from(document.querySelectorAll(".side-panel-link")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const jump = btn.getAttribute("data-jump");
+          if (jump === "history") {
+            const section = document.getElementById("historySection");
+            if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+          } else if (jump) {
+            openTab(jump);
+            const split = document.querySelector(".split");
+            if (split) split.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          toggleSidePanel(false);
+        });
+      });
+
       if (ui.setAdminKeyBtn) {
         ui.setAdminKeyBtn.addEventListener("click", setAdminKeyPrompt);
       }
