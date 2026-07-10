@@ -296,6 +296,9 @@ function validatePayload(payload: RenderRequest): string | null {
       return "strict_consistency must be true when blender_conditioned is true";
     }
   }
+  if (payload.strict_consistency && !payload.input_image_url) {
+    return "input_image_url is required when strict_consistency is true";
+  }
   if (payload.model_profile && !Object.keys(MODEL_PROFILES).includes(payload.model_profile)) {
     return "model_profile must be one of: fast, balanced, quality";
   }
@@ -487,6 +490,19 @@ Deno.serve(async (request: Request) => {
 
   const profile = resolveModelProfile(payload);
   const selected = selectRenderModel(profile.model, payload);
+
+  if (payload.strict_consistency && isPromptFirstModel(selected.model)) {
+    return jsonResponse(400, {
+      error:
+        "strict_consistency requires an image-conditioned model path. " +
+        "Selected model is prompt-first and may ignore input_image_url.",
+      model: selected.model,
+      guidance: [
+        "Choose an image-conditioned model (for example controlnet or sketch-to-image).",
+        "Keep strict_consistency enabled with a valid input_image_url for structure lock.",
+      ],
+    });
+  }
 
   const { data: requestRow, error: insertError } = await supabase
     .from("render_requests")

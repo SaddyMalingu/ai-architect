@@ -2819,21 +2819,21 @@
   <script>
         // --- Model capability registry (must match backend) ---
         const MODEL_CAPABILITIES = {
-          "bytedance/seedream-5-lite": { supportsReference: true },
-          "bytedance/seedream-4.5": { supportsReference: true },
-          "prunaai/flux-fast": { supportsReference: false },
-          "helios-infotech/sketch-to-image": { supportsReference: false },
-          "jagilley/controlnet-scribble": { supportsReference: false },
-          "qr2ai/outline": { supportsReference: false },
-          "xai/grok-imagine-image": { supportsReference: false },
-          "ideogram-ai/ideogram-v3-turbo": { supportsReference: false },
-          "wan-video/wan-2.7-image-pro": { supportsReference: false },
-          "black-forest-labs/flux-2-max": { supportsReference: false },
-          "black-forest-labs/flux-2-pro": { supportsReference: false },
-          "sourceful/riverflow-2.0-pro": { supportsReference: false },
-          "google/nano-banana": { supportsReference: false },
-          "google/nano-banana-2": { supportsReference: false },
-          "lightweight-ai/test_sk2ig_f": { supportsReference: false },
+          "bytedance/seedream-5-lite": { supportsReference: true, supportsStructureLock: false },
+          "bytedance/seedream-4.5": { supportsReference: true, supportsStructureLock: false },
+          "prunaai/flux-fast": { supportsReference: false, supportsStructureLock: false },
+          "helios-infotech/sketch-to-image": { supportsReference: false, supportsStructureLock: true },
+          "jagilley/controlnet-scribble": { supportsReference: false, supportsStructureLock: true },
+          "qr2ai/outline": { supportsReference: false, supportsStructureLock: true },
+          "xai/grok-imagine-image": { supportsReference: false, supportsStructureLock: false },
+          "ideogram-ai/ideogram-v3-turbo": { supportsReference: false, supportsStructureLock: false },
+          "wan-video/wan-2.7-image-pro": { supportsReference: false, supportsStructureLock: false },
+          "black-forest-labs/flux-2-max": { supportsReference: false, supportsStructureLock: false },
+          "black-forest-labs/flux-2-pro": { supportsReference: false, supportsStructureLock: false },
+          "sourceful/riverflow-2.0-pro": { supportsReference: false, supportsStructureLock: false },
+          "google/nano-banana": { supportsReference: false, supportsStructureLock: false },
+          "google/nano-banana-2": { supportsReference: false, supportsStructureLock: false },
+          "lightweight-ai/test_sk2ig_f": { supportsReference: false, supportsStructureLock: true },
         };
 
         function updateInputSummaryBanner() {
@@ -4188,7 +4188,10 @@
       const chunks = [basePrompt.trim()];
       if (ui.consistencyMode.checked) {
         chunks.push(
-          "maintain identical building identity across all camera views: same massing, window layout, facade proportions, and core material palette"
+          "maintain identical building identity across all camera views: same massing, silhouette, roofline, footprint, window/door layout, floor heights, facade proportions, and camera framing"
+        );
+        chunks.push(
+          "this is an upgrade pass of the supplied source sketch only; do not alter building geometry, do not add/remove floors, and do not invent new structural elements"
         );
       }
       if (identityToken) {
@@ -4201,6 +4204,26 @@
         chunks.push("use provided background image as reference");
       }
       return chunks.filter(Boolean).join(". ");
+    }
+
+    function strictConsistencyGuard(view, inputImageUrl, modelValue) {
+      const strict = ui.consistencyMode.checked || ui.blenderConditionedMode.checked;
+      if (!strict) {
+        return { ok: true, issues: [] };
+      }
+
+      const issues = [];
+      if (!inputImageUrl) {
+        issues.push("Strict consistency requires a source sketch/image for " + view + " view.");
+      }
+
+      const modelKey = String(modelValue || "").split(":")[0];
+      const capabilities = MODEL_CAPABILITIES[modelKey] || { supportsStructureLock: false };
+      if (!capabilities.supportsStructureLock) {
+        issues.push("Selected model is prompt-first and can drift structure. Choose a sketch-conditioned model.");
+      }
+
+      return { ok: issues.length === 0, issues };
     }
 
     function buildConsistencyKey(identityToken) {
@@ -4226,6 +4249,18 @@
       applyConsistencyMode();
 
       const resolvedInputImage = resolveRenderInputImage(view);
+      const lockCheck = strictConsistencyGuard(view, resolvedInputImage, ui.renderModel.value);
+      if (!lockCheck.ok) {
+        setStatus("Consistency guard blocked render: " + lockCheck.issues.join(" | "), false);
+        showGuardrail(
+          "Structure lock requires a source sketch and an image-conditioned model. " +
+          "Switch model to sketch-conditioned options and keep strict consistency enabled.",
+          "bad"
+        );
+        setViewState(view, "failed");
+        return false;
+      }
+
       if (ui.blenderConditionedMode.checked) {
         if (!resolvedInputImage) {
           setStatus("Blender-conditioned mode requires a Blender pass URL for " + view + " view.", false);
