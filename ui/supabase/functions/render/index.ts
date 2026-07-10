@@ -187,6 +187,11 @@ function isHttpsUrl(value?: string): boolean {
   }
 }
 
+function isImageSourceUrl(value?: string): boolean {
+  if (!value) return false;
+  return isHttpsUrl(value) || value.startsWith("data:image/");
+}
+
 function hashToBucket(input: string): number {
   let h = 2166136261;
   for (let i = 0; i < input.length; i++) {
@@ -271,11 +276,11 @@ function validatePayload(payload: RenderRequest): string | null {
       return `num_outputs must be an integer between ${NUM_OUTPUTS_MIN} and ${NUM_OUTPUTS_MAX}`;
     }
   }
-  if (payload.input_image_url && !isHttpsUrl(payload.input_image_url)) {
-    return "input_image_url must be a valid https URL";
+  if (payload.input_image_url && !isImageSourceUrl(payload.input_image_url)) {
+    return "input_image_url must be a valid https URL or data URL";
   }
-  if (payload.reference_image_url && !isHttpsUrl(payload.reference_image_url)) {
-    return "reference_image_url must be a valid https URL";
+  if (payload.reference_image_url && !isImageSourceUrl(payload.reference_image_url)) {
+    return "reference_image_url must be a valid https URL or data URL";
   }
   if (payload.mask_url && !isHttpsUrl(payload.mask_url)) {
     return "mask_url must be a valid https URL";

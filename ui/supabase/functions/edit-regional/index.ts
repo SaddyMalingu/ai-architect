@@ -171,6 +171,11 @@ function isHttpsUrl(value?: string): boolean {
   }
 }
 
+function isImageSourceUrl(value?: string): boolean {
+  if (!value) return false;
+  return isHttpsUrl(value) || value.startsWith("data:image/");
+}
+
 function isValidUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
@@ -179,9 +184,9 @@ function validatePayload(payload: RegionalEditRequest): string | null {
   if (!payload.user_id) return "user_id is required";
   if (!isValidUuid(payload.user_id)) return "user_id must be a valid UUID";
   if (!payload.target_image_url) return "target_image_url is required";
-  if (!isHttpsUrl(payload.target_image_url)) return "target_image_url must be a valid https URL";
-  if (payload.reference_image_url && !isHttpsUrl(payload.reference_image_url)) {
-    return "reference_image_url must be a valid https URL";
+  if (!isImageSourceUrl(payload.target_image_url)) return "target_image_url must be a valid https URL or data URL";
+  if (payload.reference_image_url && !isImageSourceUrl(payload.reference_image_url)) {
+    return "reference_image_url must be a valid https URL or data URL";
   }
   if (payload.target_mask_url && !isHttpsUrl(payload.target_mask_url)) {
     return "target_mask_url must be a valid https URL";

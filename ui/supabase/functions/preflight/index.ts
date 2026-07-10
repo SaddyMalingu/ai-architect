@@ -43,6 +43,11 @@ function isHttpsUrl(value?: string): boolean {
   }
 }
 
+function isImageSourceUrl(value?: string): boolean {
+  if (!value) return false;
+  return isHttpsUrl(value) || value.startsWith("data:image/");
+}
+
 function isValidUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
@@ -90,8 +95,8 @@ function validatePreflight(payload: PreflightRequest) {
 
   if (mode === "regional" || mode === "all") {
     if (payload.target_image_url) {
-      if (!isHttpsUrl(payload.target_image_url)) {
-        issues.push("target_image_url must be a valid https URL");
+      if (!isImageSourceUrl(payload.target_image_url)) {
+        issues.push("target_image_url must be a valid https URL or data URL");
       }
     } else {
       warnings.push("target_image_url is not set for regional edit");

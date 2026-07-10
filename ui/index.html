@@ -1557,6 +1557,84 @@
     .view-card.is-failed {
       border-color: rgba(153, 27, 27, .24);
     }
+    .face-upload-grid {
+      margin: 12px 0 14px;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    @media (max-width: 1080px) {
+      .face-upload-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 620px) {
+      .face-upload-grid { grid-template-columns: 1fr; }
+    }
+    .face-upload-card {
+      border: 1px solid rgba(216, 226, 237, .92);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.92));
+      padding: 12px;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, .05);
+    }
+    .face-upload-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: .82rem;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .face-upload-card input[type="file"] {
+      padding: 9px 10px;
+      font-size: .82rem;
+    }
+    .face-upload-card .hint {
+      margin: 8px 0 0;
+      font-size: .78rem;
+    }
+    .face-upload-card.is-loaded {
+      border-color: rgba(15, 118, 110, .28);
+      box-shadow: 0 0 0 4px rgba(15, 118, 110, .06), 0 14px 28px rgba(15, 23, 42, .08);
+    }
+    .regional-map {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid rgba(216, 226, 237, .92);
+      min-height: 320px;
+      background: linear-gradient(180deg, #0f172a, #1e293b);
+    }
+    .regional-map img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      opacity: .92;
+    }
+    .region-hotspot {
+      position: absolute;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: .8rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(15, 118, 110, .88);
+      border: 1px solid rgba(255, 255, 255, .25);
+      box-shadow: 0 12px 22px rgba(2, 6, 23, .18);
+      width: auto;
+    }
+    .region-hotspot:hover,
+    .region-hotspot:focus,
+    .region-hotspot.active {
+      background: rgba(29, 78, 137, .94);
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 16px 28px rgba(29, 78, 137, .24);
+    }
+    .region-hotspot[data-region="roof"] { top: 8%; left: 38%; }
+    .region-hotspot[data-region="facade"] { top: 42%; left: 8%; }
+    .region-hotspot[data-region="windows"] { top: 42%; right: 10%; }
+    .region-hotspot[data-region="entry"] { bottom: 10%; left: 42%; }
+    .region-hotspot[data-region="ground-floor"] { bottom: 10%; right: 10%; }
     .view-card h5 {
       margin: 0 0 8px;
       font-size: .8rem;
@@ -2022,6 +2100,28 @@
       <div>
         <div class="proposal-board">
           <h3>Sketch Works</h3>
+          <div class="face-upload-grid" id="faceUploadGrid">
+            <div class="face-upload-card" data-face-upload-card="front">
+              <strong>Front Face</strong>
+              <input id="frontFaceUpload" type="file" accept="image/*" />
+              <p id="frontFaceHint" class="hint">Upload the pre-rendered front sketch.</p>
+            </div>
+            <div class="face-upload-card" data-face-upload-card="left">
+              <strong>Left Face</strong>
+              <input id="leftFaceUpload" type="file" accept="image/*" />
+              <p id="leftFaceHint" class="hint">Upload the pre-rendered left sketch.</p>
+            </div>
+            <div class="face-upload-card" data-face-upload-card="back">
+              <strong>Back Face</strong>
+              <input id="backFaceUpload" type="file" accept="image/*" />
+              <p id="backFaceHint" class="hint">Upload the pre-rendered back sketch.</p>
+            </div>
+            <div class="face-upload-card" data-face-upload-card="right">
+              <strong>Right Face</strong>
+              <input id="rightFaceUpload" type="file" accept="image/*" />
+              <p id="rightFaceHint" class="hint">Upload the pre-rendered right sketch.</p>
+            </div>
+          </div>
           <div class="proposal-faces" id="proposalFaceGrid">
             <button class="proposal-face" data-face-view="front" type="button">Front Face</button>
             <button class="proposal-face" data-face-view="left" type="button">Left Face</button>
@@ -2155,12 +2255,25 @@
               </div>
               <div class="row" style="margin-top:8px">
                 <div>
-                  <label for="renderSourceUpload">Uploaded source image (preview / local editing)</label>
+                  <label for="renderSourceUpload">Local image upload for active face</label>
                   <input id="renderSourceUpload" type="file" accept="image/*" />
-                  <p class="hint">Uploads stay local in this UI. Use an HTTPS URL above for API submission.</p>
+                  <p class="hint">This loads into the selected face slot so the matching screen updates immediately.</p>
                 </div>
                 <div>
+                  <label for="renderReferenceUpload">Local reference upload</label>
+                  <input id="renderReferenceUpload" type="file" accept="image/*" />
+                  <p class="hint">Reference uploads are converted locally and sent as image data URLs.</p>
+                </div>
+              </div>
+              <div class="row" style="margin-top:8px">
+                <div>
+                  <label for="renderSourcePreview">Selected face preview</label>
                   <img id="renderSourcePreview" class="image" alt="Source preview" />
+                  <p class="hint">The active face is mirrored here for quick review.</p>
+                </div>
+                <div>
+                  <label for="renderInputPreview">Rendered input preview</label>
+                  <img id="renderInputPreview" alt="Main input preview" />
                 </div>
               </div>
               <div class="input-previews">
@@ -2439,6 +2552,23 @@
             <div class="module animate-in">
               <div class="module-head">
                 <div>
+                  <h4>Regional Face Map</h4>
+                  <p>Click a highlighted house section to target the edit prompt, or use touch / cursor selection while the active face is open.</p>
+                </div>
+                <div class="badge">Selectable Zones</div>
+              </div>
+              <div class="regional-map" id="regionalMap">
+                <img id="regionalMapImage" alt="Selected face for regional editing" />
+                <button class="region-hotspot" type="button" data-region="roof">Roof</button>
+                <button class="region-hotspot" type="button" data-region="facade">Facade</button>
+                <button class="region-hotspot" type="button" data-region="windows">Windows</button>
+                <button class="region-hotspot" type="button" data-region="entry">Entry</button>
+                <button class="region-hotspot" type="button" data-region="ground-floor">Ground</button>
+              </div>
+            </div>
+            <div class="module animate-in">
+              <div class="module-head">
+                <div>
                   <h4>Edit Inputs</h4>
                   <p>Target the active render, optionally bring in reference imagery, and control edit strength precisely.</p>
                 </div>
@@ -2485,6 +2615,20 @@
                   <input id="maskBrushSize" type="range" min="2" max="40" value="14" />
                 </div>
                 <div><button id="clearMaskBtn" class="btn-soft" type="button">Clear Mask</button></div>
+              </div>
+              <div class="row" style="margin-top:8px">
+                <div>
+                  <label for="mappedRegionSelect">Mapped house section</label>
+                  <select id="mappedRegionSelect">
+                    <option value="roof">roof</option>
+                    <option value="facade" selected>facade</option>
+                    <option value="windows">windows</option>
+                    <option value="entry">entry</option>
+                    <option value="ground-floor">ground-floor</option>
+                  </select>
+                </div>
+                <div><button id="applyMappedRegionBtn" class="btn-soft" type="button">Apply Section Mask</button></div>
+                <div><button id="appendMappedRegionBtn" class="btn-soft" type="button">Add Section To Mask</button></div>
               </div>
               <div class="manual-toolbar">
                 <div>
@@ -2740,6 +2884,7 @@
           renderInputImageUrl: $("renderInputImageUrl"),
           renderReferenceImageUrl: $("renderReferenceImageUrl"),
           renderSourceUpload: $("renderSourceUpload"),
+          renderReferenceUpload: $("renderReferenceUpload"),
           renderSourcePreview: $("renderSourcePreview"),
           renderInputPreview: $("renderInputPreview"),
           renderReferencePreview: $("renderReferencePreview"),
@@ -2792,6 +2937,9 @@
           manualTargetUpload: $("manualTargetUpload"),
           loadManualImageBtn: $("loadManualImageBtn"),
           useCurrentTargetBtn: $("useCurrentTargetBtn"),
+          mappedRegionSelect: $("mappedRegionSelect"),
+          applyMappedRegionBtn: $("applyMappedRegionBtn"),
+          appendMappedRegionBtn: $("appendMappedRegionBtn"),
           maskBrushSize: $("maskBrushSize"),
           maskToolMode: $("maskToolMode"),
           maskOverlayOpacity: $("maskOverlayOpacity"),
@@ -2825,6 +2973,7 @@
           viewLeftState: $("viewLeftState"),
           viewRightState: $("viewRightState"),
           viewBackState: $("viewBackState"),
+          regionalMapImage: $("regionalMapImage"),
           projectActiveView: $("projectActiveView"),
           projectLastAction: $("projectLastAction"),
           projectCreditValue: $("projectCreditValue"),
@@ -2854,6 +3003,20 @@
       left: ui.viewLeftState,
       right: ui.viewRightState,
       back: ui.viewBackState
+    };
+
+    const faceUploadState = {
+      front: { dataUrl: "", name: "" },
+      left: { dataUrl: "", name: "" },
+      back: { dataUrl: "", name: "" },
+      right: { dataUrl: "", name: "" }
+    };
+
+    const faceUploadByKey = {
+      front: { input: null, hint: null, card: null },
+      left: { input: null, hint: null, card: null },
+      back: { input: null, hint: null, card: null },
+      right: { input: null, hint: null, card: null }
     };
 
     let manualUploadObjectUrl = "";
@@ -3122,8 +3285,81 @@
       return ui.referenceImageUrl.value.trim() || customTextureUploadDataUrl || undefined;
     }
 
+    function syncRegionalMap() {
+      if (!ui.regionalMapImage) return;
+      const active = activeViewKey();
+      const candidate = viewImageByKey[active] && viewImageByKey[active].src ? viewImageByKey[active].src : resolveRegionalTargetImageCandidate(active);
+      if (candidate) {
+        ui.regionalMapImage.src = candidate;
+      } else {
+        ui.regionalMapImage.removeAttribute("src");
+      }
+
+      Array.from(document.querySelectorAll(".region-hotspot")).forEach((btn) => {
+        const region = btn.getAttribute("data-region") || "";
+        btn.classList.toggle("active", region === ui.editRegionHint.value);
+      });
+
+      if (ui.mappedRegionSelect && ui.editRegionHint && ui.editRegionHint.value !== "auto") {
+        ui.mappedRegionSelect.value = ui.editRegionHint.value;
+      }
+    }
+
+    function setFaceUpload(view, dataUrl, name) {
+      if (!viewImageByKey[view] || !viewStateByKey[view]) return;
+      faceUploadState[view] = { dataUrl: dataUrl || "", name: name || "" };
+
+      if (dataUrl) {
+        viewImageByKey[view].src = dataUrl;
+        viewImageByKey[view].style.display = "block";
+        viewStateByKey[view].textContent = name ? "sketch loaded: " + name : "sketch loaded";
+        viewStateByKey[view].className = "view-state work";
+        const card = document.querySelector('[data-face-upload-card="' + view + '"]');
+        if (card) card.classList.add("is-loaded");
+      } else {
+        if (viewImageByKey[view]) {
+          viewImageByKey[view].removeAttribute("src");
+        }
+        viewStateByKey[view].textContent = "waiting for sketch";
+        viewStateByKey[view].className = "view-state";
+        const card = document.querySelector('[data-face-upload-card="' + view + '"]');
+        if (card) card.classList.remove("is-loaded");
+      }
+
+      syncRegionalMap();
+    }
+
+    function loadFaceUpload(view, file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = String(reader.result || "");
+        setFaceUpload(view, dataUrl, file.name);
+        if (view === activeViewKey()) {
+          syncActiveViewCard();
+          syncRenderSummary();
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearFaceUpload(view) {
+      setFaceUpload(view, "", "");
+      const input = faceUploadByKey[view] && faceUploadByKey[view].input;
+      if (input) input.value = "";
+      if (view === activeViewKey()) {
+        syncActiveViewCard();
+        syncRenderSummary();
+      }
+    }
+
     function isHttpImageUrl(value) {
       return /^https?:\/\//i.test(String(value || "").trim());
+    }
+
+    function isImageSourceValue(value) {
+      const v = String(value || "").trim();
+      return /^https?:\/\//i.test(v) || /^data:image\//i.test(v);
     }
 
     function generateHouseIdentityToken() {
@@ -3427,6 +3663,10 @@
     }
 
     function resolveRenderInputImage(view) {
+      const uploadedFace = faceUploadState[view] && faceUploadState[view].dataUrl;
+      if (uploadedFace) {
+        return uploadedFace;
+      }
       if (!ui.blenderConditionedMode.checked) {
         return ui.renderInputImageUrl.value.trim() || undefined;
       }
@@ -4259,8 +4499,8 @@
         setStatus("user_id, target_image_url, and prompt are required for regional edit.", false);
         return;
       }
-      if (!isHttpImageUrl(payload.target_image_url)) {
-        setStatus("Texture apply target must be an http(s) image URL. Use a generated model view or provide a hosted sketch URL.", false);
+      if (!isImageSourceValue(payload.target_image_url)) {
+        setStatus("Texture apply target must be an http(s) URL or image data URL. Use generated views, hosted images, or uploaded sketches.", false);
         return;
       }
       if (payload.selection_mode === "manual" && !payload.target_mask_url && !payload.target_mask_data_url) {
@@ -4528,6 +4768,98 @@
       syncTextureStepperMaskPreview();
     }
 
+    function ensureManualSelectionMode() {
+      if (activeEditMethod() === "manual_selection") return;
+      const manualRadio = document.querySelector('input[name="editMethod"][value="manual_selection"]');
+      if (manualRadio) {
+        manualRadio.checked = true;
+      }
+      syncRegionalModeUi();
+    }
+
+    function drawTemplatePolygon(points) {
+      if (!Array.isArray(points) || !points.length) return;
+      const w = ui.maskCanvas.width;
+      const h = ui.maskCanvas.height;
+      maskCtx.beginPath();
+      const first = points[0];
+      maskCtx.moveTo(first[0] * w, first[1] * h);
+      for (let idx = 1; idx < points.length; idx += 1) {
+        const p = points[idx];
+        maskCtx.lineTo(p[0] * w, p[1] * h);
+      }
+      maskCtx.closePath();
+      maskCtx.fill();
+    }
+
+    function drawTemplateRect(x, y, w, h) {
+      maskCtx.fillRect(
+        x * ui.maskCanvas.width,
+        y * ui.maskCanvas.height,
+        w * ui.maskCanvas.width,
+        h * ui.maskCanvas.height
+      );
+    }
+
+    function applyMappedRegionMask(region, additive) {
+      const targetRegion = (region || ui.editRegionHint.value || "facade").toLowerCase();
+      const templates = {
+        roof: () => {
+          drawTemplatePolygon([[0.18, 0.3], [0.5, 0.13], [0.82, 0.3], [0.71, 0.4], [0.29, 0.4]]);
+        },
+        facade: () => {
+          drawTemplateRect(0.14, 0.38, 0.72, 0.42);
+        },
+        windows: () => {
+          drawTemplateRect(0.23, 0.48, 0.16, 0.18);
+          drawTemplateRect(0.43, 0.48, 0.14, 0.18);
+          drawTemplateRect(0.62, 0.48, 0.16, 0.18);
+        },
+        entry: () => {
+          drawTemplateRect(0.45, 0.58, 0.12, 0.24);
+        },
+        "ground-floor": () => {
+          drawTemplateRect(0.08, 0.8, 0.84, 0.16);
+        }
+      };
+
+      const painter = templates[targetRegion] || templates.facade;
+      if (!additive) {
+        clearMaskCanvas();
+      }
+
+      ensureManualSelectionMode();
+      if (ui.targetImageUrl && !ui.targetImageUrl.value.trim()) {
+        const candidate = resolveRegionalTargetImageCandidate(activeViewKey());
+        if (candidate) {
+          ui.targetImageUrl.value = candidate;
+        }
+      }
+      if (ui.manualTargetImageUrl && !ui.manualTargetImageUrl.value.trim()) {
+        const candidate = resolveRegionalTargetImageCandidate(activeViewKey());
+        if (candidate) {
+          ui.manualTargetImageUrl.value = candidate;
+          setMaskBackground(candidate);
+        }
+      }
+
+      maskCtx.save();
+      maskCtx.globalCompositeOperation = "source-over";
+      maskCtx.fillStyle = "#ffffff";
+      painter();
+      maskCtx.restore();
+
+      maskHasPixels = true;
+      if (ui.maskStatusText) {
+        ui.maskStatusText.textContent = "Mapped section '" + targetRegion + "' applied to mask. Paint/erase to refine before regional edit.";
+      }
+      if (ui.editRegionHint) {
+        ui.editRegionHint.value = targetRegion;
+      }
+      syncTextureStepperMaskPreview();
+      syncRegionalMap();
+    }
+
     function canvasPointFromEvent(ev) {
       const rect = ui.maskCanvas.getBoundingClientRect();
       const scaleX = ui.maskCanvas.width / rect.width;
@@ -4654,7 +4986,23 @@
       ui.renderSourcePreview.src = url;
       ui.renderSourcePreview.style.display = "block";
       setImagePreview(ui.renderInputPreview, url);
+      ui.renderInputImageUrl.value = url;
+      loadFaceUpload(activeViewKey(), file);
       syncComparePanel();
+      syncRegionalMap();
+    }
+
+    function updateRenderReferenceUpload() {
+      const file = ui.renderReferenceUpload.files && ui.renderReferenceUpload.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = String(reader.result || "");
+        ui.renderReferenceImageUrl.value = dataUrl;
+        setImagePreview(ui.renderReferencePreview, dataUrl);
+        syncRenderReferencePreviews();
+      };
+      reader.readAsDataURL(file);
     }
 
     function syncRenderReferencePreviews() {
@@ -4662,6 +5010,7 @@
       setImagePreview(ui.renderReferencePreview, ui.renderReferenceImageUrl.value.trim());
       setImagePreview(ui.renderBackgroundPreview, ui.renderBackgroundImageUrl.value.trim());
       syncComparePanel();
+      syncRegionalMap();
     }
 
     function loadManualSelectionImage() {
@@ -4760,6 +5109,39 @@
         ui.textureFolderSelect.addEventListener("change", populateTextureAssets);
       }
 
+      Object.keys(faceUploadByKey).forEach((view) => {
+        const input = $(view + "FaceUpload");
+        const hint = $(view + "FaceHint");
+        const card = document.querySelector('[data-face-upload-card="' + view + '"]');
+        faceUploadByKey[view] = { input, hint, card };
+        if (input) {
+          input.addEventListener("change", () => {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            loadFaceUpload(view, file);
+            if (hint) hint.textContent = "Loaded: " + file.name;
+          });
+        }
+        if (card) {
+          card.addEventListener("dblclick", () => {
+            clearFaceUpload(view);
+          });
+        }
+      });
+
+      Array.from(document.querySelectorAll(".region-hotspot")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const region = btn.getAttribute("data-region") || "facade";
+          ui.editRegionHint.value = region;
+          if (ui.inspectorRegionSelect) ui.inspectorRegionSelect.value = region;
+          if (ui.mappedRegionSelect) ui.mappedRegionSelect.value = region;
+          if (activeEditMethod() === "manual_selection") {
+            applyMappedRegionMask(region, false);
+          }
+          syncRegionalMap();
+        });
+      });
+
       Array.from(document.querySelectorAll("#proposalMaterialList li")).forEach((item, idx) => {
         if (idx === 0) item.classList.add("active");
         item.addEventListener("click", () => {
@@ -4830,11 +5212,13 @@
         ui.inspectorRegionSelect.value = ui.editRegionHint.value || "facade";
         ui.inspectorRegionSelect.addEventListener("change", () => {
           ui.editRegionHint.value = ui.inspectorRegionSelect.value;
+          syncRegionalMap();
         });
         ui.editRegionHint.addEventListener("change", () => {
           if (ui.inspectorRegionSelect.value !== ui.editRegionHint.value) {
             ui.inspectorRegionSelect.value = ui.editRegionHint.value;
           }
+          syncRegionalMap();
         });
       }
       if (ui.inspectorStrengthRange) {
@@ -4883,6 +5267,7 @@
         });
       }
       ui.renderSourceUpload.addEventListener("change", updateRenderSourcePreview);
+      ui.renderReferenceUpload.addEventListener("change", updateRenderReferenceUpload);
       ui.renderInputImageUrl.addEventListener("input", syncRenderReferencePreviews);
       ui.renderReferenceImageUrl.addEventListener("input", syncRenderReferencePreviews);
       ui.renderBackgroundImageUrl.addEventListener("input", syncRenderReferencePreviews);
@@ -4907,8 +5292,12 @@
       ui.activeView.addEventListener("change", syncActiveViewCard);
       ui.activeView.addEventListener("change", syncRenderSummary);
       ui.activeView.addEventListener("change", updateRunActionAvailability);
+      ui.activeView.addEventListener("change", syncRegionalMap);
       ui.renderPrompt.addEventListener("input", syncRenderSummary);
       ui.renderModel.addEventListener("change", syncRenderSummary);
+      ui.renderInputImageUrl.addEventListener("input", syncRegionalMap);
+      ui.renderReferenceImageUrl.addEventListener("input", syncRegionalMap);
+      ui.renderBackgroundImageUrl.addEventListener("input", syncRegionalMap);
       if (ui.textureSearchInput) {
         ui.textureSearchInput.addEventListener("input", () => {
           textureSearchTerm = ui.textureSearchInput.value || "";
@@ -4952,6 +5341,24 @@
       ui.validateBlenderBtn.addEventListener("click", validateBlenderReadiness);
       ui.loadManualImageBtn.addEventListener("click", loadManualSelectionImage);
       ui.useCurrentTargetBtn.addEventListener("click", useCurrentTargetImage);
+      if (ui.applyMappedRegionBtn) {
+        ui.applyMappedRegionBtn.addEventListener("click", () => {
+          const region = ui.mappedRegionSelect ? ui.mappedRegionSelect.value : ui.editRegionHint.value;
+          applyMappedRegionMask(region, false);
+        });
+      }
+      if (ui.appendMappedRegionBtn) {
+        ui.appendMappedRegionBtn.addEventListener("click", () => {
+          const region = ui.mappedRegionSelect ? ui.mappedRegionSelect.value : ui.editRegionHint.value;
+          applyMappedRegionMask(region, true);
+        });
+      }
+      if (ui.mappedRegionSelect) {
+        ui.mappedRegionSelect.addEventListener("change", () => {
+          if (ui.editRegionHint) ui.editRegionHint.value = ui.mappedRegionSelect.value;
+          syncRegionalMap();
+        });
+      }
       ui.clearMaskBtn.addEventListener("click", clearMaskCanvas);
       ui.downloadMaskBtn.addEventListener("click", downloadMaskPng);
       ui.maskOverlayOpacity.addEventListener("input", () => {
