@@ -80,7 +80,7 @@ const GUIDANCE_BY_PROFILE: Record<ProfileName, number> = { fast: 5, balanced: 7,
 const STEPS_BY_PROFILE: Record<ProfileName, number> = { fast: 20, balanced: 30, quality: 50 };
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") || "*",
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
