@@ -2836,6 +2836,13 @@
           "lightweight-ai/test_sk2ig_f": { supportsReference: false, supportsStructureLock: true },
         };
 
+        const VIEW_TRANSFORMS = {
+          front: { yaw_deg: 0, pitch_deg: 0, roll_deg: 0 },
+          right: { yaw_deg: 90, pitch_deg: 0, roll_deg: 0 },
+          back: { yaw_deg: 180, pitch_deg: 0, roll_deg: 0 },
+          left: { yaw_deg: 270, pitch_deg: 0, roll_deg: 0 }
+        };
+
         function updateInputSummaryBanner() {
           const modelKey = ui.renderModel.value.split(":")[0];
           const capabilities = MODEL_CAPABILITIES[modelKey] || { supportsReference: false };
@@ -3121,6 +3128,55 @@
       return ui.textureFolderSelect ? ui.textureFolderSelect.value : "";
     }
 
+    function normalizeTexturePathToUiUrl(pathValue) {
+      const normalized = String(pathValue || "").replace(/\\/g, "/");
+      const marker = "/assets/textures/";
+      const idx = normalized.toLowerCase().indexOf(marker);
+      if (idx >= 0) {
+        return normalized.slice(idx);
+      }
+      return "";
+    }
+
+    function folderToRegion(folder) {
+      const map = {
+        wall: "facade",
+        roof: "roof",
+        ground: "landscape",
+        driveway: "ground-floor",
+        walkway: "entry"
+      };
+      return map[folder] || "facade";
+    }
+
+    async function loadLocalTextureManifest() {
+      try {
+        const res = await fetch("/assets/textures/textures_manifest.json", { cache: "no-store" });
+        if (!res.ok) return;
+        const manifest = await res.json();
+        const sets = manifest && manifest.texture_sets ? manifest.texture_sets : {};
+        Object.keys(sets).forEach((folder) => {
+          const entry = sets[folder] || {};
+          const maps = entry.maps || {};
+          const albedo = normalizeTexturePathToUiUrl(maps.albedo || maps.color || maps.diffuse || "");
+          if (!albedo) return;
+          if (!TEXTURE_LIBRARY[folder]) {
+            TEXTURE_LIBRARY[folder] = [];
+          }
+          const exists = TEXTURE_LIBRARY[folder].some((asset) => asset.url === albedo);
+          if (exists) return;
+          TEXTURE_LIBRARY[folder].push({
+            name: "Local " + (entry.asset_id || folder).replace(/_/g, " "),
+            url: albedo,
+            prompt: "Apply " + folder.replace(/_/g, " ") + " texture from local free texture library on selected region.",
+            region: folderToRegion(folder)
+          });
+        });
+      } catch (_) {
+        // Keep base texture library if manifest cannot be loaded.
+      }
+    }
+
     function selectedTextureAsset() {
       const folder = selectedTextureFolder();
       const idx = ui.textureAssetSelect ? Number(ui.textureAssetSelect.value || -1) : -1;
@@ -3226,8 +3282,9 @@
       if (ui.textureLibraryStatus) ui.textureLibraryStatus.textContent = "Selected folder: " + folder + ". Choose texture and click Apply.";
     }
 
-    function initializeTextureLibraryBrowser() {
+    async function initializeTextureLibraryBrowser() {
       if (!ui.textureFolderSelect) return;
+      await loadLocalTextureManifest();
       const folders = Object.keys(TEXTURE_LIBRARY);
       ui.textureFolderSelect.innerHTML = folders
         .map((folder) => '<option value="' + folder + '">' + folder.replace(/_/g, " ") + '</option>')
@@ -4184,26 +4241,54 @@
       setTextureStepperStatus("Waiting for texture selection.");
     }
 
+    function compressPromptText(text, maxChars) {
+      const normalized = String(text || "").replace(/\s+/g, " ").trim();
+      if (normalized.length <= maxChars) return normalized;
+      return normalized.slice(0, maxChars).trim() + " ...";
+    }
+
+    function buildConsistencyPack(view, identityToken) {
+      const key = view || "front";
+      const token = identityToken || generateHouseIdentityToken();
+      return {
+        building_seed: token,
+        immutable_asset: true,
+        view_id: key,
+        camera_transform: VIEW_TRANSFORMS[key] || VIEW_TRANSFORMS.front,
+        geometry_lock: {
+          keep_massing: true,
+          keep_roofline: true,
+          keep_openings: true,
+          keep_window_grid: true,
+          keep_door_positions: true,
+          keep_floor_heights: true,
+          keep_corner_connectivity: true,
+          allow_only_camera_change: true
+        },
+        corner_links: ["front_right=right_front", "right_back=back_right", "back_left=left_back", "left_front=front_left"],
+        instruction: "upgrade_quality_not_geometry"
+      };
+    }
+
     function buildPromptWithContext(basePrompt, view, identityToken) {
-      const chunks = [basePrompt.trim()];
-      if (ui.consistencyMode.checked) {
-        chunks.push(
-          "maintain identical building identity across all camera views: same massing, silhouette, roofline, footprint, window/door layout, floor heights, facade proportions, and camera framing"
-        );
-        chunks.push(
-          "this is an upgrade pass of the supplied source sketch only; do not alter building geometry, do not add/remove floors, and do not invent new structural elements"
-        );
+      const strict = ui.consistencyMode.checked || ui.blenderConditionedMode.checked;
+      const compactBase = compressPromptText(basePrompt, strict ? 420 : 900);
+      const chunks = [compactBase];
+
+      if (strict) {
+        chunks.push("Transform source sketch into a higher-fidelity render while preserving exact architecture.");
+        chunks.push("Do not change geometry, floor count, openings, window/door positions, roof shape, or structural proportions.");
+        chunks.push("CONSISTENCY_PACK=" + JSON.stringify(buildConsistencyPack(view, identityToken)));
       }
-      if (identityToken) {
-        chunks.push("house identity token: " + identityToken + " (keep this exact house DNA in every output)");
-      }
-      if (view) chunks.push("camera view: " + view);
+
       const bgPreset = ui.renderBackgroundPreset.value;
-      if (bgPreset) chunks.push("background setting: " + bgPreset);
+      if (bgPreset) chunks.push("Background: " + bgPreset + ".");
       if (ui.renderBackgroundImageUrl.value.trim()) {
-        chunks.push("use provided background image as reference");
+        chunks.push("Use provided background image as scene context only.");
       }
-      return chunks.filter(Boolean).join(". ");
+
+      const finalPrompt = chunks.filter(Boolean).join(" ").trim();
+      return compressPromptText(finalPrompt, 1150);
     }
 
     function strictConsistencyGuard(view, inputImageUrl, modelValue) {
@@ -4444,6 +4529,31 @@
         ui.runAllViewsBtn.disabled = false;
         batchInProgress = false;
         return;
+      }
+
+      const strict = ui.consistencyMode.checked || ui.blenderConditionedMode.checked;
+      if (strict) {
+        const guardIssues = [];
+        for (const view of views) {
+          const sourceForView = resolveRenderInputImage(view);
+          const guard = strictConsistencyGuard(view, sourceForView, ui.renderModel.value);
+          if (!guard.ok) {
+            guardIssues.push(view + ": " + guard.issues.join(" | "));
+          }
+        }
+        if (guardIssues.length) {
+          setStatus("Consistency guard blocked batch: " + guardIssues.join(" || "), false, true);
+          showGuardrail(
+            "Strict mode requires valid source sketch input for each view and a structure-lock capable model.",
+            "bad",
+            null,
+            true
+          );
+          ui.runRenderBtn.disabled = false;
+          ui.runAllViewsBtn.disabled = false;
+          batchInProgress = false;
+          return;
+        }
       }
 
       try {
