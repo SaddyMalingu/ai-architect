@@ -3026,6 +3026,13 @@
       right: { input: null, hint: null, card: null }
     };
 
+    const PREFERRED_SKETCH_MODELS = [
+      "helios-infotech/sketch-to-image",
+      "jagilley/controlnet-scribble",
+      "qr2ai/outline",
+      "lightweight-ai/test_sk2ig_f"
+    ];
+
     let manualUploadObjectUrl = "";
     let drawing = false;
     let lastPoint = null;
@@ -3930,6 +3937,75 @@
       localStorage.setItem(ls.latestRequest, requestId);
     }
 
+    function currentRenderHasImageConditioning() {
+      const hasDirectSource = Boolean(ui.renderInputImageUrl.value.trim());
+      const hasDirectReference = Boolean(ui.renderReferenceImageUrl.value.trim());
+      const hasFaceUpload = Object.keys(faceUploadState).some((view) => Boolean(faceUploadState[view] && faceUploadState[view].dataUrl));
+      return hasDirectSource || hasDirectReference || hasFaceUpload;
+    }
+
+    function ensureSketchModelForConditionedInput(force) {
+      if (!ui.renderModel) return;
+      const needsConditionedPath = force === true || currentRenderHasImageConditioning();
+      if (!needsConditionedPath) return;
+
+      const currentValue = String(ui.renderModel.value || "");
+      const currentKey = currentValue.split(":")[0];
+      const caps = MODEL_CAPABILITIES[currentKey] || { supportsStructureLock: false };
+      if (caps.supportsStructureLock) return;
+
+      const options = Array.from(ui.renderModel.options || []);
+      const preferred = options.find((opt) => {
+        const key = String(opt.value || "").split(":")[0];
+        return PREFERRED_SKETCH_MODELS.includes(key);
+      });
+
+      if (preferred) {
+        ui.renderModel.value = preferred.value;
+        syncRenderSummary();
+        updateInputSummaryBanner();
+        showGuardrail(
+          "Auto-switched to a sketch-conditioned model because source/reference image input was detected.",
+          "ok"
+        );
+      }
+    }
+
+    async function resolveLatestRequestId() {
+      const direct = ui.requestId.value.trim();
+      if (direct) return direct;
+
+      const stored = localStorage.getItem(ls.latestRequest) || "";
+      if (stored) {
+        ui.requestId.value = stored;
+        return stored;
+      }
+
+      const b = baseUrl();
+      const u = ui.userId.value.trim();
+      const key = ui.anonKey.value.trim();
+      if (!b || !u || !key) return "";
+
+      try {
+        const url = b + "/functions/v1/render-history?user_id=" + encodeURIComponent(u) + "&limit=1&offset=0";
+        const res = await fetch(url, {
+          method: "GET",
+          headers: { apikey: key, Authorization: "Bearer " + key }
+        });
+        const data = await parseResponse(res);
+        if (!res.ok) return "";
+        const item = Array.isArray(data.items) && data.items.length ? data.items[0] : null;
+        const rid = item && item.request_id ? String(item.request_id) : "";
+        if (rid) {
+          setLatestRequestId(rid);
+          return rid;
+        }
+      } catch {
+        return "";
+      }
+      return "";
+    }
+
     function setImagePreview(el, url) {
       if (!el) return;
       if (!url) {
@@ -4728,7 +4804,7 @@
 
     async function checkStatus() {
       saveConfig();
-      const requestId = ui.requestId.value.trim();
+      const requestId = await resolveLatestRequestId();
       if (!requestId) {
         setStatus("request_id is required.", false);
         return;
@@ -4767,6 +4843,11 @@
     }
 
     async function pollLatest() {
+      const resolved = await resolveLatestRequestId();
+      if (!resolved) {
+        setStatus("No request_id available yet. Run a render first or load history.", false);
+        return;
+      }
       const maxTries = 20;
       let attempt = 0;
       setStatus("Polling latest request status ...", null);
@@ -5148,6 +5229,7 @@
       setImagePreview(ui.renderInputPreview, url);
       ui.renderInputImageUrl.value = url;
       loadFaceUpload(activeViewKey(), file);
+      ensureSketchModelForConditionedInput(true);
       syncComparePanel();
       syncRegionalMap();
     }
@@ -5159,6 +5241,7 @@
       reader.onload = () => {
         const dataUrl = String(reader.result || "");
         ui.renderReferenceImageUrl.value = dataUrl;
+        ensureSketchModelForConditionedInput(true);
         setImagePreview(ui.renderReferencePreview, dataUrl);
         syncRenderReferencePreviews();
       };
@@ -5428,8 +5511,14 @@
       }
       ui.renderSourceUpload.addEventListener("change", updateRenderSourcePreview);
       ui.renderReferenceUpload.addEventListener("change", updateRenderReferenceUpload);
-      ui.renderInputImageUrl.addEventListener("input", syncRenderReferencePreviews);
-      ui.renderReferenceImageUrl.addEventListener("input", syncRenderReferencePreviews);
+      ui.renderInputImageUrl.addEventListener("input", () => {
+        ensureSketchModelForConditionedInput(false);
+        syncRenderReferencePreviews();
+      });
+      ui.renderReferenceImageUrl.addEventListener("input", () => {
+        ensureSketchModelForConditionedInput(false);
+        syncRenderReferencePreviews();
+      });
       ui.renderBackgroundImageUrl.addEventListener("input", syncRenderReferencePreviews);
       ui.blenderConditionedMode.addEventListener("change", () => {
         applyConsistencyMode();
@@ -5454,7 +5543,10 @@
       ui.activeView.addEventListener("change", updateRunActionAvailability);
       ui.activeView.addEventListener("change", syncRegionalMap);
       ui.renderPrompt.addEventListener("input", syncRenderSummary);
-      ui.renderModel.addEventListener("change", syncRenderSummary);
+      ui.renderModel.addEventListener("change", () => {
+        ensureSketchModelForConditionedInput(false);
+        syncRenderSummary();
+      });
       ui.renderInputImageUrl.addEventListener("input", syncRegionalMap);
       ui.renderReferenceImageUrl.addEventListener("input", syncRegionalMap);
       ui.renderBackgroundImageUrl.addEventListener("input", syncRegionalMap);
