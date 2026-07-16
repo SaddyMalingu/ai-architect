@@ -241,6 +241,31 @@ function isPromptFirstModel(model: string): boolean {
   );
 }
 
+function prefersImageConditioning(payload: RenderRequest): boolean {
+  return Boolean(
+    payload.input_image_url ||
+      payload.reference_image_url ||
+      payload.strict_consistency ||
+      payload.blender_conditioned,
+  );
+}
+
+function resolveImageConditionedModel(baseModel: string, payload: RenderRequest): string {
+  if (!prefersImageConditioning(payload)) return baseModel;
+  if (!isPromptFirstModel(baseModel)) return baseModel;
+
+  const candidates = [
+    Deno.env.get("REPLICATE_MODEL_SKETCH") || "",
+    Deno.env.get("REPLICATE_MODEL_CONTROLNET") || "",
+    Deno.env.get("REPLICATE_MODEL_IPADAPTER") || "",
+    Deno.env.get("REPLICATE_MODEL_INPAINT") || "",
+    Deno.env.get("REPLICATE_MODEL_SDXL") || "",
+    Deno.env.get("REPLICATE_MODEL") || "",
+  ].filter((value, index, array) => Boolean(value) && array.indexOf(value) === index);
+
+  return candidates.find((candidate) => !isPromptFirstModel(candidate)) || baseModel;
+}
+
 function resolveReplicateTarget(modelRef: string): {
   endpoint: string;
   bodyBase: Record<string, unknown>;
@@ -273,7 +298,7 @@ function resolveReplicateTarget(modelRef: string): {
 
 function selectRenderModel(baseModel: string, payload: RenderRequest): { model: string; variant: "control" | "ab" } {
   if (payload.strict_consistency || !RENDER_AB_TEST_ENABLED || RENDER_AB_TEST_PERCENT <= 0) {
-    return { model: baseModel, variant: "control" };
+    return { model: resolveImageConditionedModel(baseModel, payload), variant: "control" };
   }
 
   const bucketKey = payload.consistency_key?.trim() || payload.user_id;
@@ -282,7 +307,7 @@ function selectRenderModel(baseModel: string, payload: RenderRequest): { model: 
     return { model: RENDER_AB_TEST_MODEL, variant: "ab" };
   }
 
-  return { model: baseModel, variant: "control" };
+  return { model: resolveImageConditionedModel(baseModel, payload), variant: "control" };
 }
 
 function validatePayload(payload: RenderRequest): string | null {
@@ -401,6 +426,10 @@ async function replicateCreatePrediction(payload: RenderRequest, model: string, 
     input.reference_image = payload.reference_image_url;
   }
 
+  if (payload.reference_image_url && !capabilities.supportsReference) {
+    input.reference_image_url = payload.reference_image_url;
+  }
+
   // Special cases for models with different field names
   if (model.startsWith("qr2ai/outline")) {
     input.input_image = inputImageUrl;
@@ -409,12 +438,14 @@ async function replicateCreatePrediction(payload: RenderRequest, model: string, 
     input.instruction = promptText;
     // image field is already set
   } else if (model.startsWith("ideogram-ai/ideogram-v3-turbo") || model.startsWith("black-forest-labs/flux-2-max") || model.startsWith("black-forest-labs/flux-2-pro")) {
-    // These models do not use image/reference_image
+    // Keep prompt-first fallbacks available, but do not silently drop source conditioning metadata.
     input = {
       prompt: promptText,
       output_format: "png",
       aspect_ratio: PROMPT_FIRST_ASPECT_RATIO,
       num_outputs: payload.num_outputs ?? 1,
+      input_image_url: inputImageUrl || undefined,
+      reference_image_url: payload.reference_image_url || undefined,
     };
   }
 

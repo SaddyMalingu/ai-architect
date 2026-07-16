@@ -293,6 +293,9 @@ function buildReplicateInput(payload: RegionalEditRequest): Record<string, unkno
   if (supportsReference) {
     if (payload.reference_image_url) input.reference_image = payload.reference_image_url;
     if (payload.reference_mask_url) input.reference_mask = payload.reference_mask_url;
+  } else {
+    if (payload.reference_image_url) input.reference_image_url = payload.reference_image_url;
+    if (payload.reference_mask_url) input.reference_mask_url = payload.reference_mask_url;
   }
 
   return input;

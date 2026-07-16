@@ -4375,6 +4375,16 @@
         num_outputs: 1
       };
 
+      if ((body.strict_consistency || body.blender_conditioned) && !body.input_image_url) {
+        setStatus("Strict/Blender render requires a source sketch or Blender pass for " + view + ".", false);
+        setViewState(view, "failed");
+        return false;
+      }
+
+      if (body.reference_image_url && !body.input_image_url) {
+        body.input_image_url = body.reference_image_url;
+      }
+
       if (!body.user_id || !body.prompt) {
         setStatus("user_id and prompt are required for render.", false);
         setViewState(view, "failed");
@@ -4609,6 +4619,11 @@
         model_profile: ui.editProfile.value,
         strength: ui.strength.value ? Number(ui.strength.value) : undefined
       };
+
+      if (!payload.target_image_url) {
+        setStatus("Regional edit requires a target image. Render or upload a source first.", false);
+        return;
+      }
 
       if (regionalContext.identityToken && payload.prompt) {
         payload.prompt = payload.prompt + ". keep house identity token " + regionalContext.identityToken + " consistent with other views";
