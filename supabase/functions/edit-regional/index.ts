@@ -307,16 +307,16 @@ function resolveReplicateTarget(modelRef: string): {
 } {
   const trimmed = modelRef.trim();
 
-  // owner/model:versionId
+  // owner/model:versionId — use versioned endpoint, no version in body
   if (trimmed.includes("/") && trimmed.includes(":")) {
     const [slug, version] = trimmed.split(":", 2);
     return {
-      endpoint: `https://api.replicate.com/v1/models/${slug}/predictions`,
-      bodyBase: { version },
+      endpoint: `https://api.replicate.com/v1/models/${slug}/versions/${version}/predictions`,
+      bodyBase: {},
     };
   }
 
-  // owner/model
+  // owner/model (modern deployment model)
   if (trimmed.includes("/")) {
     return {
       endpoint: `https://api.replicate.com/v1/models/${trimmed}/predictions`,
@@ -324,7 +324,7 @@ function resolveReplicateTarget(modelRef: string): {
     };
   }
 
-  // version id
+  // bare version hash only
   return {
     endpoint: "https://api.replicate.com/v1/predictions",
     bodyBase: { version: trimmed },
@@ -530,6 +530,7 @@ Deno.serve(async (request: Request) => {
 
   const requestId = requestRow.id as string;
   const replicateStartMs = Date.now();
+  let modelUsed = REGIONAL_MODELS[profile];
 
   try {
     if (payload.target_mask_data_url && !payload.target_mask_url) {
@@ -541,7 +542,6 @@ Deno.serve(async (request: Request) => {
     }
 
     let prediction: Record<string, unknown> | null = null;
-    let modelUsed = REGIONAL_MODELS[profile];
     let lastError: unknown = null;
 
     const candidateModels = payload.strict_consistency
@@ -672,6 +672,10 @@ Deno.serve(async (request: Request) => {
     if (providerMeta?.status === 429) statusCode = 429;
     if (providerMeta?.status === 402) statusCode = 402;
     if (providerMeta?.status === 404) statusCode = 502;
+    if (providerMeta?.status === 422) statusCode = 422;
+
+    const profile2 = (payload.model_profile || "balanced") as ProfileName;
+    const targetInfo2 = resolveReplicateTarget(modelUsed || REGIONAL_MODELS[profile2]);
 
     return jsonResponse(statusCode, {
       request_id: requestId,
@@ -694,6 +698,24 @@ Deno.serve(async (request: Request) => {
           providerMeta?.status === 429 && providerMeta?.low_credit
             ? 10
             : providerMeta?.retry_after ?? null,
+      },
+      diagnostics: {
+        model_profile: profile2,
+        candidate_models: candidateModelsForRegional(profile2),
+        selected_model: modelUsed || REGIONAL_MODELS[profile2],
+        target_endpoint: targetInfo2.endpoint,
+        target_body_base: targetInfo2.bodyBase,
+        input_flags: {
+          has_target_image_url: Boolean(payload.target_image_url),
+          has_reference_image_url: Boolean(payload.reference_image_url),
+          has_mask_url: Boolean(payload.target_mask_url),
+          selection_mode: payload.selection_mode,
+          edit_category: payload.edit_category,
+          strict_consistency: Boolean(payload.strict_consistency),
+          blender_conditioned: Boolean(payload.blender_conditioned),
+          blender_pass_type: payload.blender_pass_type ?? null,
+        },
+        provider_body: providerMeta?.body ?? null,
       },
     });
   }

@@ -677,6 +677,7 @@ Deno.serve(async (request: Request) => {
   } catch (error) {
     const providerMeta = extractProviderMeta(error);
     let message = error instanceof Error ? error.message : "Unknown render error";
+    const targetInfo = resolveReplicateTarget(selected.model);
 
     if (providerMeta?.status === 404) {
       message =
@@ -693,6 +694,7 @@ Deno.serve(async (request: Request) => {
     if (providerMeta?.status === 429) statusCode = 429;
     if (providerMeta?.status === 402) statusCode = 402;
     if (providerMeta?.status === 404) statusCode = 502;
+    if (providerMeta?.status === 422) statusCode = 422;
 
     return jsonResponse(statusCode, {
       request_id: requestId,
@@ -715,6 +717,27 @@ Deno.serve(async (request: Request) => {
           providerMeta?.status === 429 && providerMeta?.low_credit
             ? 10
             : providerMeta?.retry_after ?? null,
+      },
+      diagnostics: {
+        model_profile: profile.label,
+        profile_model: profile.model,
+        selected_model: selected.model,
+        ab_variant: selected.variant,
+        target_endpoint: targetInfo.endpoint,
+        target_body_base: targetInfo.bodyBase,
+        model_traits: {
+          prompt_first: isPromptFirstModel(selected.model),
+          flux_like: isFluxLikeModel(selected.model),
+        },
+        input_flags: {
+          has_input_image_url: Boolean(payload.input_image_url),
+          has_reference_image_url: Boolean(payload.reference_image_url),
+          has_mask_url: Boolean(payload.mask_url),
+          strict_consistency: Boolean(payload.strict_consistency),
+          blender_conditioned: Boolean(payload.blender_conditioned),
+          blender_pass_type: payload.blender_pass_type ?? null,
+        },
+        provider_body: providerMeta?.body ?? null,
       },
     });
   }
