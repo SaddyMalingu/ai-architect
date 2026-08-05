@@ -449,13 +449,18 @@ async function checkDailyQuota(userId: string): Promise<boolean> {
 }
 
 function resolveModelProfile(payload: RenderRequest): ModelProfile {
+  // Explicit model key always wins — use profile only for guidance/steps defaults.
+  if (payload.model) {
+    const mappedModel = resolveModelFromDropdown(payload.model);
+    if (isUsableModelRef(mappedModel)) {
+      const base = (payload.model_profile && MODEL_PROFILES[payload.model_profile])
+        ? MODEL_PROFILES[payload.model_profile]
+        : MODEL_PROFILES["balanced"];
+      return { label: base.label, model: mappedModel, guidance_scale: base.guidance_scale, num_inference_steps: base.num_inference_steps };
+    }
+  }
   if (payload.model_profile && MODEL_PROFILES[payload.model_profile]) {
     return MODEL_PROFILES[payload.model_profile];
-  }
-  if (payload.model) {
-    // Use the mapping for dropdown values
-    const mappedModel = resolveModelFromDropdown(payload.model);
-    return { label: "balanced", model: mappedModel, guidance_scale: 7, num_inference_steps: 30 };
   }
   return MODEL_PROFILES["balanced"];
 }
