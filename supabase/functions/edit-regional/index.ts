@@ -13,6 +13,7 @@ type ProfileName = "fast" | "balanced" | "quality";
 type RegionalEditRequest = {
   user_id: string;
   target_image_url: string;
+  model?: string;
   reference_image_url?: string;
   prompt?: string;
   edit_category: EditCategory;
@@ -55,6 +56,21 @@ const CREATE_RETRY_FALLBACK_SECONDS = parseInt(
   Deno.env.get("REPLICATE_CREATE_RETRY_FALLBACK_SECONDS") || "10",
   10,
 );
+
+const MODEL_KEY_FALLBACKS: Record<string, string> = {
+  flux_1_kontext_pro: "black-forest-labs/flux-2-pro",
+  nano_banana_2: "google/nano-banana-2",
+  nano_banana_2_lite: "google/nano-banana-2",
+  nano_banana_pro: "google/nano-banana-2",
+  seedream_5_0_pro: "bytedance/seedream-4.5",
+  seedream_5_0: "bytedance/seedream-5-lite",
+  gpt_image_2: "black-forest-labs/flux-2-pro",
+  kling_3_0: "black-forest-labs/flux-2-pro",
+  kling_03: "black-forest-labs/flux-2-pro",
+  artlist_original_1_0: "black-forest-labs/flux-2-pro",
+  krea_2: "black-forest-labs/flux-2-pro",
+  flux_2_0_pro_ai: "black-forest-labs/flux-2-pro",
+};
 
 const supportsReference =
   (Deno.env.get("REPLICATE_SUPPORTS_REFERENCE") || "false").toLowerCase() === "true";
@@ -336,15 +352,53 @@ function isReplicate404(error: unknown): boolean {
   return error.message.includes("Replicate create failed: 404");
 }
 
-function candidateModelsForRegional(profile: ProfileName): string[] {
+function isUsableModelRef(value?: string): value is string {
+  if (!value) return false;
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  const lowered = trimmed.toLowerCase();
+  if (lowered === "false" || lowered === "true" || lowered === "null" || lowered === "undefined") {
+    return false;
+  }
+  return true;
+}
+
+function toEnvModelKey(input: string): string {
+  return input
+    .trim()
+    .replace(/[^a-zA-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .toUpperCase();
+}
+
+function resolveModelFromDropdown(modelKey?: string): string {
+  if (!modelKey) return "";
+  const trimmed = modelKey.trim();
+  if (!trimmed) return "";
+
+  if (trimmed.includes("/")) return trimmed;
+
+  const normalized = trimmed.toLowerCase();
+  const envVar = `REPLICATE_MODEL_${toEnvModelKey(normalized)}`;
+  const fromEnv = Deno.env.get(envVar);
+  if (isUsableModelRef(fromEnv)) return fromEnv;
+
+  const fallback = MODEL_KEY_FALLBACKS[normalized];
+  if (isUsableModelRef(fallback)) return fallback;
+
+  return "";
+}
+
+function candidateModelsForRegional(profile: ProfileName, preferredModel?: string): string[] {
   const candidates = [
+    preferredModel || "",
     REGIONAL_MODELS[profile],
     RENDER_MODELS[profile],
     renderAbModel,
     Deno.env.get("REPLICATE_MODEL") || "",
   ];
 
-  return candidates.filter((m, idx) => !!m && candidates.indexOf(m) === idx);
+  return candidates.filter((m, idx) => isUsableModelRef(m) && candidates.indexOf(m) === idx);
 }
 
 async function uploadMaskDataUrlToSupabase(userId: string, requestId: string, dataUrl: string) {
@@ -367,7 +421,7 @@ async function uploadMaskDataUrlToSupabase(userId: string, requestId: string, da
 
 async function replicateCreatePrediction(payload: RegionalEditRequest, overrideModel?: string) {
   const profile = (payload.model_profile || "balanced") as ProfileName;
-  const model = overrideModel || REGIONAL_MODELS[profile];
+  const model = overrideModel || resolveModelFromDropdown(payload.model) || REGIONAL_MODELS[profile];
 
   const target = resolveReplicateTarget(model);
   const requestBody = { ...target.bodyBase, input: buildReplicateInput(payload) };
@@ -530,7 +584,8 @@ Deno.serve(async (request: Request) => {
 
   const requestId = requestRow.id as string;
   const replicateStartMs = Date.now();
-  let modelUsed = REGIONAL_MODELS[profile];
+  const preferredModel = resolveModelFromDropdown(payload.model);
+  let modelUsed = preferredModel || REGIONAL_MODELS[profile];
 
   try {
     if (payload.target_mask_data_url && !payload.target_mask_url) {
@@ -545,8 +600,8 @@ Deno.serve(async (request: Request) => {
     let lastError: unknown = null;
 
     const candidateModels = payload.strict_consistency
-      ? [REGIONAL_MODELS[profile]]
-      : candidateModelsForRegional(profile);
+      ? [preferredModel || REGIONAL_MODELS[profile]]
+      : candidateModelsForRegional(profile, preferredModel);
 
     for (const candidateModel of candidateModels) {
       modelUsed = candidateModel;
@@ -701,8 +756,9 @@ Deno.serve(async (request: Request) => {
       },
       diagnostics: {
         model_profile: profile2,
-        candidate_models: candidateModelsForRegional(profile2),
-        selected_model: modelUsed || REGIONAL_MODELS[profile2],
+        requested_model: payload.model || null,
+        candidate_models: candidateModelsForRegional(profile2, resolveModelFromDropdown(payload.model)),
+        selected_model: modelUsed || resolveModelFromDropdown(payload.model) || REGIONAL_MODELS[profile2],
         target_endpoint: targetInfo2.endpoint,
         target_body_base: targetInfo2.bodyBase,
         input_flags: {

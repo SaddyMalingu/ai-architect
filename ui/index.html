@@ -2173,23 +2173,33 @@
                 <div>
                   <label for="renderModel">Model</label>
                   <select id="renderModel" style="display:block !important; min-width:180px; background:#fff; color:#162031; z-index:10; position:relative;">
-                                        <option value="helios-infotech/sketch-to-image">Sketch to Image (Helios Infotech, latest)</option>
-                    <option value="black-forest-labs/flux-2-pro" selected>Flux 2 Pro</option>
-                    <option value="bytedance/seedream-5-lite">Seedream 5 Lite</option>
-                    <option value="xai/grok-imagine-image">Grok Imagine Image</option>
+                    <option value="flux_1_kontext_pro" selected>Flux.1 Kontext Pro</option>
+                    <option value="nano_banana_2">Nano Banana 2</option>
+                    <option value="nano_banana_2_lite">Nano Banana 2 Lite</option>
+                    <option value="nano_banana_pro">Nano Banana Pro</option>
+                    <option value="seedream_5_0_pro">Seedream 5.0 Pro</option>
+                    <option value="seedream_5_0">Seedream 5.0</option>
+                    <option value="gpt_image_2">GPT Image 2</option>
+                    <option value="kling_3_0">Kling 3.0</option>
+                    <option value="kling_03">Kling 03</option>
+                    <option value="artlist_original_1_0">Artlist Original 1.0</option>
+                    <option value="krea_2">Krea 2</option>
+                    <option value="flux_2_0_pro_ai">Flux 2.0 Pro AI</option>
+                    <option value="helios-infotech/sketch-to-image">Sketch to Image (Helios Infotech, latest)</option>
                     <option value="jagilley/controlnet-scribble:435061a1b5a4c1e26740464bf786efdfa9cb3a3ac488595a2de23e143fdb0117">ControlNet Scribble (versioned)</option>
                     <option value="qr2ai/outline:6f713aeb58eb5034ad353de02d7dd56c9efa79f2214e6b89a790dad8ca67ef49">Outline (versioned)</option>
-                    <option value="google/nano-banana">Nano Banana</option>
-                    <option value="helios-infotech/sketch_to_image:feb7325e48612a443356bff3d0e03af21a42570f87bee6e8ea4f275f2bd3e6f9">Sketch to Image (versioned)</option>
+                    <option value="lightweight-ai/test_sk2ig_f:efe3e58513bbeeee60c926eb5e9d67a774848dbcdc74000a1db71515a43e0110">Test SK2IG F (versioned)</option>
+                    <option value="black-forest-labs/flux-2-pro">Flux 2 Pro</option>
+                    <option value="black-forest-labs/flux-2-max">Flux 2 Max</option>
+                    <option value="bytedance/seedream-5-lite">Seedream 5 Lite</option>
                     <option value="bytedance/seedream-4.5">Seedream 4.5</option>
+                    <option value="google/nano-banana">Nano Banana</option>
+                    <option value="google/nano-banana-2">Nano Banana 2 (legacy slug)</option>
+                    <option value="xai/grok-imagine-image">Grok Imagine Image</option>
                     <option value="prunaai/flux-fast">Flux Fast</option>
                     <option value="ideogram-ai/ideogram-v3-turbo">Ideogram V3 Turbo</option>
                     <option value="wan-video/wan-2.7-image-pro">WAN 2.7 Image Pro</option>
-                    <option value="black-forest-labs/flux-2-max">Flux 2 Max</option>
                     <option value="sourceful/riverflow-2.0-pro">Riverflow 2.0 Pro</option>
-                    <option value="bytedance/seedream-5-lite">Seedream 5 Lite (duplicate)</option>
-                    <option value="google/nano-banana-2">Nano Banana 2</option>
-                    <option value="lightweight-ai/test_sk2ig_f:efe3e58513bbeeee60c926eb5e9d67a774848dbcdc74000a1db71515a43e0110">Test SK2IG F (versioned)</option>
                   </select>
                   <noscript><div style="color:#991b1b; font-size:.9rem;">If you do not see the model dropdown above, please enable JavaScript or contact support.</div></noscript>
                 </div>
@@ -2819,6 +2829,18 @@
   <script>
         // --- Model capability registry (must match backend) ---
         const MODEL_CAPABILITIES = {
+          "flux_1_kontext_pro": { supportsReference: true, supportsStructureLock: true },
+          "nano_banana_2": { supportsReference: true, supportsStructureLock: true },
+          "nano_banana_2_lite": { supportsReference: true, supportsStructureLock: true },
+          "nano_banana_pro": { supportsReference: true, supportsStructureLock: true },
+          "seedream_5_0_pro": { supportsReference: true, supportsStructureLock: true },
+          "seedream_5_0": { supportsReference: true, supportsStructureLock: true },
+          "gpt_image_2": { supportsReference: true, supportsStructureLock: true },
+          "kling_3_0": { supportsReference: true, supportsStructureLock: true },
+          "kling_03": { supportsReference: true, supportsStructureLock: true },
+          "artlist_original_1_0": { supportsReference: true, supportsStructureLock: true },
+          "krea_2": { supportsReference: true, supportsStructureLock: true },
+          "flux_2_0_pro_ai": { supportsReference: true, supportsStructureLock: true },
           "bytedance/seedream-5-lite": { supportsReference: true, supportsStructureLock: false },
           "bytedance/seedream-4.5": { supportsReference: true, supportsStructureLock: false },
           "prunaai/flux-fast": { supportsReference: false, supportsStructureLock: false },
@@ -3027,6 +3049,15 @@
     };
 
     const PREFERRED_SKETCH_MODELS = [
+      "flux_1_kontext_pro",
+      "nano_banana_2",
+      "nano_banana_2_lite",
+      "nano_banana_pro",
+      "seedream_5_0_pro",
+      "seedream_5_0",
+      "gpt_image_2",
+      "krea_2",
+      "flux_2_0_pro_ai",
       "helios-infotech/sketch-to-image",
       "jagilley/controlnet-scribble",
       "qr2ai/outline",
@@ -4681,6 +4712,7 @@
       const payload = {
         user_id: ui.userId.value.trim(),
         target_image_url: resolvedTargetImage,
+        model: ui.renderModel.value,
         reference_image_url: resolveRegionalReferenceImage(),
         prompt: ui.editPrompt.value.trim(),
         edit_category: resolvedEditCategory,

@@ -74,6 +74,21 @@ const RENDER_AB_TEST_PERCENT = Math.max(
 );
 const PROMPT_FIRST_ASPECT_RATIO = Deno.env.get("REPLICATE_PROMPT_FIRST_ASPECT_RATIO") || "1:1";
 
+const MODEL_KEY_FALLBACKS: Record<string, string> = {
+  flux_1_kontext_pro: "black-forest-labs/flux-2-pro",
+  nano_banana_2: "google/nano-banana-2",
+  nano_banana_2_lite: "google/nano-banana-2",
+  nano_banana_pro: "google/nano-banana-2",
+  seedream_5_0_pro: "bytedance/seedream-4.5",
+  seedream_5_0: "bytedance/seedream-5-lite",
+  gpt_image_2: "black-forest-labs/flux-2-pro",
+  kling_3_0: "black-forest-labs/flux-2-pro",
+  kling_03: "black-forest-labs/flux-2-pro",
+  artlist_original_1_0: "black-forest-labs/flux-2-pro",
+  krea_2: "black-forest-labs/flux-2-pro",
+  flux_2_0_pro_ai: "black-forest-labs/flux-2-pro",
+};
+
 const MODEL_PROFILES: Record<ProfileName, ModelProfile> = {
   fast: {
     label: "fast",
@@ -98,6 +113,18 @@ const MODEL_PROFILES: Record<ProfileName, ModelProfile> = {
 
 // Model capability registry
 const MODEL_CAPABILITIES: Record<string, { supportsReference: boolean }> = {
+  "flux_1_kontext_pro": { supportsReference: true },
+  "nano_banana_2": { supportsReference: true },
+  "nano_banana_2_lite": { supportsReference: true },
+  "nano_banana_pro": { supportsReference: true },
+  "seedream_5_0_pro": { supportsReference: true },
+  "seedream_5_0": { supportsReference: true },
+  "gpt_image_2": { supportsReference: true },
+  "kling_3_0": { supportsReference: true },
+  "kling_03": { supportsReference: true },
+  "artlist_original_1_0": { supportsReference: true },
+  "krea_2": { supportsReference: true },
+  "flux_2_0_pro_ai": { supportsReference: true },
   "bytedance/seedream-5-lite": { supportsReference: true },
   "bytedance/seedream-4.5": { supportsReference: true },
   "prunaai/flux-fast": { supportsReference: false },
@@ -115,10 +142,40 @@ const MODEL_CAPABILITIES: Record<string, { supportsReference: boolean }> = {
   "lightweight-ai/test_sk2ig_f": { supportsReference: false },
 };
 
+function toEnvModelKey(input: string): string {
+  return input
+    .trim()
+    .replace(/[^a-zA-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .toUpperCase();
+}
+
 function resolveModelFromDropdown(modelKey?: string): string {
   if (!modelKey) return defaultModel;
-  const envVar = `REPLICATE_MODEL_${modelKey.toUpperCase()}`;
-  return Deno.env.get(envVar) || defaultModel;
+  const trimmed = modelKey.trim();
+  // UI may send full Replicate slug/version directly.
+  if (trimmed.includes("/")) return trimmed;
+
+  const normalized = trimmed.toLowerCase();
+  const envVar = `REPLICATE_MODEL_${toEnvModelKey(normalized)}`;
+  const fromEnv = Deno.env.get(envVar);
+  if (isUsableModelRef(fromEnv)) return fromEnv;
+
+  const fallback = MODEL_KEY_FALLBACKS[normalized];
+  if (isUsableModelRef(fallback)) return fallback;
+
+  return defaultModel;
+}
+
+function isUsableModelRef(value?: string): value is string {
+  if (!value) return false;
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  const lowered = trimmed.toLowerCase();
+  if (lowered === "false" || lowered === "true" || lowered === "null" || lowered === "undefined") {
+    return false;
+  }
+  return true;
 }
 
 const corsHeaders = {
@@ -261,9 +318,35 @@ function resolveImageConditionedModel(baseModel: string, payload: RenderRequest)
     Deno.env.get("REPLICATE_MODEL_INPAINT") || "",
     Deno.env.get("REPLICATE_MODEL_SDXL") || "",
     Deno.env.get("REPLICATE_MODEL") || "",
-  ].filter((value, index, array) => Boolean(value) && array.indexOf(value) === index);
+  ].filter((value, index, array) => isUsableModelRef(value) && array.indexOf(value) === index);
 
   return candidates.find((candidate) => !isPromptFirstModel(candidate)) || baseModel;
+}
+
+function isReplicate404(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return error.message.includes("Replicate create failed: 404");
+}
+
+function candidateModelsForRender(
+  payload: RenderRequest,
+  profileModel: string,
+  selectedModel: string,
+): string[] {
+  const candidates = [
+    selectedModel,
+    resolveImageConditionedModel(profileModel, payload),
+    resolveImageConditionedModel(Deno.env.get("REPLICATE_MODEL") || "", payload),
+    Deno.env.get("REPLICATE_MODEL_SKETCH") || "",
+    Deno.env.get("REPLICATE_MODEL_CONTROLNET") || "",
+    Deno.env.get("REPLICATE_MODEL_IPADAPTER") || "",
+    Deno.env.get("REPLICATE_MODEL_INPAINT") || "",
+    Deno.env.get("REPLICATE_MODEL_BALANCED") || "",
+    Deno.env.get("REPLICATE_MODEL_FAST") || "",
+    Deno.env.get("REPLICATE_MODEL_QUALITY") || "",
+  ];
+
+  return candidates.filter((model, index) => isUsableModelRef(model) && candidates.indexOf(model) === index);
 }
 
 function resolveReplicateTarget(modelRef: string): {
@@ -613,9 +696,34 @@ Deno.serve(async (request: Request) => {
 
   const requestId = requestRow.id as string;
   const replicateStartMs = Date.now();
+  let modelUsed = selected.model;
 
   try {
-    const prediction = await replicateCreatePrediction(payload, selected.model, profile);
+    let prediction: Record<string, unknown> | null = null;
+    let lastError: unknown = null;
+
+    const candidateModels = payload.strict_consistency
+      ? [selected.model]
+      : candidateModelsForRender(payload, profile.model, selected.model);
+
+    for (const candidateModel of candidateModels) {
+      modelUsed = candidateModel;
+      try {
+        prediction = await replicateCreatePrediction(payload, candidateModel, profile);
+        lastError = null;
+        break;
+      } catch (error) {
+        lastError = error;
+        if (!isReplicate404(error)) {
+          throw error;
+        }
+      }
+    }
+
+    if (!prediction) {
+      throw (lastError instanceof Error ? lastError : new Error("No valid Replicate model available"));
+    }
+
     const predictionId = prediction.id as string;
 
     await supabase
@@ -638,7 +746,7 @@ Deno.serve(async (request: Request) => {
       output_image_url: publicUrl,
       metadata: {
         replicate_prediction_id: predictionId,
-        replicate_model: selected.model,
+        replicate_model: modelUsed,
         model_profile: profile.label,
         blender_conditioned: Boolean(payload.blender_conditioned),
         blender_pass_type: payload.blender_pass_type ?? null,
@@ -667,6 +775,7 @@ Deno.serve(async (request: Request) => {
       image_url: publicUrl,
       meta: {
         model: selected.model,
+        resolved_model: modelUsed,
         model_profile: profile.label,
         blender_conditioned: Boolean(payload.blender_conditioned),
         blender_pass_type: payload.blender_pass_type ?? null,
@@ -677,7 +786,8 @@ Deno.serve(async (request: Request) => {
   } catch (error) {
     const providerMeta = extractProviderMeta(error);
     let message = error instanceof Error ? error.message : "Unknown render error";
-    const targetInfo = resolveReplicateTarget(selected.model);
+    const targetInfo = resolveReplicateTarget(modelUsed);
+    const candidateModels = candidateModelsForRender(payload, profile.model, selected.model);
 
     if (providerMeta?.status === 404) {
       message =
@@ -721,7 +831,8 @@ Deno.serve(async (request: Request) => {
       diagnostics: {
         model_profile: profile.label,
         profile_model: profile.model,
-        selected_model: selected.model,
+        selected_model: modelUsed,
+        candidate_models: candidateModels,
         ab_variant: selected.variant,
         target_endpoint: targetInfo.endpoint,
         target_body_base: targetInfo.bodyBase,
