@@ -4405,14 +4405,18 @@
       }
 
       const issues = [];
+
+      // If a source image is present the model receives it as conditioning input,
+      // so structure is anchored by the image regardless of model type.
+      // Only block when strict mode is on AND no source image is provided at all.
       if (!inputImageUrl) {
         issues.push("Strict consistency requires a source sketch/image for " + view + " view.");
-      }
-
-      const modelKey = String(modelValue || "").split(":")[0];
-      const capabilities = MODEL_CAPABILITIES[modelKey] || { supportsStructureLock: false };
-      if (!capabilities.supportsStructureLock) {
-        issues.push("Selected model is prompt-first and can drift structure. Choose a sketch-conditioned model.");
+        // Also warn about model choice when there is no image to anchor structure.
+        const modelKey = String(modelValue || "").split(":")[0];
+        const capabilities = MODEL_CAPABILITIES[modelKey] || { supportsStructureLock: false };
+        if (!capabilities.supportsStructureLock) {
+          issues.push("Selected model is prompt-first. Upload a source sketch or switch to a sketch-conditioned model.");
+        }
       }
 
       return { ok: issues.length === 0, issues };
@@ -4440,13 +4444,18 @@
       saveConfig();
       applyConsistencyMode();
 
+      // Auto-switch to a sketch-conditioned model if strict mode is on and current
+      // model doesn't support structure lock — do this before the guard fires.
+      const strict = ui.consistencyMode.checked || ui.blenderConditionedMode.checked;
+      if (strict) ensureSketchModelForConditionedInput(true);
+
       const resolvedInputImage = resolveRenderInputImage(view);
       const lockCheck = strictConsistencyGuard(view, resolvedInputImage, ui.renderModel.value);
       if (!lockCheck.ok) {
         setStatus("Consistency guard blocked render: " + lockCheck.issues.join(" | "), false);
         showGuardrail(
-          "Structure lock requires a source sketch and an image-conditioned model. " +
-          "Switch model to sketch-conditioned options and keep strict consistency enabled.",
+          "Strict consistency requires a source sketch for this view. " +
+          "Upload a sketch for the active view, then re-run.",
           "bad"
         );
         setViewState(view, "failed");
@@ -4650,6 +4659,8 @@
 
       const strict = ui.consistencyMode.checked || ui.blenderConditionedMode.checked;
       if (strict) {
+        // Auto-switch to sketch-conditioned model before batch guard runs.
+        ensureSketchModelForConditionedInput(true);
         const guardIssues = [];
         for (const view of views) {
           const sourceForView = resolveRenderInputImage(view);
@@ -4661,7 +4672,7 @@
         if (guardIssues.length) {
           setStatus("Consistency guard blocked batch: " + guardIssues.join(" || "), false, true);
           showGuardrail(
-            "Strict mode requires valid source sketch input for each view and a structure-lock capable model.",
+            "Strict mode requires a source sketch for each view. Upload sketches for all four views then re-run.",
             "bad",
             null,
             true
