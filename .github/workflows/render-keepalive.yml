@@ -1,0 +1,24 @@
+name: Render Keepalive
+
+on:
+  schedule:
+    # GitHub Actions minimum cron interval is 5 minutes.
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping Render target
+        run: |
+          set -euo pipefail
+          target="https://alphadome.onrender.com/"
+          echo "Pinging ${target} at $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          status=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 25 "${target}?keepalive=$(date +%s)")
+          echo "HTTP status: ${status}"
+          if [ "${status}" -lt 200 ] || [ "${status}" -ge 500 ]; then
+            echo "Unexpected status code: ${status}"
+            exit 1
+          fi
