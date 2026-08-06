@@ -4435,16 +4435,14 @@
         return { ok: true, issues: [] };
       }
 
-      const issues = [];
-
-      // Strict mode only requires a source image anchor.
-      // Do not block by model type here because backend explicit model enforcement
-      // already selects a known-working path.
       if (!inputImageUrl) {
-        issues.push("Strict consistency requires a source sketch/image for " + view + " view.");
+        return {
+          ok: true,
+          issues: ["No source sketch/image anchor found for " + view + "; strict mode will be relaxed for this run."],
+        };
       }
 
-      return { ok: issues.length === 0, issues };
+      return { ok: true, issues: [] };
     }
 
     function buildConsistencyKey(identityToken) {
@@ -4477,15 +4475,8 @@
 
       const resolvedInputImage = resolveRenderInputImage(view);
       const lockCheck = strictConsistencyGuard(view, resolvedInputImage, ui.renderModel.value);
-      if (!lockCheck.ok) {
-        setStatus("Consistency guard blocked render: " + lockCheck.issues.join(" | "), false);
-        showGuardrail(
-          "Strict consistency requires at least one source sketch/image anchor. " +
-          "Upload a sketch or set Image to render URL, then re-run.",
-          "bad"
-        );
-        setViewState(view, "failed");
-        return false;
+      if (lockCheck.issues.length) {
+        showGuardrail(lockCheck.issues.join(" | "), "ok");
       }
 
       if (ui.blenderConditionedMode.checked) {
@@ -4516,6 +4507,14 @@
         blender_pass_type: ui.blenderConditionedMode.checked ? view : undefined,
         num_outputs: 1
       };
+
+      if (!body.input_image_url && body.strict_consistency && !body.blender_conditioned) {
+        body.strict_consistency = false;
+        showGuardrail(
+          "No source sketch found for strict mode on " + view + " view. Continuing in non-strict mode so render can proceed.",
+          "ok"
+        );
+      }
 
       if ((body.strict_consistency || body.blender_conditioned) && !body.input_image_url) {
         setStatus("Strict/Blender render requires a source sketch or Blender pass for " + view + ".", false);
