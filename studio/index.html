@@ -4033,6 +4033,15 @@
       }
     }
 
+    function resolveRenderRequestModel(reasonLabel, forceStructureLock) {
+      const needsStructureLock = forceStructureLock === true || currentRenderHasImageConditioning();
+      if (needsStructureLock) {
+        ensureSketchModelForConditionedInput(true);
+        return String(ui.renderModel.value || "").trim();
+      }
+      return enforceGuaranteedModelSelection(reasonLabel);
+    }
+
     async function resolveLatestRequestId() {
       const direct = ui.requestId.value.trim();
       if (direct) return direct;
@@ -4466,12 +4475,11 @@
       const ctx = cfg.context || ensureBatchContext(false);
       saveConfig();
       applyConsistencyMode();
-      const guaranteedModel = enforceGuaranteedModelSelection("render");
 
       // Auto-switch to a sketch-conditioned model if strict mode is on and current
       // model doesn't support structure lock — do this before the guard fires.
       const strict = ui.consistencyMode.checked || ui.blenderConditionedMode.checked;
-      if (strict) ensureSketchModelForConditionedInput(true);
+      const requestModel = resolveRenderRequestModel("render", strict);
 
       const resolvedInputImage = resolveRenderInputImage(view);
       const lockCheck = strictConsistencyGuard(view, resolvedInputImage, ui.renderModel.value);
@@ -4500,7 +4508,7 @@
         style: ui.renderStyle.value.trim(),
         input_image_url: resolvedInputImage,
         reference_image_url: ui.renderReferenceImageUrl.value.trim() || ui.renderBackgroundImageUrl.value.trim() || undefined,
-        model: guaranteedModel,
+        model: requestModel,
         consistency_key: ctx.consistencyKey || buildConsistencyKey(ctx.identityToken),
         strict_consistency: ui.consistencyMode.checked || ui.blenderConditionedMode.checked,
         blender_conditioned: ui.blenderConditionedMode.checked,
