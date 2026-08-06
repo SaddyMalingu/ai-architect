@@ -274,6 +274,36 @@ function isHttpsUrl(value?: string): boolean {
   }
 }
 
+function isImageSourceUrl(value?: string): boolean {
+  if (!value) return false;
+  return isHttpsUrl(value) || value.startsWith("data:image/");
+}
+
+function describeImageSource(value?: string): string {
+  if (!value) return "missing";
+  if (value.startsWith("data:image/")) return `data-url:${value.slice(0, 30)}... len=${value.length}`;
+  if (isHttpsUrl(value)) return `https-url:${value}`;
+  return `other:${value.slice(0, 30)}... len=${value.length}`;
+}
+
+function summarizeRenderRequest(payload: RenderRequest) {
+  return {
+    user_id: payload.user_id,
+    prompt_chars: payload.prompt ? payload.prompt.length : 0,
+    style_chars: payload.style ? payload.style.length : 0,
+    input_image: describeImageSource(payload.input_image_url),
+    reference_image: describeImageSource(payload.reference_image_url),
+    mask_url: payload.mask_url ? describeImageSource(payload.mask_url) : "missing",
+    model: payload.model ?? null,
+    model_profile: payload.model_profile ?? null,
+    num_outputs: payload.num_outputs ?? null,
+    consistency_key_present: Boolean(payload.consistency_key),
+    strict_consistency: Boolean(payload.strict_consistency),
+    blender_conditioned: Boolean(payload.blender_conditioned),
+    blender_pass_type: payload.blender_pass_type ?? null,
+  };
+}
+
 function hashToBucket(input: string): number {
   let h = 2166136261;
   for (let i = 0; i < input.length; i++) {
@@ -308,6 +338,11 @@ function prefersImageConditioning(payload: RenderRequest): boolean {
 }
 
 function resolveImageConditionedModel(baseModel: string, payload: RenderRequest): string {
+  const explicitModel = resolveModelFromDropdown(payload.model);
+  if (isUsableModelRef(explicitModel)) {
+    return explicitModel;
+  }
+
   if (!prefersImageConditioning(payload)) return baseModel;
   if (!isPromptFirstModel(baseModel)) return baseModel;
 
@@ -333,6 +368,11 @@ function candidateModelsForRender(
   profileModel: string,
   selectedModel: string,
 ): string[] {
+  const explicitModel = resolveModelFromDropdown(payload.model);
+  if (isUsableModelRef(explicitModel)) {
+    return [explicitModel];
+  }
+
   const candidates = [
     selectedModel,
     resolveImageConditionedModel(profileModel, payload),
@@ -380,6 +420,11 @@ function resolveReplicateTarget(modelRef: string): {
 }
 
 function selectRenderModel(baseModel: string, payload: RenderRequest): { model: string; variant: "control" | "ab" } {
+  const explicitModel = resolveModelFromDropdown(payload.model);
+  if (isUsableModelRef(explicitModel)) {
+    return { model: explicitModel, variant: "control" };
+  }
+
   if (payload.strict_consistency || !RENDER_AB_TEST_ENABLED || RENDER_AB_TEST_PERCENT <= 0) {
     return { model: resolveImageConditionedModel(baseModel, payload), variant: "control" };
   }
@@ -409,11 +454,11 @@ function validatePayload(payload: RenderRequest): string | null {
       return `num_outputs must be an integer between ${NUM_OUTPUTS_MIN} and ${NUM_OUTPUTS_MAX}`;
     }
   }
-  if (payload.input_image_url && !isHttpsUrl(payload.input_image_url)) {
-    return "input_image_url must be a valid https URL";
+  if (payload.input_image_url && !isImageSourceUrl(payload.input_image_url)) {
+    return "input_image_url must be a valid https URL or data URL";
   }
-  if (payload.reference_image_url && !isHttpsUrl(payload.reference_image_url)) {
-    return "reference_image_url must be a valid https URL";
+  if (payload.reference_image_url && !isImageSourceUrl(payload.reference_image_url)) {
+    return "reference_image_url must be a valid https URL or data URL";
   }
   if (payload.mask_url && !isHttpsUrl(payload.mask_url)) {
     return "mask_url must be a valid https URL";
@@ -470,10 +515,6 @@ async function replicateCreatePrediction(payload: RenderRequest, model: string, 
     ? `${payload.prompt}. Style: ${payload.style}`
     : payload.prompt;
 
-  const promptFirst = isPromptFirstModel(model);
-
-
-
   // Find the canonical model key for capability lookup
   const modelKey = Object.keys(MODEL_CAPABILITIES).find((k) => model.startsWith(k));
   const capabilities = modelKey ? MODEL_CAPABILITIES[modelKey] : { supportsReference: false };
@@ -518,27 +559,12 @@ async function replicateCreatePrediction(payload: RenderRequest, model: string, 
     input.reference_image_url = payload.reference_image_url;
   }
 
-  // Special cases for models with different field names
-  if (model.startsWith("qr2ai/outline")) {
-    input.input_image = inputImageUrl;
-    delete input.image;
-  } else if (model.startsWith("xai/grok-imagine-image")) {
-    input.instruction = promptText;
-    // image field is already set
-  } else if (model.startsWith("ideogram-ai/ideogram-v3-turbo") || model.startsWith("black-forest-labs/flux-2-max") || model.startsWith("black-forest-labs/flux-2-pro")) {
-    // Keep prompt-first fallbacks available, but do not silently drop source conditioning metadata.
-    input = {
-      prompt: promptText,
-      output_format: "png",
-      aspect_ratio: PROMPT_FIRST_ASPECT_RATIO,
-      num_outputs: payload.num_outputs ?? 1,
-      input_image_url: inputImageUrl || undefined,
-      reference_image_url: payload.reference_image_url || undefined,
-    };
-  }
-
   // Add mask if available
   if (payload.mask_url) input.mask = payload.mask_url;
+
+  console.info(
+    `[render] create_prediction model=${model} input_image=${describeImageSource(inputImageUrl)} reference_image=${describeImageSource(payload.reference_image_url)} mask=${payload.mask_url ? describeImageSource(payload.mask_url) : "missing"}`,
+  );
 
   const target = resolveReplicateTarget(model);
   const requestBody = { ...target.bodyBase, input };
@@ -640,6 +666,7 @@ async function uploadImageToSupabase(userId: string, requestId: string, outputUr
 }
 
 Deno.serve(async (request: Request) => {
+  const traceId = crypto.randomUUID();
   if (request.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -661,9 +688,15 @@ Deno.serve(async (request: Request) => {
     return jsonResponse(400, { error: "Invalid JSON payload" });
   }
 
+  console.info(`[render:${traceId}] request received`, summarizeRenderRequest(payload));
+
   const validationError = validatePayload(payload);
   if (validationError) {
-    return jsonResponse(400, { error: validationError });
+    console.warn(`[render:${traceId}] validation failed: ${validationError}`, summarizeRenderRequest(payload));
+    return jsonResponse(400, {
+      error: validationError,
+      diagnostics: summarizeRenderRequest(payload),
+    });
   }
 
   const withinQuota = await checkDailyQuota(payload.user_id);
@@ -675,6 +708,13 @@ Deno.serve(async (request: Request) => {
 
   const profile = resolveModelProfile(payload);
   const selected = selectRenderModel(profile.model, payload);
+
+  console.info(`[render:${traceId}] model resolved`, {
+    profile: profile.label,
+    selected_model: selected.model,
+    variant: selected.variant,
+    candidate_models: candidateModelsForRender(payload, profile.model, selected.model),
+  });
 
   const { data: requestRow, error: insertError } = await supabase
     .from("render_requests")
@@ -693,6 +733,7 @@ Deno.serve(async (request: Request) => {
     .single();
 
   if (insertError || !requestRow?.id) {
+    console.error(`[render:${traceId}] failed to insert request row`, insertError?.message || "missing id");
     return jsonResponse(500, {
       error: "Failed to insert render request",
       details: insertError?.message,
@@ -713,6 +754,7 @@ Deno.serve(async (request: Request) => {
 
     for (const candidateModel of candidateModels) {
       modelUsed = candidateModel;
+      console.info(`[render:${traceId}] trying candidate model`, candidateModel);
       try {
         prediction = await replicateCreatePrediction(payload, candidateModel, profile);
         lastError = null;
@@ -731,6 +773,8 @@ Deno.serve(async (request: Request) => {
 
     const predictionId = prediction.id as string;
 
+    console.info(`[render:${traceId}] prediction created`, { request_id: requestId, prediction_id: predictionId, model_used: modelUsed });
+
     await supabase
       .from("render_requests")
       .update({ replicate_prediction_id: predictionId })
@@ -744,6 +788,8 @@ Deno.serve(async (request: Request) => {
     const latencyMs = Date.now() - replicateStartMs;
     const replicateOutputUrl = pickOutputUrl(finalPrediction);
     const publicUrl = await uploadImageToSupabase(payload.user_id, requestId, replicateOutputUrl);
+
+    console.info(`[render:${traceId}] output stored`, { request_id: requestId, output_url: publicUrl, latency_ms: latencyMs });
 
     const { error: resultError } = await supabase.from("render_results").insert({
       request_id: requestId,
@@ -793,6 +839,16 @@ Deno.serve(async (request: Request) => {
     let message = error instanceof Error ? error.message : "Unknown render error";
     const targetInfo = resolveReplicateTarget(modelUsed);
     const candidateModels = candidateModelsForRender(payload, profile.model, selected.model);
+
+    console.error(`[render:${traceId}] render failed`, {
+      request_id: requestId,
+      message,
+      provider_status: providerMeta?.status ?? null,
+      selected_model: modelUsed,
+      candidate_models: candidateModels,
+      payload: summarizeRenderRequest(payload),
+      provider_body: providerMeta?.body ?? null,
+    });
 
     if (providerMeta?.status === 404) {
       message =

@@ -2865,6 +2865,10 @@
           left: { yaw_deg: 270, pitch_deg: 0, roll_deg: 0 }
         };
 
+        const GUARANTEED_EXPLICIT_MODELS = [
+          "black-forest-labs/flux-2-pro"
+        ];
+
         function updateInputSummaryBanner() {
           const modelKey = ui.renderModel.value.split(":")[0];
           const capabilities = MODEL_CAPABILITIES[modelKey] || { supportsReference: false };
@@ -3762,11 +3766,16 @@
       if (uploadedFace) {
         return uploadedFace;
       }
+
+      const anyUploadedFace = Object.keys(faceUploadState)
+        .map((key) => faceUploadState[key] && faceUploadState[key].dataUrl)
+        .find((url) => Boolean(url));
+
       if (!ui.blenderConditionedMode.checked) {
-        return ui.renderInputImageUrl.value.trim() || undefined;
+        return ui.renderInputImageUrl.value.trim() || anyUploadedFace || undefined;
       }
       const byView = blenderPassMap();
-      return byView[view] || "";
+      return byView[view] || anyUploadedFace || "";
     }
 
     function syncControlRoomHint() {
@@ -3973,6 +3982,28 @@
       const hasDirectReference = Boolean(ui.renderReferenceImageUrl.value.trim());
       const hasFaceUpload = Object.keys(faceUploadState).some((view) => Boolean(faceUploadState[view] && faceUploadState[view].dataUrl));
       return hasDirectSource || hasDirectReference || hasFaceUpload;
+    }
+
+    function resolveGuaranteedExplicitModel(selectedValue) {
+      const selected = String(selectedValue || "").trim();
+      if (GUARANTEED_EXPLICIT_MODELS.includes(selected)) {
+        return selected;
+      }
+      return GUARANTEED_EXPLICIT_MODELS[0];
+    }
+
+    function enforceGuaranteedModelSelection(reasonLabel) {
+      const resolved = resolveGuaranteedExplicitModel(ui.renderModel.value);
+      if (ui.renderModel.value !== resolved) {
+        ui.renderModel.value = resolved;
+        syncRenderSummary();
+        updateInputSummaryBanner();
+        showGuardrail(
+          "Enforced explicit model for stability: " + resolved + " (" + reasonLabel + ")",
+          "ok"
+        );
+      }
+      return resolved;
     }
 
     function ensureSketchModelForConditionedInput(force) {
@@ -4406,17 +4437,11 @@
 
       const issues = [];
 
-      // If a source image is present the model receives it as conditioning input,
-      // so structure is anchored by the image regardless of model type.
-      // Only block when strict mode is on AND no source image is provided at all.
+      // Strict mode only requires a source image anchor.
+      // Do not block by model type here because backend explicit model enforcement
+      // already selects a known-working path.
       if (!inputImageUrl) {
         issues.push("Strict consistency requires a source sketch/image for " + view + " view.");
-        // Also warn about model choice when there is no image to anchor structure.
-        const modelKey = String(modelValue || "").split(":")[0];
-        const capabilities = MODEL_CAPABILITIES[modelKey] || { supportsStructureLock: false };
-        if (!capabilities.supportsStructureLock) {
-          issues.push("Selected model is prompt-first. Upload a source sketch or switch to a sketch-conditioned model.");
-        }
       }
 
       return { ok: issues.length === 0, issues };
@@ -4443,6 +4468,7 @@
       const ctx = cfg.context || ensureBatchContext(false);
       saveConfig();
       applyConsistencyMode();
+      const guaranteedModel = enforceGuaranteedModelSelection("render");
 
       // Auto-switch to a sketch-conditioned model if strict mode is on and current
       // model doesn't support structure lock — do this before the guard fires.
@@ -4454,8 +4480,8 @@
       if (!lockCheck.ok) {
         setStatus("Consistency guard blocked render: " + lockCheck.issues.join(" | "), false);
         showGuardrail(
-          "Strict consistency requires a source sketch for this view. " +
-          "Upload a sketch for the active view, then re-run.",
+          "Strict consistency requires at least one source sketch/image anchor. " +
+          "Upload a sketch or set Image to render URL, then re-run.",
           "bad"
         );
         setViewState(view, "failed");
@@ -4483,7 +4509,7 @@
         style: ui.renderStyle.value.trim(),
         input_image_url: resolvedInputImage,
         reference_image_url: ui.renderReferenceImageUrl.value.trim() || ui.renderBackgroundImageUrl.value.trim() || undefined,
-        model: ui.renderModel.value,
+        model: guaranteedModel,
         consistency_key: ctx.consistencyKey || buildConsistencyKey(ctx.identityToken),
         strict_consistency: ui.consistencyMode.checked || ui.blenderConditionedMode.checked,
         blender_conditioned: ui.blenderConditionedMode.checked,
@@ -4711,6 +4737,7 @@
       applyConsistencyMode();
       syncTextureStepperSource();
       syncTextureStepperMaskPreview();
+      const guaranteedModel = enforceGuaranteedModelSelection("regional");
 
       const b = baseUrl();
       const method = activeEditMethod();
@@ -4723,7 +4750,7 @@
       const payload = {
         user_id: ui.userId.value.trim(),
         target_image_url: resolvedTargetImage,
-        model: ui.renderModel.value,
+        model: guaranteedModel,
         reference_image_url: resolveRegionalReferenceImage(),
         prompt: ui.editPrompt.value.trim(),
         edit_category: resolvedEditCategory,

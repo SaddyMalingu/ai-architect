@@ -187,6 +187,40 @@ function isHttpsUrl(value?: string): boolean {
   }
 }
 
+function isImageSourceUrl(value?: string): boolean {
+  if (!value) return false;
+  return isHttpsUrl(value) || value.startsWith("data:image/");
+}
+
+function describeImageSource(value?: string): string {
+  if (!value) return "missing";
+  if (value.startsWith("data:image/")) return `data-url:${value.slice(0, 30)}... len=${value.length}`;
+  if (isHttpsUrl(value)) return `https-url:${value}`;
+  return `other:${value.slice(0, 30)}... len=${value.length}`;
+}
+
+function summarizeRegionalRequest(payload: RegionalEditRequest) {
+  return {
+    user_id: payload.user_id,
+    target_image: describeImageSource(payload.target_image_url),
+    reference_image: describeImageSource(payload.reference_image_url),
+    mask_url: payload.target_mask_url ? describeImageSource(payload.target_mask_url) : "missing",
+    mask_data_url: payload.target_mask_data_url ? `data-url len=${payload.target_mask_data_url.length}` : "missing",
+    reference_mask_url: payload.reference_mask_url ? describeImageSource(payload.reference_mask_url) : "missing",
+    model: payload.model ?? null,
+    model_profile: payload.model_profile ?? null,
+    edit_category: payload.edit_category,
+    selection_mode: payload.selection_mode,
+    region_hint: payload.region_hint ?? null,
+    prompt_chars: payload.prompt ? payload.prompt.length : 0,
+    strict_consistency: Boolean(payload.strict_consistency),
+    blender_conditioned: Boolean(payload.blender_conditioned),
+    blender_pass_type: payload.blender_pass_type ?? null,
+    strength: payload.strength ?? null,
+    num_outputs: payload.num_outputs ?? null,
+  };
+}
+
 function isValidUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
@@ -195,9 +229,9 @@ function validatePayload(payload: RegionalEditRequest): string | null {
   if (!payload.user_id) return "user_id is required";
   if (!isValidUuid(payload.user_id)) return "user_id must be a valid UUID";
   if (!payload.target_image_url) return "target_image_url is required";
-  if (!isHttpsUrl(payload.target_image_url)) return "target_image_url must be a valid https URL";
-  if (payload.reference_image_url && !isHttpsUrl(payload.reference_image_url)) {
-    return "reference_image_url must be a valid https URL";
+  if (!isImageSourceUrl(payload.target_image_url)) return "target_image_url must be a valid https URL or data URL";
+  if (payload.reference_image_url && !isImageSourceUrl(payload.reference_image_url)) {
+    return "reference_image_url must be a valid https URL or data URL";
   }
   if (payload.target_mask_url && !isHttpsUrl(payload.target_mask_url)) {
     return "target_mask_url must be a valid https URL";
@@ -426,6 +460,10 @@ async function replicateCreatePrediction(payload: RegionalEditRequest, overrideM
   const target = resolveReplicateTarget(model);
   const requestBody = { ...target.bodyBase, input: buildReplicateInput(payload) };
 
+  console.info(
+    `[regional] create_prediction model=${model} target_image=${describeImageSource(payload.target_image_url)} mask=${payload.target_mask_url ? describeImageSource(payload.target_mask_url) : "missing"} reference_image=${describeImageSource(payload.reference_image_url)} reference_mask=${describeImageSource(payload.reference_mask_url)}`,
+  );
+
   for (let attempt = 1; attempt <= CREATE_RETRY_MAX_ATTEMPTS; attempt++) {
     const response = await fetch(target.endpoint, {
       method: "POST",
@@ -523,6 +561,7 @@ async function uploadImageToSupabase(userId: string, requestId: string, outputUr
 }
 
 Deno.serve(async (request: Request) => {
+  const traceId = crypto.randomUUID();
   if (request.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -544,9 +583,15 @@ Deno.serve(async (request: Request) => {
     return jsonResponse(400, { error: "Invalid JSON payload" });
   }
 
+  console.info(`[regional:${traceId}] request received`, summarizeRegionalRequest(payload));
+
   const validationError = validatePayload(payload);
   if (validationError) {
-    return jsonResponse(400, { error: validationError });
+    console.warn(`[regional:${traceId}] validation failed: ${validationError}`, summarizeRegionalRequest(payload));
+    return jsonResponse(400, {
+      error: validationError,
+      diagnostics: summarizeRegionalRequest(payload),
+    });
   }
 
   const withinQuota = await checkDailyQuota(payload.user_id);
@@ -558,6 +603,8 @@ Deno.serve(async (request: Request) => {
 
   const profile = (payload.model_profile || "balanced") as ProfileName;
   const requestPrompt = buildPrompt(payload);
+
+  console.info(`[regional:${traceId}] request prompt prepared`, { request_prompt_chars: requestPrompt.length, profile });
 
   const { data: requestRow, error: insertError } = await supabase
     .from("render_requests")
@@ -576,6 +623,7 @@ Deno.serve(async (request: Request) => {
     .single();
 
   if (insertError || !requestRow?.id) {
+    console.error(`[regional:${traceId}] failed to insert request row`, insertError?.message || "missing id");
     return jsonResponse(500, {
       error: "Failed to insert edit request",
       details: insertError?.message,
@@ -594,6 +642,7 @@ Deno.serve(async (request: Request) => {
         requestId,
         payload.target_mask_data_url,
       );
+      console.info(`[regional:${traceId}] uploaded manual mask`, { request_id: requestId, mask_url: payload.target_mask_url });
     }
 
     let prediction: Record<string, unknown> | null = null;
@@ -605,6 +654,7 @@ Deno.serve(async (request: Request) => {
 
     for (const candidateModel of candidateModels) {
       modelUsed = candidateModel;
+      console.info(`[regional:${traceId}] trying candidate model`, candidateModel);
       try {
         prediction = await replicateCreatePrediction(payload, candidateModel);
         lastError = null;
@@ -623,6 +673,8 @@ Deno.serve(async (request: Request) => {
 
     const predictionId = prediction.id as string;
 
+    console.info(`[regional:${traceId}] prediction created`, { request_id: requestId, prediction_id: predictionId, model_used: modelUsed });
+
     await supabase
       .from("render_requests")
       .update({ replicate_prediction_id: predictionId })
@@ -636,6 +688,8 @@ Deno.serve(async (request: Request) => {
     const latencyMs = Date.now() - replicateStartMs;
     const replicateOutputUrl = pickOutputUrl(finalPrediction);
     const publicUrl = await uploadImageToSupabase(payload.user_id, requestId, replicateOutputUrl);
+
+    console.info(`[regional:${traceId}] output stored`, { request_id: requestId, output_url: publicUrl, latency_ms: latencyMs });
 
     const coverageRatio = payload.selection_mode === "manual" ? 0.25 : 0.35;
     const editTarget =
@@ -711,6 +765,15 @@ Deno.serve(async (request: Request) => {
   } catch (error) {
     const providerMeta = extractProviderMeta(error);
     let message = error instanceof Error ? error.message : "Unknown regional edit error";
+
+    console.error(`[regional:${traceId}] regional edit failed`, {
+      request_id: requestId,
+      message,
+      provider_status: providerMeta?.status ?? null,
+      model_used: modelUsed,
+      payload: summarizeRegionalRequest(payload),
+      provider_body: providerMeta?.body ?? null,
+    });
 
     if (providerMeta?.status === 404) {
       message =
