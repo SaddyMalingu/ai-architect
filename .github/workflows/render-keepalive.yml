@@ -1,6 +1,9 @@
 name: Render Keepalive
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     # GitHub Actions minimum cron interval is 5 minutes.
     - cron: "*/5 * * * *"
@@ -15,10 +18,10 @@ jobs:
         run: |
           set -euo pipefail
           target="https://alphadome.onrender.com/"
-          echo "Pinging ${target} at $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          status=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 25 "${target}?keepalive=$(date +%s)")
-          echo "HTTP status: ${status}"
-          if [ "${status}" -lt 200 ] || [ "${status}" -ge 500 ]; then
-            echo "Unexpected status code: ${status}"
+          echo "Pinging  at 2026-08-06T12:02:28Z"
+          status=
+          echo "HTTP status: "
+          if [ "" -lt 200 ] || [ "" -ge 500 ]; then
+            echo "Unexpected status code: "
             exit 1
           fi
