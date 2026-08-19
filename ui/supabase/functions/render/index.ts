@@ -181,7 +181,8 @@ function isValidUuid(value: string): boolean {
 function isHttpsUrl(value?: string): boolean {
   if (!value) return false;
   try {
-    return new URL(value).protocol === "https:";
+    const protocol = new URL(value).protocol;
+    return protocol === "https:" || protocol === "data:";
   } catch {
     return false;
   }
@@ -288,13 +289,28 @@ function validatePayload(payload: RenderRequest): string | null {
     }
   }
   if (payload.input_image_url && !isHttpsUrl(payload.input_image_url)) {
-    return "input_image_url must be a valid https URL";
+    return "input_image_url must be a valid https or data URL";
+  }
+  if (payload.line_art_url && !isHttpsUrl(payload.line_art_url)) {
+    return "line_art_url must be a valid https or data URL";
   }
   if (payload.reference_image_url && !isHttpsUrl(payload.reference_image_url)) {
-    return "reference_image_url must be a valid https URL";
+    return "reference_image_url must be a valid https or data URL";
+  }
+  if (payload.input_image_url && payload.strict_consistency) {
+    const hasBlenderPass = Boolean(
+      payload.blender_front_pass_url ||
+        payload.blender_left_pass_url ||
+        payload.blender_right_pass_url ||
+        payload.blender_back_pass_url ||
+        payload.line_art_url,
+    );
+    if (!hasBlenderPass) {
+      return "strict sketch mode requires a Blender pass or line-art pass in the background before render";
+    }
   }
   if (payload.mask_url && !isHttpsUrl(payload.mask_url)) {
-    return "mask_url must be a valid https URL";
+    return "mask_url must be a valid https or data URL";
   }
   if (payload.blender_conditioned) {
     if (!payload.input_image_url) {

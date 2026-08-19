@@ -14,6 +14,7 @@ type RenderRequest = {
   style?: string;
   input_image_url?: string;
   reference_image_url?: string;
+  line_art_url?: string;
   mask_url?: string;
   model?: string;
   model_profile?: ProfileName;
@@ -211,7 +212,8 @@ function isValidUuid(value: string): boolean {
 function isHttpsUrl(value?: string): boolean {
   if (!value) return false;
   try {
-    return new URL(value).protocol === "https:";
+    const protocol = new URL(value).protocol;
+    return protocol === "https:" || protocol === "data:";
   } catch {
     return false;
   }
@@ -318,13 +320,28 @@ function validatePayload(payload: RenderRequest): string | null {
     }
   }
   if (payload.input_image_url && !isHttpsUrl(payload.input_image_url)) {
-    return "input_image_url must be a valid https URL";
+    return "input_image_url must be a valid https or data URL";
+  }
+  if (payload.line_art_url && !isHttpsUrl(payload.line_art_url)) {
+    return "line_art_url must be a valid https or data URL";
   }
   if (payload.reference_image_url && !isHttpsUrl(payload.reference_image_url)) {
-    return "reference_image_url must be a valid https URL";
+    return "reference_image_url must be a valid https or data URL";
+  }
+  if (payload.input_image_url && payload.strict_consistency) {
+    const hasBlenderPass = Boolean(
+      payload.blender_front_pass_url ||
+        payload.blender_left_pass_url ||
+        payload.blender_right_pass_url ||
+        payload.blender_back_pass_url ||
+        payload.line_art_url,
+    );
+    if (!hasBlenderPass) {
+      return "strict sketch mode requires a Blender pass or line-art pass in the background before render";
+    }
   }
   if (payload.mask_url && !isHttpsUrl(payload.mask_url)) {
-    return "mask_url must be a valid https URL";
+    return "mask_url must be a valid https or data URL";
   }
   if (payload.blender_conditioned) {
     if (!payload.input_image_url) {
@@ -571,27 +588,18 @@ Deno.serve(async (request: Request) => {
     payload.consistency_key = payload.consistency_key?.trim() || payload.user_id;
   }
 
-  // Support inline base64 images for local workflows: upload to Supabase storage
-  // and set the corresponding public URL on the payload so models receive an HTTPS URL.
-  async function _maybeUploadBase64(fieldName: string, b64value?: string) {
-    if (!b64value || typeof b64value !== "string") return null;
+  async function _uploadDataUriToStorage(fieldName: string, value?: string) {
+    if (!value || typeof value !== "string") return null;
     try {
-      // accept data:...;base64,xxxx or raw base64
-      const m = b64value.match(/^data:(image\/\w+);base64,(.+)$/);
-      let mime = "image/png";
-      let b64 = b64value;
-      if (m) {
-        mime = m[1];
-        b64 = m[2];
-      }
-      // convert base64 to Uint8Array
+      const m = value.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/i);
+      const mime = m ? m[1] : "image/png";
+      const b64 = m ? m[2] : value.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, "");
       const binary = atob(b64);
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      // path: {user_id}/{uuid}.png
       const uuid = crypto.randomUUID();
-      const ext = mime === "image/jpeg" ? "jpg" : "png";
-      const path = `${payload.user_id || "anon"}/${uuid}.${ext}`;
+      const ext = mime.includes("jpeg") ? "jpg" : mime.includes("png") ? "png" : "png";
+      const path = `${payload.user_id || "anon"}/${fieldName}-${uuid}.${ext}`;
       const { error: uploadError } = await supabase.storage.from("renders").upload(path, bytes, {
         contentType: mime,
         upsert: true,
@@ -600,19 +608,32 @@ Deno.serve(async (request: Request) => {
       const { data } = supabase.storage.from("renders").getPublicUrl(path);
       return data.publicUrl;
     } catch (err) {
-      console && console.error && console.error("base64 upload failed", err);
+      console && console.error && console.error(`data URL upload failed for ${fieldName}`, err);
       return null;
     }
   }
 
-  // If caller provided inline base64 images, upload them now and set URLs
+  // Support inline base64/data URLs for local workflows: upload to Supabase storage
+  // and set the corresponding public URL on the payload so models receive an HTTPS URL.
   if ((payload as any).input_image_b64) {
-    const url = await _maybeUploadBase64("input_image_b64", (payload as any).input_image_b64 as string);
+    const url = await _uploadDataUriToStorage("input_image", (payload as any).input_image_b64 as string);
     if (url) payload.input_image_url = url;
   }
   if ((payload as any).reference_image_b64) {
-    const url = await _maybeUploadBase64("reference_image_b64", (payload as any).reference_image_b64 as string);
+    const url = await _uploadDataUriToStorage("reference_image", (payload as any).reference_image_b64 as string);
     if (url) payload.reference_image_url = url;
+  }
+  if (payload.input_image_url && payload.input_image_url.startsWith("data:")) {
+    const url = await _uploadDataUriToStorage("input_image", payload.input_image_url);
+    if (url) payload.input_image_url = url;
+  }
+  if (payload.reference_image_url && payload.reference_image_url.startsWith("data:")) {
+    const url = await _uploadDataUriToStorage("reference_image", payload.reference_image_url);
+    if (url) payload.reference_image_url = url;
+  }
+  if (payload.mask_url && payload.mask_url.startsWith("data:")) {
+    const url = await _uploadDataUriToStorage("mask", payload.mask_url);
+    if (url) payload.mask_url = url;
   }
 
   const validationError = validatePayload(payload);
