@@ -271,9 +271,25 @@ function resolveReplicateTarget(modelRef: string): {
   };
 }
 
+function isReferenceCapableModel(model: string): boolean {
+  const modelKey = Object.keys(MODEL_CAPABILITIES).find((k) => model.startsWith(k));
+  const capabilities = modelKey ? MODEL_CAPABILITIES[modelKey] : { supportsReference: false };
+  return capabilities.supportsReference;
+}
+
 function selectRenderModel(baseModel: string, payload: RenderRequest): { model: string; variant: "control" | "ab" } {
-  if (payload.strict_consistency || !RENDER_AB_TEST_ENABLED || RENDER_AB_TEST_PERCENT <= 0) {
-    return { model: baseModel, variant: "control" };
+  let selectedModel = baseModel;
+
+  if (payload.input_image_url && payload.strict_consistency) {
+    selectedModel = "helios-infotech/sketch-to-image";
+  } else if (payload.input_image_url && payload.reference_image_url) {
+    selectedModel = "bytedance/seedream-4.5";
+  } else if (payload.reference_image_url && !isReferenceCapableModel(selectedModel)) {
+    selectedModel = "bytedance/seedream-4.5";
+  }
+
+  if (payload.strict_consistency || payload.input_image_url || !RENDER_AB_TEST_ENABLED || RENDER_AB_TEST_PERCENT <= 0) {
+    return { model: selectedModel, variant: "control" };
   }
 
   const bucketKey = payload.consistency_key?.trim() || payload.user_id;
@@ -282,7 +298,7 @@ function selectRenderModel(baseModel: string, payload: RenderRequest): { model: 
     return { model: RENDER_AB_TEST_MODEL, variant: "ab" };
   }
 
-  return { model: baseModel, variant: "control" };
+  return { model: selectedModel, variant: "control" };
 }
 
 function validatePayload(payload: RenderRequest): string | null {
@@ -353,9 +369,13 @@ function resolveModelProfile(payload: RenderRequest): ModelProfile {
 }
 
 async function replicateCreatePrediction(payload: RenderRequest, model: string, profile: ModelProfile) {
-  const promptText = payload.style
+  let promptText = payload.style
     ? `${payload.prompt}. Style: ${payload.style}`
     : payload.prompt;
+
+  if (payload.strict_consistency || payload.input_image_url) {
+    promptText = `${promptText} IMPORTANT: Preserve the exact geometry, massing, roofline, window spacing, doorway alignment, driveway layout, and facade proportions from the input sketch. Use the reference image only for material/color/lighting cues; do not let the reference redesign the building structure.`;
+  }
 
   const promptFirst = isPromptFirstModel(model);
 
@@ -540,6 +560,15 @@ Deno.serve(async (request: Request) => {
     payload = await request.json();
   } catch {
     return jsonResponse(400, { error: "Invalid JSON payload" });
+  }
+
+  if (payload.input_image_url) {
+    payload.strict_consistency = true;
+    payload.consistency_key = payload.consistency_key?.trim() || payload.user_id;
+  }
+  if (payload.input_image_url && payload.reference_image_url) {
+    payload.strict_consistency = true;
+    payload.consistency_key = payload.consistency_key?.trim() || payload.user_id;
   }
 
   // Support inline base64 images for local workflows: upload to Supabase storage

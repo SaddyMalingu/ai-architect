@@ -1,23 +1,19 @@
 #!/usr/bin/env python3
-"""Post local sketch + reference images to the Supabase Edge render function.
+"""Post local sketch + reference images to the Supabase Edge render function
+without external dependencies (uses urllib).
 
 Usage:
-  python scripts/post_local_render.py --edge-url https://.../render --user-id <uuid> \
-    --sketch "C:\path\to\sketch.jpg" --reference "C:\path\to\images.jpg" \
+  python scripts/post_local_render_no_requests.py --edge-url https://.../render --user-id <uuid> \
+    --sketch scripts/inputs/sketch.jpg --reference scripts/inputs/reference.jpg \
     --prompt "Render prompt" --model_profile balanced
-
-This script encodes files as data URIs and sends `input_image_b64` and
-`reference_image_b64` so the Edge Function will upload them and use a
-reference-capable model if needed.
 """
 import argparse
 import base64
-import mimetypes
 import json
+import mimetypes
 import os
 import sys
-
-import requests
+from urllib import request, error
 
 
 def encode_data_uri(path: str) -> str:
@@ -43,6 +39,7 @@ def main():
     p.add_argument("--consistency-key", default=None, help="Stable consistency key used to lock geometry across repeated renders")
     p.add_argument("--strict-consistency", action="store_true", default=True, help="Force geometry-preserving behavior for sketch-based renders")
     p.add_argument("--blender-conditioned", action="store_true", default=False, help="Flag that the input image is a Blender geometry pass")
+    p.add_argument("--supabase-key", default=None, help="Supabase anon or service role key (optional). If omitted, reads SUPABASE_KEY env var")
     args = p.parse_args()
 
     try:
@@ -63,21 +60,28 @@ def main():
         "blender_conditioned": bool(args.blender_conditioned),
     }
 
-    print("Posting to:", args.edge_url)
+    data = json.dumps(payload).encode("utf-8")
+    req = request.Request(args.edge_url, data=data, method="POST")
+    req.add_header("Content-Type", "application/json")
+
+    key = args.supabase_key or os.environ.get("SUPABASE_KEY")
+    if key:
+        req.add_header("apikey", key)
+        req.add_header("Authorization", f"Bearer {key}")
+
     try:
-        resp = requests.post(args.edge_url, json=payload, timeout=120)
-    except Exception as e:
+        with request.urlopen(req, timeout=120) as resp:
+            body = resp.read().decode("utf-8")
+            try:
+                j = json.loads(body)
+                print(json.dumps(j, indent=2))
+            except Exception:
+                print("Non-JSON response status", resp.status)
+                print(body)
+                sys.exit(4)
+    except error.URLError as e:
         print("Request failed:", e, file=sys.stderr)
         sys.exit(3)
-
-    try:
-        data = resp.json()
-    except Exception:
-        print("Non-JSON response status", resp.status_code)
-        print(resp.text)
-        sys.exit(4)
-
-    print(json.dumps(data, indent=2))
 
 
 if __name__ == "__main__":
