@@ -289,7 +289,11 @@ function selectRenderModel(baseModel: string, payload: RenderRequest): { model: 
       payload.blender_back_pass_url,
   );
 
-  if (payload.blender_conditioned || hasBlenderPass || (payload.input_image_url && payload.strict_consistency)) {
+  if (payload.blender_conditioned || hasBlenderPass) {
+    selectedModel = "helios-infotech/sketch-to-image";
+  } else if (payload.input_image_url && payload.reference_image_url && payload.strict_consistency) {
+    selectedModel = "bytedance/seedream-4.5";
+  } else if (payload.input_image_url && payload.strict_consistency) {
     selectedModel = "helios-infotech/sketch-to-image";
   } else if (payload.input_image_url && payload.reference_image_url) {
     selectedModel = "bytedance/seedream-4.5";
@@ -400,7 +404,7 @@ async function replicateCreatePrediction(payload: RenderRequest, model: string, 
     : payload.prompt;
 
   if (payload.strict_consistency || payload.input_image_url) {
-    promptText = `${promptText} IMPORTANT: Preserve the exact geometry, massing, roofline, window spacing, doorway alignment, driveway layout, and facade proportions from the input sketch. Use the reference image only for material/color/lighting cues; do not let the reference redesign the building structure.`;
+    promptText = `${promptText} IMPORTANT: Preserve the exact geometry, massing, roofline, window spacing, doorway alignment, driveway layout, facade proportions, and silhouette from the source sketch. Match the sketch structure exactly. Use the reference image only for material, color, texture, and lighting cues. Never redesign the building footprint, openings, massing, rooflines, or camera framing. The reference must not change the architectural geometry.`;
   }
 
   const promptFirst = isPromptFirstModel(model);
@@ -731,7 +735,39 @@ Deno.serve(async (request: Request) => {
       console.log(`Switching model to reference-capable fallback: ${fallback}`);
     }
 
-    const prediction = await replicateCreatePrediction(payload, effectiveModel, profile);
+    let prediction: Record<string, unknown>;
+    if (payload.input_image_url && payload.reference_image_url && payload.strict_consistency) {
+      const geometryPassPayload: RenderRequest = {
+        ...payload,
+        reference_image_url: undefined,
+        line_art_url: payload.line_art_url || payload.input_image_url,
+        strict_consistency: true,
+        blender_conditioned: false,
+      };
+      const geometryCreate = await replicateCreatePrediction(
+        geometryPassPayload,
+        "helios-infotech/sketch-to-image",
+        profile,
+      );
+      const geometryPrediction =
+        geometryCreate.status === "succeeded"
+          ? geometryCreate
+          : await replicatePollPrediction(geometryCreate.id as string);
+      const geometryOutput = pickOutputUrl(geometryPrediction);
+
+      const styleRefinementPayload: RenderRequest = {
+        ...payload,
+        input_image_url: geometryOutput,
+        line_art_url: geometryOutput,
+        strict_consistency: true,
+        blender_conditioned: false,
+      };
+      prediction = await replicateCreatePrediction(styleRefinementPayload, "bytedance/seedream-4.5", profile);
+      effectiveModel = "bytedance/seedream-4.5";
+    } else {
+      prediction = await replicateCreatePrediction(payload, effectiveModel, profile);
+    }
+
     const predictionId = prediction.id as string;
 
     await supabase
