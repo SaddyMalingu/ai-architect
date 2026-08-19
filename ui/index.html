@@ -3657,7 +3657,7 @@
       const uploadPreview = ui.renderSourcePreview && ui.renderSourcePreview.src ? ui.renderSourcePreview.src : "";
       const inputPreview = ui.renderInputPreview && ui.renderInputPreview.src ? ui.renderInputPreview.src : "";
       const blenderPassForView = resolveRenderInputImage(view);
-      return ui.targetImageUrl.value.trim() || active || boardViewImage || directInput || uploadPreview || inputPreview || blenderPassForView;
+      return ui.targetImageUrl.value.trim() || directInput || active || boardViewImage || uploadPreview || inputPreview || blenderPassForView;
     }
 
     async function runBackendPreflight(mode, view) {
@@ -3762,6 +3762,11 @@
     }
 
     function resolveRenderInputImage(view) {
+      const directInput = ui.renderInputImageUrl.value.trim();
+      if (directInput) {
+        return directInput;
+      }
+
       const uploadedFace = faceUploadState[view] && faceUploadState[view].dataUrl;
       if (uploadedFace) {
         return uploadedFace;
@@ -3772,7 +3777,7 @@
         .find((url) => Boolean(url));
 
       if (!ui.blenderConditionedMode.checked) {
-        return ui.renderInputImageUrl.value.trim() || anyUploadedFace || undefined;
+        return anyUploadedFace || undefined;
       }
       const byView = blenderPassMap();
       return byView[view] || anyUploadedFace || "";
