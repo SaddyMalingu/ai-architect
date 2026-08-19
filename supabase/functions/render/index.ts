@@ -542,6 +542,50 @@ Deno.serve(async (request: Request) => {
     return jsonResponse(400, { error: "Invalid JSON payload" });
   }
 
+  // Support inline base64 images for local workflows: upload to Supabase storage
+  // and set the corresponding public URL on the payload so models receive an HTTPS URL.
+  async function _maybeUploadBase64(fieldName: string, b64value?: string) {
+    if (!b64value || typeof b64value !== "string") return null;
+    try {
+      // accept data:...;base64,xxxx or raw base64
+      const m = b64value.match(/^data:(image\/\w+);base64,(.+)$/);
+      let mime = "image/png";
+      let b64 = b64value;
+      if (m) {
+        mime = m[1];
+        b64 = m[2];
+      }
+      // convert base64 to Uint8Array
+      const binary = atob(b64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      // path: {user_id}/{uuid}.png
+      const uuid = crypto.randomUUID();
+      const ext = mime === "image/jpeg" ? "jpg" : "png";
+      const path = `${payload.user_id || "anon"}/${uuid}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("renders").upload(path, bytes, {
+        contentType: mime,
+        upsert: true,
+      });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from("renders").getPublicUrl(path);
+      return data.publicUrl;
+    } catch (err) {
+      console && console.error && console.error("base64 upload failed", err);
+      return null;
+    }
+  }
+
+  // If caller provided inline base64 images, upload them now and set URLs
+  if ((payload as any).input_image_b64) {
+    const url = await _maybeUploadBase64("input_image_b64", (payload as any).input_image_b64 as string);
+    if (url) payload.input_image_url = url;
+  }
+  if ((payload as any).reference_image_b64) {
+    const url = await _maybeUploadBase64("reference_image_b64", (payload as any).reference_image_b64 as string);
+    if (url) payload.reference_image_url = url;
+  }
+
   const validationError = validatePayload(payload);
   if (validationError) {
     return jsonResponse(400, { error: validationError });
@@ -650,7 +694,8 @@ Deno.serve(async (request: Request) => {
       status: "completed",
       image_url: publicUrl,
       meta: {
-        model: selected.model,
+        model: effectiveModel,
+        resolved_model: effectiveModel,
         model_profile: profile.label,
         blender_conditioned: Boolean(payload.blender_conditioned),
         blender_pass_type: payload.blender_pass_type ?? null,
