@@ -282,7 +282,14 @@ function isReferenceCapableModel(model: string): boolean {
 function selectRenderModel(baseModel: string, payload: RenderRequest): { model: string; variant: "control" | "ab" } {
   let selectedModel = baseModel;
 
-  if (payload.input_image_url && payload.strict_consistency) {
+  const hasBlenderPass = Boolean(
+    payload.blender_front_pass_url ||
+      payload.blender_left_pass_url ||
+      payload.blender_right_pass_url ||
+      payload.blender_back_pass_url,
+  );
+
+  if (payload.blender_conditioned || hasBlenderPass || (payload.input_image_url && payload.strict_consistency)) {
     selectedModel = "helios-infotech/sketch-to-image";
   } else if (payload.input_image_url && payload.reference_image_url) {
     selectedModel = "bytedance/seedream-4.5";
@@ -336,8 +343,10 @@ function validatePayload(payload: RenderRequest): string | null {
         payload.blender_back_pass_url ||
         payload.line_art_url,
     );
-    if (!hasBlenderPass) {
-      return "strict sketch mode requires a Blender pass or line-art pass in the background before render";
+    if (!hasBlenderPass && !payload.blender_conditioned) {
+      // Keep the minimal sketch-only flow working by auto-populating a line-art pass.
+      // When explicit Blender passes exist, they take precedence and are treated as the strict production mode.
+      payload.line_art_url = payload.line_art_url || payload.input_image_url;
     }
   }
   if (payload.mask_url && !isHttpsUrl(payload.mask_url)) {
@@ -597,6 +606,24 @@ Deno.serve(async (request: Request) => {
   );
   if (payload.strict_consistency && payload.input_image_url && !hasGeometryPass) {
     payload.line_art_url = payload.input_image_url;
+  }
+  if (payload.blender_conditioned && payload.blender_pass_type) {
+    switch (payload.blender_pass_type) {
+      case "front":
+        if (payload.blender_front_pass_url) payload.line_art_url = payload.blender_front_pass_url;
+        break;
+      case "left":
+        if (payload.blender_left_pass_url) payload.line_art_url = payload.blender_left_pass_url;
+        break;
+      case "right":
+        if (payload.blender_right_pass_url) payload.line_art_url = payload.blender_right_pass_url;
+        break;
+      case "back":
+        if (payload.blender_back_pass_url) payload.line_art_url = payload.blender_back_pass_url;
+        break;
+      default:
+        break;
+    }
   }
 
   async function _uploadDataUriToStorage(fieldName: string, value?: string) {

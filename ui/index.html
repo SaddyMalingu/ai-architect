@@ -4511,7 +4511,7 @@
         line_art_url: undefined,
         model: requestModel,
         consistency_key: ctx.consistencyKey || buildConsistencyKey(ctx.identityToken),
-        strict_consistency: ui.consistencyMode.checked || ui.blenderConditionedMode.checked,
+        strict_consistency: Boolean(resolvedInputImage) || ui.consistencyMode.checked || ui.blenderConditionedMode.checked,
         blender_conditioned: ui.blenderConditionedMode.checked,
         blender_pass_type: ui.blenderConditionedMode.checked ? view : undefined,
         num_outputs: 1
@@ -4544,6 +4544,15 @@
 
       if (body.reference_image_url && !body.input_image_url) {
         body.input_image_url = body.reference_image_url;
+      }
+      if (body.blender_conditioned && body.blender_pass_type) {
+        const blenderPassMap = {
+          front: ui.blenderFrontPassUrl.value.trim(),
+          left: ui.blenderLeftPassUrl.value.trim(),
+          right: ui.blenderRightPassUrl.value.trim(),
+          back: ui.blenderBackPassUrl.value.trim(),
+        };
+        body.line_art_url = blenderPassMap[body.blender_pass_type] || body.line_art_url;
       }
       if (body.strict_consistency && body.input_image_url && !body.line_art_url) {
         body.line_art_url = body.input_image_url;
