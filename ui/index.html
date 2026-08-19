@@ -4508,6 +4508,7 @@
         style: ui.renderStyle.value.trim(),
         input_image_url: resolvedInputImage,
         reference_image_url: ui.renderReferenceImageUrl.value.trim() || ui.renderBackgroundImageUrl.value.trim() || undefined,
+        line_art_url: undefined,
         model: requestModel,
         consistency_key: ctx.consistencyKey || buildConsistencyKey(ctx.identityToken),
         strict_consistency: ui.consistencyMode.checked || ui.blenderConditionedMode.checked,
@@ -4515,6 +4516,17 @@
         blender_pass_type: ui.blenderConditionedMode.checked ? view : undefined,
         num_outputs: 1
       };
+
+      const hasExplicitGeometryPass = Boolean(
+        body.line_art_url ||
+        ui.blenderFrontPassUrl.value.trim() ||
+        ui.blenderLeftPassUrl.value.trim() ||
+        ui.blenderRightPassUrl.value.trim() ||
+        ui.blenderBackPassUrl.value.trim(),
+      );
+      if (body.strict_consistency && body.input_image_url && !hasExplicitGeometryPass) {
+        body.line_art_url = body.input_image_url;
+      }
 
       if (!body.input_image_url && body.strict_consistency && !body.blender_conditioned) {
         body.strict_consistency = false;
@@ -4532,6 +4544,9 @@
 
       if (body.reference_image_url && !body.input_image_url) {
         body.input_image_url = body.reference_image_url;
+      }
+      if (body.strict_consistency && body.input_image_url && !body.line_art_url) {
+        body.line_art_url = body.input_image_url;
       }
 
       if (!body.user_id || !body.prompt) {

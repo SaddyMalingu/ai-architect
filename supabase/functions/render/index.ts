@@ -588,6 +588,17 @@ Deno.serve(async (request: Request) => {
     payload.consistency_key = payload.consistency_key?.trim() || payload.user_id;
   }
 
+  const hasGeometryPass = Boolean(
+    payload.line_art_url ||
+      payload.blender_front_pass_url ||
+      payload.blender_left_pass_url ||
+      payload.blender_right_pass_url ||
+      payload.blender_back_pass_url,
+  );
+  if (payload.strict_consistency && payload.input_image_url && !hasGeometryPass) {
+    payload.line_art_url = payload.input_image_url;
+  }
+
   async function _uploadDataUriToStorage(fieldName: string, value?: string) {
     if (!value || typeof value !== "string") return null;
     try {
