@@ -701,7 +701,7 @@ Deno.serve(async (request: Request) => {
       effectiveModel = fallback;
       // update profile to a reasonable default mapping
       // keep original profile label but override model used
-      log && console && console.log && console.log(`Switching model to reference-capable fallback: ${fallback}`);
+      console.log(`Switching model to reference-capable fallback: ${fallback}`);
     }
 
     const prediction = await replicateCreatePrediction(payload, effectiveModel, profile);
