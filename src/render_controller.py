@@ -39,8 +39,11 @@ class AdaptiveRenderer:
                     specs = json.load(f)
                 self.reference_image_path = specs.get("reference_image") or specs.get("reference_image_path")
                 self.ssim_threshold = specs.get("ssim_threshold")
+                self.enable_ssim_gating = bool(specs.get("enable_ssim_gating", False))
             except Exception:
                 pass
+        else:
+            self.enable_ssim_gating = False
         # upgrade policy
         self.max_upgrades = 2
         self.upgrade_sample_factor = 2
@@ -110,23 +113,20 @@ class AdaptiveRenderer:
             passed = report.get("summary", {}).get("all_passed", False)
 
             # optionally run SSIM gating if a reference and threshold are available
-            if self.ssim_threshold or self.reference_image_path:
-                # prefer explicitly set threshold, fallback to specs value
+            if getattr(self, "enable_ssim_gating", False) and self.reference_image_path:
+                # SSIM gating only active when explicitly enabled in specs (enable_ssim_gating=true)
                 th = float(self.ssim_threshold) if self.ssim_threshold else float(0.6)
                 ref = self.reference_image_path
-                if ref:
-                    try:
-                        s_pass, s_msg, s_score = validator.validate_ssim(ref, outfile, threshold=th)
-                        report.setdefault("summary", {})["ssim_check"] = {"passed": s_pass, "msg": s_msg, "score": s_score}
-                        if not s_pass:
-                            passed = False
-                            print(f"SSIM gating: {s_msg}")
-                        else:
-                            print(f"SSIM gating: {s_msg}")
-                    except Exception as e:
-                        print(f"SSIM gating failed: {e}")
-                else:
-                    print("No reference image available for SSIM gating")
+                try:
+                    s_pass, s_msg, s_score = validator.validate_ssim(ref, outfile, threshold=th)
+                    report.setdefault("summary", {})["ssim_check"] = {"passed": s_pass, "msg": s_msg, "score": s_score}
+                    if not s_pass:
+                        passed = False
+                        print(f"SSIM gating: {s_msg}")
+                    else:
+                        print(f"SSIM gating: {s_msg}")
+                except Exception as e:
+                    print(f"SSIM gating failed: {e}")
 
             # choose the first passing render as best to save credits
             best_out = outfile
