@@ -3,6 +3,9 @@
 import json
 import os
 from typing import Any, Dict, List, Optional, Tuple
+from PIL import Image
+import numpy as np
+from skimage.metrics import structural_similarity as _ssim
 
 
 class RenderQAValidator:
@@ -184,8 +187,49 @@ class RenderQAValidator:
 
         if observations:
             report["observations"] = observations
+        # optional SSIM score may be populated by caller
+        if hasattr(self, "last_ssim"):
+            report.setdefault("summary", {})["ssim"] = getattr(self, "last_ssim")
 
         return report
+
+    def _open_image(self, img_or_path):
+        if isinstance(img_or_path, Image.Image):
+            return img_or_path
+        if isinstance(img_or_path, str) and os.path.exists(img_or_path):
+            return Image.open(img_or_path).convert("RGB")
+        raise ValueError("Invalid image or path provided to validate_ssim")
+
+    def validate_ssim(self, reference_img, candidate_img, threshold: float = 0.6) -> Tuple[bool, str, Optional[float]]:
+        """Compute SSIM between reference and candidate. Returns (passed, msg, score).
+
+        `reference_img` and `candidate_img` may be PIL.Image objects or filesystem paths.
+        """
+        try:
+            ref = self._open_image(reference_img)
+            cand = self._open_image(candidate_img)
+        except Exception as e:
+            return False, f"SSIM validation failed to open images: {e}", None
+
+        a = np.array(ref.convert("L")).astype(np.float32) / 255.0
+        b = np.array(cand.convert("L")).astype(np.float32) / 255.0
+        if a.shape != b.shape:
+            # resize candidate to reference
+            from PIL import Image as _PImage
+
+            b_img = _PImage.fromarray((b * 255).astype(np.uint8))
+            b_img = b_img.resize((a.shape[1], a.shape[0]), _PImage.LANCZOS)
+            b = np.array(b_img).astype(np.float32) / 255.0
+
+        try:
+            score = float(_ssim(a, b, data_range=1.0))
+        except Exception as e:
+            return False, f"SSIM computation error: {e}", None
+
+        self.last_ssim = score
+        passed = score >= float(threshold)
+        msg = f"SSIM={score:.3f} threshold={threshold} -> {'PASS' if passed else 'FAIL'}"
+        return passed, msg, score
 
     def save_qa_report(self, report: Dict[str, Any], path: str = "outputs/render_qa_report.json") -> str:
         """Save QA report to JSON."""
