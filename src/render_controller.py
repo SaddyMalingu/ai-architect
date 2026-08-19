@@ -41,6 +41,11 @@ class AdaptiveRenderer:
                 self.ssim_threshold = specs.get("ssim_threshold")
             except Exception:
                 pass
+        # upgrade policy
+        self.max_upgrades = 2
+        self.upgrade_sample_factor = 2
+        self.max_samples = 512
+        self.max_resolution = (3840, 2160)
 
     def _read_identity_counts(self):
         try:
@@ -132,6 +137,15 @@ class AdaptiveRenderer:
                 break
             else:
                 print(f"QA not passing at samples={samples}, will try higher samples if available.")
+                # run upgrade policy: try a few higher-quality retries before moving on
+                upgraded = self._attempt_upgrades(outfile, samples, validator)
+                if upgraded:
+                    # upgraded contains (outfile,samples,report)
+                    best_out, best_samples, best_report = upgraded
+                    print(f"Upgrade succeeded, using upgraded render: {best_out} (samples={best_samples})")
+                    break
+                else:
+                    print("Upgrades did not resolve QA issues; continuing schedule.")
 
         return {
             "outfile": best_out,
@@ -139,6 +153,90 @@ class AdaptiveRenderer:
             "report": best_report,
             "total_cost": total_cost,
         }
+
+    def _attempt_upgrades(self, current_outfile: str, current_samples: int, validator: RenderQAValidator):
+        """Try progressive upgrades (higher samples / resolution) then a composite fallback.
+
+        Returns (outfile, samples, report) on success, or None on failure.
+        """
+        samples = int(current_samples)
+        for upgrade in range(self.max_upgrades):
+            samples = min(samples * self.upgrade_sample_factor, self.max_samples)
+            upgraded_out = f"{self.out_base}_{samples}_up.png"
+            denoise = True
+            res_x = min(int(self.resolution[0] * (1.5 ** (upgrade + 1))), self.max_resolution[0])
+            res_y = min(int(self.resolution[1] * (1.5 ** (upgrade + 1))), self.max_resolution[1])
+            try:
+                print(f"Attempting upgrade render: samples={samples}, res=({res_x},{res_y}) -> {upgraded_out}")
+                render_glb_with_blender(
+                    infile=self.infile,
+                    outfile=upgraded_out,
+                    specs_path=self.specs_path,
+                    identity_path=self.identity_path,
+                    samples=samples,
+                    denoise=denoise,
+                    resolution=(res_x, res_y),
+                )
+            except Exception as e:
+                print(f"Upgrade render failed: {e}")
+                continue
+
+            # run QA + SSIM if available
+            front, rear, left, right = self._read_identity_counts()
+            report = validator.generate_qa_report(front, rear, left, right)
+            passed = report.get("summary", {}).get("all_passed", False)
+            if self.ssim_threshold and self.reference_image_path:
+                try:
+                    s_pass, s_msg, s_score = validator.validate_ssim(self.reference_image_path, upgraded_out, threshold=self.ssim_threshold)
+                    report.setdefault("summary", {})["ssim_check"] = {"passed": s_pass, "msg": s_msg, "score": s_score}
+                    if not s_pass:
+                        passed = False
+                except Exception as e:
+                    print(f"SSIM check on upgrade failed: {e}")
+
+            if passed:
+                return (upgraded_out, samples, report)
+
+        # last resort: try a composite/high-quality fallback
+        try:
+            fallback_out = self._composite_fallback(current_outfile)
+            if fallback_out:
+                front, rear, left, right = self._read_identity_counts()
+                report = validator.generate_qa_report(front, rear, left, right)
+                if self.ssim_threshold and self.reference_image_path:
+                    try:
+                        s_pass, s_msg, s_score = validator.validate_ssim(self.reference_image_path, fallback_out, threshold=self.ssim_threshold)
+                        report.setdefault("summary", {})["ssim_check"] = {"passed": s_pass, "msg": s_msg, "score": s_score}
+                        if s_pass:
+                            return (fallback_out, samples, report)
+                    except Exception as e:
+                        print(f"SSIM check on fallback failed: {e}")
+
+        except Exception as e:
+            print(f"Composite fallback failed: {e}")
+
+        return None
+
+    def _composite_fallback(self, base_outfile: str) -> Optional[str]:
+        """A conservative high-quality re-render used as a fallback. Returns new outfile path or None."""
+        fallback_samples = min(self.max_samples, max(256, int(self.sample_schedule[-1] * 2)))
+        fallback_res = self.max_resolution
+        fallback_out = f"{self.out_base}_fallback.png"
+        print(f"Running composite fallback render samples={fallback_samples} res={fallback_res}")
+        try:
+            render_glb_with_blender(
+                infile=self.infile,
+                outfile=fallback_out,
+                specs_path=self.specs_path,
+                identity_path=self.identity_path,
+                samples=fallback_samples,
+                denoise=True,
+                resolution=fallback_res,
+            )
+            return fallback_out
+        except Exception as e:
+            print(f"Fallback render failed: {e}")
+            return None
 
 
 if __name__ == "__main__":
