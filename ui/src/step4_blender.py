@@ -970,7 +970,21 @@ def _resolve_blender_exec():
     return None
 
 
-def render_glb_with_blender(infile="outputs/3d_models/house.glb", outfile="outputs/renders/house_render.png", specs_path="outputs/specs.json", identity_path="outputs/house_identity.json"):
+def render_glb_with_blender(
+    infile="outputs/3d_models/house.glb",
+    outfile="outputs/renders/house_render.png",
+    specs_path="outputs/specs.json",
+    identity_path="outputs/house_identity.json",
+    samples: int = 96,
+    denoise: bool = True,
+    resolution=(1920, 1080),
+):
+    """Render a GLB using Blender with configurable samples, denoising, and resolution.
+
+    This function writes a temporary Blender Python script from the template and substitutes
+    the input/output paths and render settings (samples, denoise, resolution) so callers
+    can run progressive renders at different quality levels.
+    """
     blender_exec = _resolve_blender_exec()
     if not blender_exec:
         raise FileNotFoundError(
@@ -982,7 +996,14 @@ def render_glb_with_blender(infile="outputs/3d_models/house.glb", outfile="outpu
     script_text = script_text.replace("__OUTFILE__", repr(os.path.abspath(outfile)))
     script_text = script_text.replace("__SPECS__", repr(os.path.abspath(specs_path)))
     script_text = script_text.replace("__IDENTITY__", repr(os.path.abspath(identity_path)))
-    with open(script_path, "w") as f:
+    # substitute sample count and denoising/resolution where the template had default literals
+    script_text = script_text.replace("bpy.context.scene.cycles.samples = 96", f"bpy.context.scene.cycles.samples = {int(samples)}")
+    script_text = script_text.replace("bpy.context.scene.cycles.use_denoising = True", f"bpy.context.scene.cycles.use_denoising = {str(bool(denoise))}")
+    # resolution substitution if present
+    script_text = script_text.replace("bpy.context.scene.render.resolution_x = 1920", f"bpy.context.scene.render.resolution_x = {int(resolution[0])}")
+    script_text = script_text.replace("bpy.context.scene.render.resolution_y = 1080", f"bpy.context.scene.render.resolution_y = {int(resolution[1])}")
+
+    with open(script_path, "w", encoding="utf-8") as f:
         f.write(script_text)
     # call blender in background
     cmd = [blender_exec, "-b", "--python", script_path]
@@ -990,7 +1011,10 @@ def render_glb_with_blender(infile="outputs/3d_models/house.glb", outfile="outpu
     subprocess.run(cmd, check=True)
     print(f"Rendered image to {outfile}")
     # cleanup
-    os.remove(script_path)
+    try:
+        os.remove(script_path)
+    except Exception:
+        pass
 
 if __name__ == "__main__":
     render_glb_with_blender()

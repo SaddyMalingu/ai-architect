@@ -58,7 +58,20 @@ const POLL_INTERVAL_MS = 2000;
 const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
 const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const replicateApiToken = Deno.env.get("REPLICATE_API_TOKEN") || "";
-const defaultModel = Deno.env.get("REPLICATE_MODEL") || "stability-ai/sdxl";
+
+function normalizeReplicateModel(model: string | undefined, fallback = "bytedance/seedream-4.5") {
+  const trimmed = model?.trim();
+  if (!trimmed) return fallback;
+
+  const lower = trimmed.toLowerCase();
+  if (lower.includes("flux-2-pro") || lower.includes("flux-2-max") || lower.includes("flux-2")) {
+    return fallback;
+  }
+
+  return trimmed;
+}
+
+const defaultModel = normalizeReplicateModel(Deno.env.get("REPLICATE_MODEL"));
 const DAILY_QUOTA_LIMIT = parseInt(Deno.env.get("DAILY_QUOTA_LIMIT") || "100", 10);
 const CREATE_RETRY_MAX_ATTEMPTS = parseInt(Deno.env.get("REPLICATE_CREATE_RETRY_MAX_ATTEMPTS") || "3", 10);
 const CREATE_RETRY_FALLBACK_SECONDS = parseInt(
@@ -67,8 +80,10 @@ const CREATE_RETRY_FALLBACK_SECONDS = parseInt(
 );
 const RENDER_AB_TEST_ENABLED =
   (Deno.env.get("REPLICATE_RENDER_AB_TEST_ENABLED") || "false").toLowerCase() === "true";
-const RENDER_AB_TEST_MODEL =
-  Deno.env.get("REPLICATE_RENDER_AB_TEST_MODEL") || "black-forest-labs/flux-2-pro";
+const RENDER_AB_TEST_MODEL = normalizeReplicateModel(
+  Deno.env.get("REPLICATE_RENDER_AB_TEST_MODEL"),
+  "bytedance/seedream-4.5",
+);
 const RENDER_AB_TEST_PERCENT = Math.max(
   0,
   Math.min(100, parseInt(Deno.env.get("REPLICATE_RENDER_AB_TEST_PERCENT") || "0", 10)),
@@ -78,19 +93,19 @@ const PROMPT_FIRST_ASPECT_RATIO = Deno.env.get("REPLICATE_PROMPT_FIRST_ASPECT_RA
 const MODEL_PROFILES: Record<ProfileName, ModelProfile> = {
   fast: {
     label: "fast",
-    model: Deno.env.get("REPLICATE_MODEL_FAST") || defaultModel,
+    model: normalizeReplicateModel(Deno.env.get("REPLICATE_MODEL_FAST"), defaultModel),
     guidance_scale: 5,
     num_inference_steps: 20,
   },
   balanced: {
     label: "balanced",
-    model: Deno.env.get("REPLICATE_MODEL_BALANCED") || defaultModel,
+    model: normalizeReplicateModel(Deno.env.get("REPLICATE_MODEL_BALANCED"), defaultModel),
     guidance_scale: 7,
     num_inference_steps: 30,
   },
   quality: {
     label: "quality",
-    model: Deno.env.get("REPLICATE_MODEL_QUALITY") || defaultModel,
+    model: normalizeReplicateModel(Deno.env.get("REPLICATE_MODEL_QUALITY"), defaultModel),
     guidance_scale: 9,
     num_inference_steps: 50,
   },
@@ -119,7 +134,7 @@ const MODEL_CAPABILITIES: Record<string, { supportsReference: boolean }> = {
 function resolveModelFromDropdown(modelKey?: string): string {
   if (!modelKey) return defaultModel;
   const envVar = `REPLICATE_MODEL_${modelKey.toUpperCase()}`;
-  return Deno.env.get(envVar) || defaultModel;
+  return normalizeReplicateModel(Deno.env.get(envVar), defaultModel);
 }
 
 const corsHeaders = {
@@ -280,7 +295,7 @@ function isReferenceCapableModel(model: string): boolean {
 }
 
 function selectRenderModel(baseModel: string, payload: RenderRequest): { model: string; variant: "control" | "ab" } {
-  let selectedModel = baseModel;
+  let selectedModel = normalizeReplicateModel(baseModel, defaultModel);
 
   const hasBlenderPass = Boolean(
     payload.blender_front_pass_url ||
@@ -834,7 +849,8 @@ Deno.serve(async (request: Request) => {
     if (providerMeta?.status === 404) {
       message =
         "Replicate model endpoint could not be found (provider 404). " +
-        "Check REPLICATE_MODEL / profile model env variables.";
+        "Check REPLICATE_MODEL / REPLICATE_MODEL_FAST / REPLICATE_MODEL_BALANCED / REPLICATE_MODEL_QUALITY env variables. " +
+        "Use a valid public model such as bytedance/seedream-4.5 or helios-infotech/sketch-to-image.";
     }
 
     await supabase

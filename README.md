@@ -33,6 +33,37 @@ This repository now supports two parallel stacks:
 The smoke check verifies required controls/IDs, endpoint references, and that
 `ui/cloud_demo.html` remains a redirect shim to canonical `ui/index.html`.
 
+## Fetch production logs and artifacts
+
+The repo includes a small helper to fetch production manifests and Replicate
+prediction statuses without sharing sensitive keys: `scripts/fetch_prod_logs.py`.
+
+Usage examples:
+
+ - Download a public or signed manifest URL and extract prediction IDs:
+
+```bash
+python scripts/fetch_prod_logs.py --manifest-url "https://.../outputs/manifest.json" --download-manifest
+```
+
+ - Fetch specific Replicate prediction IDs (set `REPLICATE_API_TOKEN` env var or pass `--token`):
+
+```bash
+python scripts/fetch_prod_logs.py --prediction-ids id1,id2,id3 --token <REPLICATE_API_TOKEN>
+```
+
+Notes and recommended secure workflows
+ - For Supabase function logs and private Storage objects, prefer creating a short-lived signed URL for the object or using the Supabase Console to copy recent function log lines and paste them here. Avoid sharing long-lived service role keys publicly.
+ - If you prefer programmatic access, install the Supabase CLI and run:
+
+```bash
+supabase functions logs render --project-ref <project-ref> --since 1h
+supabase storage download <bucket> outputs/manifest.json ./downloads/manifest.json --project-ref <project-ref>
+```
+
+Then run the fetcher on the downloaded manifest or paste its contents.
+
+
 ## Cloud stack quick run (Supabase)
 
 1. Create a Supabase project and storage bucket `renders`.

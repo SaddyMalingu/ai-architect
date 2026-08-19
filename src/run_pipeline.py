@@ -96,13 +96,14 @@ def run(prompt=None):
     create_manifest()
     log("Manifest created.")
 
-    # call blender render if Blender is present
+    # call adaptive blender render if Blender is present
     try:
-        from step4_blender import render_glb_with_blender
-        render_glb_with_blender()
-        log("Blender render executed.")
+        from render_controller import AdaptiveRenderer
+        ar = AdaptiveRenderer(identity_path="outputs/house_identity.json")
+        best = ar.render_and_validate()
+        log(f"Adaptive render executed. Output: {best.get('outfile')} Samples: {best.get('samples')}")
     except Exception as e:
-        log(f"Blender render skipped (could not run). Install Blender and ensure it's in PATH. Error: {e}")
+        log(f"Blender render skipped or adaptive render failed: {e}")
 
     # --- Post-render QA validation ---
     try:

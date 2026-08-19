@@ -1,0 +1,139 @@
+{
+  "items": [
+    {
+      "request_id": "4be980bd-44af-4533-990f-1e561b6c63eb",
+      "prompt": "Apply warm wood facade texture to selected area. keep house identity token bp3-house-7f9d4259 consistent with other views. Edit category: element_texture. Selection mode: manual. Model profile: balanced. Target region: facade. Strict consistency: preserve the same building geometry, camera framing, window layout, openings, structure, and all unselected regions",
+      "style": "balanced",
+      "model_profile": "balanced",
+      "status": "completed",
+      "image_url": "https://eccvtkqkllegzbypaemw.supabase.co/storage/v1/object/public/renders/ec470708-d89c-4575-9d94-b57cd681bb8b/4be980bd-44af-4533-990f-1e561b6c63eb.png",
+      "latency_ms": 13318,
+      "error": null,
+      "created_at": "2026-08-10T06:44:56.444369+00:00",
+      "updated_at": "2026-08-10T06:45:10.341369+00:00"
+    },
+    {
+      "request_id": "8c39927e-71fc-4cfa-bcaf-742a0b122854",
+      "prompt": "Render image based on reference Transform source sketch into a higher-fidelity render while preserving exact architecture. Do not change geometry, floor count, openings, window/door positions, roof shape, or structural proportions. CONSISTENCY_PACK={\"building_seed\":\"bp3-house-75151dee\",\"immutable_asset\":true,\"view_id\":\"front\",\"camera_transform\":{\"yaw_deg\":0,\"pitch_deg\":0,\"roll_deg\":0},\"geometry_lock\":{\"keep_massing\":true,\"keep_roofline\":true,\"keep_openings\":true,\"keep_window_grid\":true,\"keep_door_positions\":true,\"keep_floor_heights\":true,\"keep_corner_connectivity\":true,\"allow_only_camera_change\":true},\"corner_links\":[\"front_right=right_front\",\"right_back=back_right\",\"back_left=left_back\",\"left_front=front_left\"],\"instruction\":\"upgrade_quality_not_geometry\"}",
+      "style": "photoreal exterior",
+      "model_profile": "balanced",
+      "status": "completed",
+      "image_url": "https://eccvtkqkllegzbypaemw.supabase.co/storage/v1/object/public/renders/ec470708-d89c-4575-9d94-b57cd681bb8b/8c39927e-71fc-4cfa-bcaf-742a0b122854.png",
+      "latency_ms": 17419,
+      "error": null,
+      "created_at": "2026-08-10T06:39:44.979653+00:00",
+      "updated_at": "2026-08-10T06:40:03.846014+00:00"
+    },
+    {
+      "request_id": "9c5cd6b2-2522-4e3c-b253-b7fe1a6a6d6f",
+      "prompt": "Apply red tile texture to selected area. keep house identity token bp3-house-a0005ca5 consistent with other views. Edit category: element_texture. Selection mode: automatic. Model profile: balanced. Target region: roof. Strict consistency: preserve the same building geometry, camera framing, window layout, openings, structure, and all unselected regions",
+      "style": "balanced",
+      "model_profile": "balanced",
+      "status": "completed",
+      "image_url": "https://eccvtkqkllegzbypaemw.supabase.co/storage/v1/object/public/renders/ec470708-d89c-4575-9d94-b57cd681bb8b/9c5cd6b2-2522-4e3c-b253-b7fe1a6a6d6f.png",
+      "latency_ms": 9234,
+      "error": null,
+      "created_at": "2026-08-07T12:47:35.980296+00:00",
+      "updated_at": "2026-08-07T12:47:46.122445+00:00"
+    },
+    {
+      "request_id": "4dd2b176-5650-411f-90cd-a70918813091",
+      "prompt": "Apply red tile texture to selected area. keep house identity token bp3-house-a0005ca5 consistent with other views. Edit category: element_texture. Selection mode: manual. Model profile: balanced. Target region: roof. Strict consistency: preserve the same building geometry, camera framing, window layout, openings, structure, and all unselected regions",
+      "style": "balanced",
+      "model_profile": "balanced",
+      "status": "completed",
+      "image_url": "https://eccvtkqkllegzbypaemw.supabase.co/storage/v1/object/public/renders/ec470708-d89c-4575-9d94-b57cd681bb8b/4dd2b176-5650-411f-90cd-a70918813091.png",
+      "latency_ms": 11381,
+      "error": null,
+      "created_at": "2026-08-07T12:46:38.733023+00:00",
+      "updated_at": "2026-08-07T12:46:50.636667+00:00"
+    },
+    {
+      "request_id": "f6a6c0ca-58ea-4415-9a30-b371e74a2f75",
+      "prompt": "Apply red tile texture to selected area. keep house identity token bp3-house-a0005ca5 consistent with other views. Edit category: element_texture. Selection mode: manual. Model profile: balanced. Target region: roof. Strict consistency: preserve the same building geometry, camera framing, window layout, openings, structure, and all unselected regions",
+      "style": "balanced",
+      "model_profile": "balanced",
+      "status": "completed",
+      "image_url": "https://eccvtkqkllegzbypaemw.supabase.co/storage/v1/object/public/renders/ec470708-d89c-4575-9d94-b57cd681bb8b/f6a6c0ca-58ea-4415-9a30-b371e74a2f75.png",
+      "latency_ms": 9689,
+      "error": null,
+      "created_at": "2026-08-07T12:44:26.08248+00:00",
+      "updated_at": "2026-08-07T12:44:36.389997+00:00"
+    },
+    {
+      "request_id": "05544bec-b495-46f0-b925-3e0e4d66a9d1",
+      "prompt": "render this sketch based on reference Transform source sketch into a higher-fidelity render while preserving exact architecture. Do not change geometry, floor count, openings, window/door positions, roof shape, or structural proportions. CONSISTENCY_PACK={\"building_seed\":\"bp3-house-34fdea14\",\"immutable_asset\":true,\"view_id\":\"front\",\"camera_transform\":{\"yaw_deg\":0,\"pitch_deg\":0,\"roll_deg\":0},\"geometry_lock\":{\"keep_massing\":true,\"keep_roofline\":true,\"keep_openings\":true,\"keep_window_grid\":true,\"keep_door_positions\":true,\"keep_floor_heights\":true,\"keep_corner_connectivity\":true,\"allow_only_camera_change\":true},\"corner_links\":[\"front_right=right_front\",\"right_back=back_right\",\"back_left=left_back\",\"left_front=front_left\"],\"instruction\":\"upgrade_quality_not_geometry\"}",
+      "style": "photoreal exterior",
+      "model_profile": "balanced",
+      "status": "completed",
+      "image_url": "https://eccvtkqkllegzbypaemw.supabase.co/storage/v1/object/public/renders/ec470708-d89c-4575-9d94-b57cd681bb8b/05544bec-b495-46f0-b925-3e0e4d66a9d1.png",
+      "latency_ms": 13787,
+      "error": null,
+      "created_at": "2026-08-07T12:38:33.828305+00:00",
+      "updated_at": "2026-08-07T12:38:48.551438+00:00"
+    },
+    {
+      "request_id": "020825d3-a199-479b-93fa-202f849ae935",
+      "prompt": "render this sketch based on reference image Transform source sketch into a higher-fidelity render while preserving exact architecture. Do not change geometry, floor count, openings, window/door positions, roof shape, or structural proportions. CONSISTENCY_PACK={\"building_seed\":\"bp3-house-34fdea14\",\"immutable_asset\":true,\"view_id\":\"front\",\"camera_transform\":{\"yaw_deg\":0,\"pitch_deg\":0,\"roll_deg\":0},\"geometry_lock\":{\"keep_massing\":true,\"keep_roofline\":true,\"keep_openings\":true,\"keep_window_grid\":true,\"keep_door_positions\":true,\"keep_floor_heights\":true,\"keep_corner_connectivity\":true,\"allow_only_camera_change\":true},\"corner_links\":[\"front_right=right_front\",\"right_back=back_right\",\"back_left=left_back\",\"left_front=front_left\"],\"instruction\":\"upgrade_quality_not_geometry\"}",
+      "style": "photoreal exterior",
+      "model_profile": "balanced",
+      "status": "completed",
+      "image_url": "https://eccvtkqkllegzbypaemw.supabase.co/storage/v1/object/public/renders/ec470708-d89c-4575-9d94-b57cd681bb8b/020825d3-a199-479b-93fa-202f849ae935.png",
+      "latency_ms": 12305,
+      "error": null,
+      "created_at": "2026-08-07T12:36:34.984058+00:00",
+      "updated_at": "2026-08-07T12:36:47.975216+00:00"
+    },
+    {
+      "request_id": "0dd10cc7-6214-4529-9fce-65aebef7b093",
+      "prompt": "Apply red masonry brick and warm facade materials with high realism and strong color, preserve all geometry.. Edit category: element_texture. Selection mode: manual. Model profile: balanced. Strict consistency: preserve the same building geometry, camera framing, window layout, openings, structure, and all unselected regions",
+      "style": "balanced",
+      "model_profile": "balanced",
+      "status": "completed",
+      "image_url": "https://eccvtkqkllegzbypaemw.supabase.co/storage/v1/object/public/renders/ec470708-d89c-4575-9d94-b57cd681bb8b/0dd10cc7-6214-4529-9fce-65aebef7b093.png",
+      "latency_ms": 15008,
+      "error": null,
+      "created_at": "2026-08-07T11:33:29.046677+00:00",
+      "updated_at": "2026-08-07T11:33:44.788085+00:00"
+    },
+    {
+      "request_id": "00eb5ccb-299b-4868-805d-84ddfe33b172",
+      "prompt": "Render sketch based on reference image. Keep exact geometry, openings, and camera framing. Upgrade to photoreal material richness with strong colors.",
+      "style": "photoreal exterior",
+      "model_profile": "balanced",
+      "status": "completed",
+      "image_url": "https://eccvtkqkllegzbypaemw.supabase.co/storage/v1/object/public/renders/ec470708-d89c-4575-9d94-b57cd681bb8b/00eb5ccb-299b-4868-805d-84ddfe33b172.png",
+      "latency_ms": 9894,
+      "error": null,
+      "created_at": "2026-08-07T11:33:13.149915+00:00",
+      "updated_at": "2026-08-07T11:33:23.675838+00:00"
+    },
+    {
+      "request_id": "8c4b89d9-adeb-4702-a128-e98dfefc3f6e",
+      "prompt": "Apply red masonry brick and warm facade materials with high realism and strong color, preserve all geometry.. Edit category: element_texture. Selection mode: manual. Model profile: balanced. Strict consistency: preserve the same building geometry, camera framing, window layout, openings, structure, and all unselected regions",
+      "style": "balanced",
+      "model_profile": "balanced",
+      "status": "completed",
+      "image_url": "https://eccvtkqkllegzbypaemw.supabase.co/storage/v1/object/public/renders/ec470708-d89c-4575-9d94-b57cd681bb8b/8c4b89d9-adeb-4702-a128-e98dfefc3f6e.png",
+      "latency_ms": 10118,
+      "error": null,
+      "created_at": "2026-08-07T11:32:56.494872+00:00",
+      "updated_at": "2026-08-07T11:33:07.178983+00:00"
+    },
+    {
+      "request_id": "bbf72be8-3b46-47c6-babe-c0ccddd4a2c0",
+      "prompt": "Render sketch based on reference image. Keep exact geometry, openings, and camera framing. Upgrade to photoreal material richness with strong colors.",
+      "style": "photoreal exterior",
+      "model_profile": "balanced",
+      "status": "completed",
+      "image_url": "https://eccvtkqkllegzbypaemw.supabase.co/storage/v1/object/public/renders/ec470708-d89c-4575-9d94-b57cd681bb8b/bbf72be8-3b46-47c6-babe-c0ccddd4a2c0.png",
+      "latency_ms": 9995,
+      "error": null,
+      "created_at": "2026-08-07T11:32:41.158321+00:00",
+      "updated_at": "2026-08-07T11:32:52.068427+00:00"
+    }
+  ],
+  "limit": 50,
+  "offset": 0,
+  "total_estimate": 320
+}
