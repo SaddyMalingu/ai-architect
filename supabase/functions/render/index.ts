@@ -556,6 +556,7 @@ Deno.serve(async (request: Request) => {
 
   const profile = resolveModelProfile(payload);
   const selected = selectRenderModel(profile.model, payload);
+  let effectiveModel = selected.model;
 
   const { data: requestRow, error: insertError } = await supabase
     .from("render_requests")
@@ -584,7 +585,21 @@ Deno.serve(async (request: Request) => {
   const replicateStartMs = Date.now();
 
   try {
-    const prediction = await replicateCreatePrediction(payload, selected.model, profile);
+    // If the request includes a reference image but the selected model does not support
+    // reference conditioning, switch to a fallback model that does support references.
+    // This avoids the model discarding the sketch/structure when a user provided a reference.
+    const modelKey = Object.keys(MODEL_CAPABILITIES).find((k) => effectiveModel.startsWith(k));
+    const capabilities = modelKey ? MODEL_CAPABILITIES[modelKey] : { supportsReference: false };
+    if (payload.reference_image_url && !capabilities.supportsReference) {
+      // choose a known reference-capable model as fallback
+      const fallback = "bytedance/seedream-4.5";
+      effectiveModel = fallback;
+      // update profile to a reasonable default mapping
+      // keep original profile label but override model used
+      log && console && console.log && console.log(`Switching model to reference-capable fallback: ${fallback}`);
+    }
+
+    const prediction = await replicateCreatePrediction(payload, effectiveModel, profile);
     const predictionId = prediction.id as string;
 
     await supabase
